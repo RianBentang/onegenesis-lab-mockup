@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Log Akomodasi &amp; Lingkungan Uji | HOLABSYS</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link href="../assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+          <!-- Pageheader -->
+          <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+            <div>
+              <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="#!">Master Data</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Log Lingkungan Lab</li>
+              </ol>
+              <h1 class="page-title fw-medium fs-18 mb-0">Log Akomodasi &amp; Lingkungan Uji</h1>
+            </div>
+          </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-dashboard-3-line text-primary" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Titik Ruang &amp; Chamber Terpantau</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiTitikRuang">6 Titik</h4>
+                    <span class="text-muted fs-12">IoT Sensor + Manual Log</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-success-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-checkbox-circle-line text-success" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Kondisi Baseline Normal (In-Spec)</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiNormalCount">5 Titik</h4>
+                    <span class="text-muted fs-12">Sesuai Standar Uji ISO 17025</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-danger-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-alert-line text-danger" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Penyimpangan (Out of Spec Alert)</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiAlertCount">1 Titik</h4>
+                    <span class="text-muted fs-12">RH Ruang Timbang Tinggi</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-info-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-dashboard-3-line text-info" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Rata-rata Suhu Lab Sentral</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1">22.4 &deg;C &bull; 58% RH</h4>
+                    <span class="text-muted fs-12">Standar: 20-25&deg;C &bull; &le; 65% RH</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card custom-card">
+          <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <input type="text" id="searchLogInput" class="form-control form-control-sm" placeholder="Cari ruangan / sensor..." style="width: 220px;" />
+              <select id="filterRuangSelect" class="form-select form-select-sm" style="width: 200px;">
+                <option value="">Semua Titik Ruangan</option>
+                <option value="Ruang Instrumen Fisika Kimia">Ruang Instrumen FK</option>
+                <option value="Ruang Timbang Analitik">Ruang Timbang</option>
+                <option value="Ruang Inokulasi Mikrobiologi">Ruang Inokulasi MB</option>
+                <option value="Chamber ASLT (45°C / 75% RH)">Chamber ASLT 45°C</option>
+                <option value="Chamber ASLT (35°C / 70% RH)">Chamber ASLT 35°C</option>
+                <option value="Sensory Testing Booth">Sensory Booth</option>
+              </select>
+              <select id="filterStatusLog" class="form-select form-select-sm" style="width: 160px;">
+                <option value="">Semua Status</option>
+                <option value="In-Spec">In-Spec (Normal)</option>
+                <option value="Out-of-Spec">Out-of-Spec (Alert)</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalAddLog">
+              <i class="ri-add-line"></i> Catat Log Lingkungan Baru
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th>Waktu &amp; Tanggal</th>
+                  <th>Ruangan / Chamber Uji</th>
+                  <th>Suhu Terukur (&deg;C)</th>
+                  <th>Standar Suhu Target</th>
+                  <th>RH Terukur (%)</th>
+                  <th>Standar RH Target</th>
+                  <th>Status Baseline</th>
+                  <th>Metode Input / Sensor</th>
+                  <th>Catatan / PIC</th>
+                </tr>
+              </thead>
+              <tbody id="logTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Modal Input Log Lingkungan -->
+    <div class="modal fade" id="modalAddLog" tabindex="-1" aria-labelledby="modalAddLogLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAddLogLabel">Input Log Suhu &amp; Kelembapan Lingkungan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formAddLog">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Titik Lokasi Ruangan / Chamber <span class="text-danger">*</span></label>
+                  <select class="form-select" id="logRuangan" required>
+                    <option value="Ruang Instrumen Fisika Kimia">Ruang Instrumen Fisika Kimia (20-25°C, <=65% RH)</option>
+                    <option value="Ruang Timbang Analitik">Ruang Timbang Analitik (20-22°C, <=55% RH)</option>
+                    <option value="Ruang Inokulasi Mikrobiologi">Ruang Inokulasi Mikrobiologi (22-25°C, <=60% RH)</option>
+                    <option value="Chamber ASLT (45°C / 75% RH)">Chamber ASLT (Target 45°C &plusmn; 1°C, 75% &plusmn; 3% RH)</option>
+                    <option value="Chamber ASLT (35°C / 70% RH)">Chamber ASLT (Target 35°C &plusmn; 1°C, 70% &plusmn; 3% RH)</option>
+                    <option value="Sensory Testing Booth">Sensory Testing Booth (22-24°C, Ambient RH)</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Tanggal &amp; Waktu Pengamatan <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control font-monospace" id="logWaktu" value="23-09-2026 11:00" required />
+                </div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Suhu Terukur (&deg;C) <span class="text-danger">*</span></label>
+                  <input type="number" step="0.1" class="form-control font-monospace" id="logSuhu" required placeholder="Contoh: 22.5" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Kelembapan Terukur (% RH) <span class="text-danger">*</span></label>
+                  <input type="number" step="0.1" class="form-control font-monospace" id="logRh" required placeholder="Contoh: 58.0" />
+                </div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Metode Pembacaan</label>
+                  <select class="form-select" id="logSensor">
+                    <option value="Sensor IoT Telemetry">Sensor IoT Telemetry (Auto-sync)</option>
+                    <option value="Thermohygrometer Digital (Manual)">Thermohygrometer Digital (Manual)</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Petugas Pencatat (PIC)</label>
+                  <input type="text" class="form-control" id="logPic" value="Budi Santoso (CRL)" />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Catatan Kondisi Khusus / Tindakan Korektif</label>
+                <textarea class="form-control" id="logCatatan" rows="2" placeholder="Tuliskan jika ada AC adjusting atau regenerasi silica gel..."></textarea>
+              </div>
+              <div class="modal-footer px-0 pb-0">
+                <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-primary btn-wave">Simpan Log Lingkungan</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/accommodation-log.js"></script>
+  </body>
+</html>

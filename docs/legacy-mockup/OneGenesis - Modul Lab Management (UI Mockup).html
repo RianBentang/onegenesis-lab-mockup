@@ -1,0 +1,1807 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OneGenesis — Modul Lab Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   OneGenesis — Modul Lab Management / Holabsys (UI Mockup)
+   Sumber: Flow Process & Blue Print New Holabsys.xlsx,
+           Catatan Meeting Lab 27 Agt 2026, OneNote "MoM Lab"
+   Pola UI mengikuti skill onegenesis-mockup-ui (onegenesis-web SCSS)
+   ============================================================ */
+:root{
+  --primary-rgb:92,103,247;
+  --primary:#5C67F7; --secondary:#9E5CF7; --warning:#FFC658; --info:#0EA5E8; --success:#21CE9E; --danger:#FB4242;
+  --pink:#FF5D9F; --orange:#FF8E6F;
+  --primary005:rgba(92,103,247,.05); --primary01:rgba(92,103,247,.1); --primary02:rgba(92,103,247,.2);
+
+  --body-bg:#F9FAFC; --card-border:#ecf3fb; --input-border:#dee7f1;
+  --fg-1:#212b37; --fg-2:#4d5875; --fg-3:#6e829f; --fg-menu:#61748f;
+  --gray-1:#f9fafb; --gray-2:#f2f4f5; --gray-3:#e6eaeb; --gray-4:#dbdfe1; --gray-5:#949eb7;
+
+  --menu-bg:#202947; --menu-fg:#a3aed1; --menu-active:#D4B64D;
+
+  --font-sans:"Poppins",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --fs-base:.8125rem; --fs-xs:.625rem; --fs-sm:.75rem; --fs-md:.875rem; --fs-lg:.95rem;
+  --radius-sm:.25rem; --radius-lg:8px; --radius-pill:50px;
+  --shadow-card:0px 6px 16px 2px rgba(0,0,0,.05);
+  --shadow-md:0 4px 16px rgba(0,0,0,.08);
+
+  --rail-w:80px; --rail-w-open:240px; --top-h:68px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font-sans);font-size:var(--fs-base);line-height:1.5;color:var(--fg-1);background:var(--body-bg);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{margin:0;font-weight:600;line-height:1.2}
+p{margin:0 0 .75rem}
+a{color:var(--primary);text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,select,textarea{font:inherit}
+table{border-collapse:collapse;width:100%}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+[hidden]{display:none!important}
+.ico{width:18px;height:18px;flex:none;stroke-width:1.9}
+.ico-sm{width:14px;height:14px;flex:none;stroke-width:2}
+.ico-xs{width:12px;height:12px;flex:none;stroke-width:2.2}
+.muted{color:var(--fg-3)} .strong{font-weight:600} .nowrap{white-space:nowrap} .mono{font-variant-numeric:tabular-nums}
+.small{font-size:var(--fs-sm)} .xs{font-size:11px}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sp{flex:1}
+.mt0{margin-top:0}.mb0{margin-bottom:0}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}
+
+/* ---------- SIDEBAR (.rail) — dark menu, fixed, overlay ---------- */
+.rail{position:fixed;left:0;top:0;bottom:0;width:var(--rail-w);background:var(--menu-bg);color:var(--menu-fg);
+  z-index:60;display:flex;flex-direction:column;transition:width .2s ease;overflow:hidden}
+.rail.expanded{width:var(--rail-w-open);box-shadow:4px 0 18px rgba(0,0,0,.18)}
+.rail-brand{height:3.85rem;flex:none;display:flex;align-items:center;justify-content:center;padding:0 .5rem;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.08)}
+.rail-brand .logo{width:34px;height:34px;display:grid;place-items:center;flex:none}
+.rail-brand .logo img{width:100%;height:100%;object-fit:contain;filter:brightness(0) invert(1)}
+.rail.expanded .rail-brand{justify-content:flex-start;padding:0 1.25rem}
+.rail-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 12px 30px;scrollbar-width:none}
+.rail-nav::-webkit-scrollbar{display:none}
+.rail-cat{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#6b77a0;padding:14px 12px 6px;white-space:nowrap;
+  height:0;padding-top:0;padding-bottom:0;overflow:hidden;opacity:0}
+.rail.expanded .rail-cat{height:auto;padding:14px 12px 6px;opacity:1}
+.rail-sec{margin-bottom:2px}
+.rail-head{width:100%;display:flex;align-items:center;justify-content:center;gap:0;padding:11px 0;border-radius:6px;
+  color:var(--menu-fg);background:transparent!important;white-space:nowrap;transition:color .15s}
+.rail.expanded .rail-head{justify-content:flex-start;gap:12px;padding:11px 12px}
+.rail-head .lbl,.rail-head .chev{width:0;opacity:0;overflow:hidden;transition:opacity .15s}
+.rail.expanded .rail-head .lbl{width:auto;opacity:1;flex:1;text-align:left;font-size:var(--fs-base)}
+.rail.expanded .rail-head .chev{width:14px;opacity:1}
+.rail-head .chev{transition:transform .18s,opacity .15s}
+.rail-sec.open .rail-head .chev{transform:rotate(90deg)}
+.rail-head:hover,.rail-sec.act>.rail-head{color:var(--menu-active)}
+.rail-sub{display:none;list-style:none;margin:0;padding:2px 0 8px 42px}
+.rail.expanded .rail-sec.open .rail-sub{display:block}
+.rail-sub button{display:block;width:100%;text-align:left;padding:7px 8px;font-size:var(--fs-base);color:var(--menu-fg);
+  white-space:nowrap;position:relative;background:transparent!important}
+.rail-sub button::before{content:"–";position:absolute;left:-14px;top:50%;transform:translateY(-50%);
+  font-size:.85rem;color:rgba(255,255,255,.35);transition:color .2s}
+.rail-sub button:hover::before,.rail-sub button.on::before{color:var(--menu-active)}
+.rail-sub button:hover,.rail-sub button.on{color:var(--menu-active)}
+.rail-sub button.on::before{background:currentColor;opacity:1}
+
+/* ---------- MAIN / TOPBAR ---------- */
+.main{margin-left:var(--rail-w);min-height:100vh;display:flex;flex-direction:column;transition:margin-left .2s}
+body.nav-open .main{margin-left:var(--rail-w-open)}
+.topbar{height:var(--top-h);position:sticky;top:0;z-index:40;background:#fff;box-shadow:0 0 16px 0 rgba(0,0,0,.05);
+  display:flex;align-items:center;gap:12px;padding:0 22px}
+.hamb{width:38px;height:38px;display:grid;place-items:center;border-radius:var(--radius-lg);color:var(--fg-menu)}
+.hamb:hover{background:var(--gray-2)}
+.top-mod{font-size:var(--fs-md);font-weight:600;color:var(--fg-1)}
+.top-mod small{display:block;font-size:11px;font-weight:400;color:var(--fg-3)}
+.role-switch{display:flex;align-items:center;gap:8px;background:var(--gray-1);border:1px solid var(--card-border);border-radius:var(--radius-lg);padding:4px 6px 4px 12px}
+.role-switch label{font-size:11px;color:var(--fg-3);white-space:nowrap}
+.role-switch select{border:0;background:#fff;border-radius:6px;padding:6px 26px 6px 10px;font-size:var(--fs-sm);font-weight:600;color:var(--primary);
+  appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235C67F7' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 7px center;background-size:13px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.iconbtn{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;color:var(--fg-menu);position:relative}
+.iconbtn:hover{background:var(--gray-2)}
+.iconbtn .cnt{position:absolute;top:4px;right:3px;min-width:16px;height:16px;padding:0 4px;border-radius:8px;background:var(--danger);
+  color:#fff;font-size:9px;font-weight:600;display:grid;place-items:center}
+.who{display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;font-weight:600;font-size:12px;flex:none}
+.who .nm{font-size:var(--fs-base);font-weight:600;line-height:1.2}
+.who .rl{font-size:11px;color:var(--fg-3)}
+.scroll{flex:1;padding:22px 24px 44px;min-width:0}
+
+/* ---------- PAGE HEAD ---------- */
+.crumb{display:flex;align-items:center;gap:7px;font-size:var(--fs-sm);color:var(--fg-3);margin-bottom:4px;flex-wrap:wrap}
+.crumb a{color:var(--primary);font-weight:500;cursor:pointer}
+.crumb b{color:var(--fg-1);font-weight:500}
+.pagehead{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.pagehead h1{font-size:1.2rem;font-weight:600}
+.pagehead .sub{font-size:var(--fs-sm);color:var(--fg-3);margin-top:4px}
+.pagehead .acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* ---------- BUTTONS ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:.3rem .75rem;border-radius:.25rem;
+  font-size:.85rem;font-weight:500;line-height:1.2;border:1px solid transparent;white-space:nowrap;transition:background .15s,color .15s,border-color .15s;min-height:32px}
+.btn-sm{padding:.2rem .7rem;font-size:.8rem;line-height:1.2;min-height:27px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{background:#4f5ae6}
+.btn-success{background:var(--success);color:#fff;border-color:var(--success)}
+.btn-success:hover{background:#1cb98d}
+.btn-warning{background:var(--warning);color:#fff;border-color:var(--warning)}
+.btn-warning:hover{background:#f2b845}
+.btn-danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+.btn-danger:hover{background:#ea3535}
+.btn-info{background:var(--info);color:#fff;border-color:var(--info)}
+.btn-info:hover{background:#0b93cf}
+.btn-secondary{background:var(--secondary);color:#fff;border-color:var(--secondary)}
+.btn-secondary:hover{background:#8f4cea}
+.btn-light{background:#F9F9FA;color:var(--fg-1);border-color:#F9F9FA}
+.btn-light:hover{background:#F2F2F3;border-color:#F2F2F3}
+.btn-outline{background:transparent;color:var(--primary);border-color:var(--primary)}
+.btn-outline:hover{background:var(--primary);color:#fff}
+.btn-outline-danger{background:transparent;color:var(--danger);border-color:var(--danger)}
+.btn-outline-danger:hover{background:var(--danger);color:#fff}
+.btn-outline-success{background:transparent;color:#0E8A66;border-color:var(--success)}
+.btn-outline-success:hover{background:var(--success);color:#fff}
+.btn-ghost{background:var(--primary01);color:var(--primary)}
+.btn-ghost:hover{background:var(--primary);color:#fff}
+
+/* ---------- BADGES ---------- */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:var(--radius-pill);white-space:nowrap;line-height:1.35}
+.badge svg{width:11px;height:11px;stroke-width:2.4;flex:none}
+.b-success{background:rgba(33,206,158,.15);color:#0E8A66}
+.b-warning{background:rgba(255,198,88,.22);color:#9a7200}
+.b-danger{background:rgba(251,66,66,.12);color:#D93030}
+.b-primary{background:rgba(92,103,247,.12);color:var(--primary)}
+.b-info{background:rgba(14,165,232,.13);color:#0B85BC}
+.b-secondary{background:rgba(158,92,247,.13);color:#7A3FC4}
+.b-orange{background:rgba(255,142,111,.2);color:#C4552F}
+.b-pink{background:rgba(255,93,159,.14);color:#D23A7B}
+.b-muted{background:var(--gray-2);color:var(--fg-2)}
+.b-solid-danger{background:var(--danger);color:#fff}
+.dotchip{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-sm);font-weight:500;padding:4px 12px;border-radius:var(--radius-pill);white-space:nowrap}
+.dotchip i{width:7px;height:7px;border-radius:50%;flex:none;background:currentColor}
+.rchip{display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:.03em;
+  padding:2px 7px;border-radius:4px;color:#fff;min-width:38px}
+.r-BSU{background:#21a366}.r-MGU{background:#F59E0B}.r-HOL{background:#e3c300;color:#3d3500}.r-HOR{background:#E0762F}
+.r-FRA{background:#0EA5E8}.r-ADM{background:#3cc9d8}.r-CRL{background:#7B3FB5}.r-TCM{background:#E040C8}
+.r-Analis{background:#5C67F7}.r-Panelis{background:#949eb7}.r-SYS{background:#4d5875}
+
+/* ---------- CARD (no border, floating shadow) ---------- */
+.card{background:#fff;border:0;border-radius:8px;box-shadow:var(--shadow-card);margin-bottom:1rem;min-width:0}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:1rem 1rem .5rem 1rem;border-bottom:0}
+.card-head.div{border-bottom:1px solid var(--card-border);padding-bottom:.75rem}
+.card-title{font-size:.95rem;font-weight:500;display:flex;align-items:center;gap:8px}
+.card-title.sm{font-size:.8125rem;font-weight:500}
+.card-sub{font-size:11px;color:var(--fg-3);font-weight:400;margin-top:2px}
+.card-body{padding:1rem}
+.card-body.flush{padding:0}
+.card-body.pt0{padding-top:.25rem}
+.card-foot{padding:.75rem 1rem;border-top:1px solid var(--card-border);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;align-items:center}
+
+/* ---------- GRIDS ---------- */
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:start}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;align-items:start}
+.g-aside{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:1rem;align-items:start}
+.g-aside>aside{position:sticky;top:calc(var(--top-h) + 16px)}
+.g-60{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:1rem;align-items:start}
+
+/* ---------- FORM ---------- */
+.form-grid{display:grid;gap:14px 16px}
+.form-grid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.form-grid.c3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.form-grid.c4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.field{min-width:0}
+.field.span2{grid-column:span 2}
+.field.span3{grid-column:span 3}
+.field.full{grid-column:1/-1}
+.label{display:flex;align-items:center;gap:6px;font-size:var(--fs-base);font-weight:500;margin-bottom:6px;flex-wrap:wrap}
+.label .req{color:var(--danger)}
+.input,.select,.textarea{width:100%;background:#fff;border:1px solid var(--input-border);border-radius:.35rem;padding:.45rem .75rem;
+  font-size:var(--fs-base);color:var(--fg-1);outline:none;line-height:1.5;min-height:34px}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary01)}
+.input::placeholder,.textarea::placeholder{color:var(--gray-5)}
+.input[readonly],.input:disabled,.select:disabled{background:var(--gray-2);color:var(--fg-2)}
+.textarea{min-height:76px;resize:vertical}
+.select{appearance:none;background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236e829f' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;background-size:14px;padding-right:30px}
+.input-sm{min-height:28px;padding:.25rem .55rem;font-size:var(--fs-sm)}
+.hint{font-size:11px;color:var(--fg-3);margin-top:5px}
+.unit{display:flex}
+.unit .input{border-top-right-radius:0;border-bottom-right-radius:0;min-width:0}
+.unit span{display:grid;place-items:center;padding:0 10px;font-size:11px;color:var(--fg-2);background:var(--gray-2);border:1px solid var(--input-border);
+  border-left:0;border-radius:0 .35rem .35rem 0;white-space:nowrap}
+.seg-toggle{display:inline-flex;background:var(--gray-2);border-radius:.35rem;padding:3px;gap:2px}
+.seg-toggle button{padding:.3rem .8rem;border-radius:.25rem;font-size:var(--fs-sm);font-weight:500;color:var(--fg-2)}
+.seg-toggle button.on{background:#fff;color:var(--primary);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.chk{display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-size:var(--fs-base)}
+.chk input{width:15px;height:15px;accent-color:var(--primary);margin:0}
+.sec-h{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-3);margin:4px 0 12px;display:flex;align-items:center;gap:8px}
+.sec-h::after{content:"";flex:1;height:1px;background:var(--card-border)}
+
+/* multi-select (searchable) */
+.ms{position:relative}
+.ms-box{display:flex;flex-wrap:wrap;gap:6px;align-items:center;min-height:36px;padding:4px 8px;border:1px solid var(--input-border);border-radius:.35rem;background:#fff;cursor:text}
+.ms-box:focus-within{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary01)}
+.ms-box input{border:0;outline:none;flex:1;min-width:140px;font-size:var(--fs-base);padding:3px}
+.ms-chip{display:inline-flex;align-items:center;gap:5px;background:var(--primary01);color:var(--primary);font-size:11px;font-weight:500;padding:2px 4px 2px 9px;border-radius:4px}
+.ms-chip button{width:16px;height:16px;display:grid;place-items:center;border-radius:3px;color:var(--primary)}
+.ms-chip button:hover{background:var(--primary);color:#fff}
+.ms-list{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border-radius:8px;box-shadow:var(--shadow-md);max-height:280px;overflow:auto;z-index:30;padding:6px;display:none}
+.ms.open .ms-list{display:block}
+.ms-opt{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:5px;cursor:pointer;font-size:var(--fs-base)}
+.ms-opt:hover{background:var(--gray-1)}
+.ms-opt .mt{margin-left:auto;font-size:10px;color:var(--fg-3)}
+.ms-grp{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-3);padding:8px 10px 4px}
+
+/* ---------- ATTACHMENT BLOCK (dz) ---------- */
+.attach{margin-bottom:6px}
+.attach-sub-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 0 .6rem;border-bottom:1px solid var(--card-border);margin-bottom:.75rem}
+.attach-sub-title{display:flex;align-items:center;gap:7px;font-weight:600;font-size:var(--fs-base)}
+.attach-sub-title svg{width:14px;height:14px;color:var(--fg-3)}
+.attach-row{display:flex;align-items:center;gap:12px;margin-bottom:.75rem}
+.attach-ico{width:38px;height:38px;border-radius:8px;background:var(--primary01);color:var(--primary);display:grid;place-items:center;flex:none}
+.attach-meta{flex:1;min-width:0}
+.attach-name{font-weight:500;font-size:var(--fs-base)}
+.attach-sub{font-size:11px;color:var(--fg-3)}
+.attach-side{display:flex;align-items:center;gap:10px;flex:none}
+.attach-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px}
+.attach-badge.req{background:rgba(255,198,88,.22);color:#9a7200}
+.attach-badge.opt{background:var(--gray-2);color:var(--fg-2)}
+.attach-upload{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--primary);font-weight:500;cursor:pointer}
+.attach-upload svg{width:13px;height:13px}
+.dropzone{border:1.5px dashed #CBD5E5;border-radius:8px;background:#FCFDFF;padding:20px 16px;text-align:center;color:var(--fg-3);cursor:pointer;transition:border-color .15s,background .15s}
+.dropzone:hover{border-color:var(--primary);background:var(--primary005)}
+.dropzone svg{width:28px;height:28px;color:var(--gray-5);stroke-width:1.6}
+.dropzone .dz-t{font-size:var(--fs-base);color:var(--fg-2);margin:6px 0 3px}
+.dropzone .dz-browse{color:var(--primary);font-weight:600}
+.dropzone .hint{margin-top:2px}
+.doc-list{margin-top:10px}
+.doc-row{display:flex;align-items:center;gap:11px;padding:9px 0}
+.doc-row+.doc-row{border-top:1px solid var(--card-border)}
+.doc-ico{width:30px;height:30px;border-radius:5px;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;flex:none}
+.doc-meta{flex:1;min-width:0}
+.doc-meta .dn{font-size:var(--fs-base);font-weight:500;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-meta .du{font-size:10px;color:var(--fg-3);display:block}
+.doc-rm{width:26px;height:26px;border-radius:4px;display:grid;place-items:center;background:rgba(251,66,66,.1);color:var(--danger)}
+.doc-dl{width:26px;height:26px;border-radius:4px;display:grid;place-items:center;background:rgba(33,206,158,.12);color:#0E8A66}
+
+/* ---------- TABLE ---------- */
+.tbl-wrap{overflow-x:auto}
+.tbl{font-size:var(--fs-base)}
+.tbl th{background:var(--gray-1);padding:.6rem .85rem;text-align:left;font-weight:600;font-size:.75rem;color:var(--fg-1);border-bottom:1px solid var(--card-border);white-space:nowrap}
+.tbl td{padding:.65rem .85rem;border-bottom:1px solid var(--card-border);vertical-align:middle}
+.tbl tbody tr:hover{background:var(--gray-1)}
+.tbl tbody tr:last-child td{border-bottom:0}
+.tbl .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tbl .ctr{text-align:center}
+.tbl .w1{width:1%;white-space:nowrap}
+.tbl tr.dim td{opacity:.55}
+.tbl tr.sel{background:var(--primary005)}
+.tbl-sm td{padding:.45rem .7rem}
+.th-sort-ic{width:11px;height:11px;margin-left:4px;vertical-align:-1px;color:var(--gray-5);stroke-width:2.2}
+.tbl-link{color:var(--primary);font-weight:600;text-decoration:underline;text-underline-offset:2px;cursor:pointer;white-space:nowrap}
+.tbl-link:hover{color:#4049d8}
+.act-ico{width:28px;height:28px;border-radius:5px;display:inline-grid;place-items:center;color:#fff;vertical-align:middle}
+.act-ico svg{width:14px;height:14px;stroke-width:2.1}
+.act-ico+.act-ico{margin-left:4px}
+.act-ico.edit{background:var(--primary)} .act-ico.view{background:var(--info)} .act-ico.ok{background:var(--success)}
+.act-ico.del{background:var(--danger)} .act-ico.warn{background:var(--warning)} .act-ico.print{background:var(--secondary)}
+.act-ico.lock{background:var(--gray-3);color:var(--fg-3);cursor:not-allowed}
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:0 1rem 1rem}
+.filterbar .input,.filterbar .select{width:auto;min-width:150px}
+.search{position:relative}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--gray-5)}
+.search .input{padding-left:32px;min-width:240px}
+.pager{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:.75rem 1rem;border-top:1px solid var(--card-border);font-size:var(--fs-sm);color:var(--fg-3)}
+.pager .pg{display:flex;gap:4px}
+.pager .pg button{min-width:28px;height:28px;border-radius:4px;color:var(--fg-2);font-size:var(--fs-sm)}
+.pager .pg button.on{background:var(--primary);color:#fff}
+.pills{display:flex;gap:6px;flex-wrap:wrap;padding:0 1rem .9rem}
+.pill{padding:.3rem .8rem;border-radius:var(--radius-pill);font-size:var(--fs-sm);font-weight:500;color:var(--fg-2);background:var(--gray-1);border:1px solid var(--card-border)}
+.pill .n{margin-left:5px;font-size:10px;background:#fff;border-radius:8px;padding:0 6px;color:var(--fg-3)}
+.pill.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pill.on .n{background:rgba(255,255,255,.25);color:#fff}
+
+/* ---------- DOC INFOBAR ---------- */
+.doc-infobar{background:#fff;border-radius:8px;box-shadow:var(--shadow-card);padding:.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.doc-infobar-l{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.doc-infobar-item{display:flex;flex-direction:column;line-height:1.3}
+.doc-infobar-item .lbl{font-size:.625rem;text-transform:uppercase;letter-spacing:.05em;font-weight:500;color:var(--fg-3)}
+.doc-infobar-item .val{font-size:.8125rem;font-weight:500;color:var(--fg-1);white-space:nowrap}
+.doc-infobar-sep{color:var(--gray-4)}
+
+/* ---------- TABS (merged tab + content card) ---------- */
+.pd-tabcard{background:#fff;border-radius:8px;box-shadow:var(--shadow-card);margin-bottom:1rem}
+.tabs-seg{display:flex;gap:4px;border-bottom:1px solid var(--card-border);padding:0 1rem;overflow-x:auto;background:transparent}
+.tabs-seg .tab{display:flex;align-items:center;gap:8px;padding:.85rem .75rem;font-size:var(--fs-base);font-weight:500;color:var(--fg-2);white-space:nowrap;position:relative}
+.tabs-seg .tab .tc{width:26px;height:26px;border-radius:50%;border:1px solid var(--gray-4);display:grid;place-items:center;color:var(--fg-3);flex:none}
+.tabs-seg .tab .tc svg{width:13px;height:13px}
+.tabs-seg .tab .n{font-size:10px;background:var(--gray-2);border-radius:8px;padding:0 6px;color:var(--fg-3)}
+.tabs-seg .tab:hover{color:var(--primary)}
+.tabs-seg .tab.on{color:var(--primary);font-weight:600}
+.tabs-seg .tab.on .tc{background:var(--primary);border-color:var(--primary);color:#fff}
+.tabs-seg .tab.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--primary)}
+.tabpane{display:none;padding:1rem}
+.tabpane.on{display:block}
+.tabpane .card{box-shadow:none;border:1px solid var(--card-border)}
+
+/* ---------- STEPPER (route / pipeline) ---------- */
+.pipe{display:flex;align-items:flex-start;overflow-x:auto;padding:6px 2px 4px}
+.pstep{flex:1 0 96px;display:flex;flex-direction:column;align-items:center;gap:7px;position:relative;min-width:96px}
+.pstep .bub{width:34px;height:34px;border-radius:50%;border:2px solid var(--gray-3);background:#fff;color:var(--gray-5);display:grid;place-items:center;
+  font-weight:600;font-size:12px;position:relative;z-index:2}
+.pstep .bub svg{width:15px;height:15px;stroke-width:2.4}
+.pstep .cap{font-size:11px;font-weight:500;color:var(--gray-5);text-align:center;line-height:1.3;padding:0 4px}
+.pstep .rl{margin-top:-2px}
+.pstep::before{content:"";position:absolute;top:17px;left:-50%;width:100%;height:2px;background:var(--gray-3);z-index:1}
+.pstep:first-child::before{display:none}
+.pstep.done .bub{border-color:var(--success);color:var(--success)}
+.pstep.done::before,.pstep.now::before{background:var(--success)}
+.pstep.done .cap{color:var(--fg-2)}
+.pstep.now .bub{border-color:var(--primary);background:var(--primary);color:#fff;box-shadow:0 0 0 5px var(--primary01)}
+.pstep.now .cap{color:var(--primary);font-weight:600}
+.pstep.ret .bub{border-color:var(--danger);background:var(--danger);color:#fff;box-shadow:0 0 0 5px rgba(251,66,66,.12)}
+.pstep.ret .cap{color:var(--danger);font-weight:600}
+.pstep.appr .bub{border-style:dashed}
+.pstep.done.appr .bub,.pstep.now.appr .bub{border-style:solid}
+.pipe-foot{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--card-border);font-size:var(--fs-base);color:var(--fg-2)}
+
+/* vertical route (form preview) */
+.vroute{list-style:none;margin:0;padding:0}
+.vroute li{display:flex;gap:10px;padding:0 0 14px;position:relative}
+.vroute li::before{content:"";position:absolute;left:10px;top:22px;bottom:0;width:2px;background:var(--gray-3)}
+.vroute li:last-child::before{display:none}
+.vroute .vd{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;color:#fff;flex:none;background:var(--gray-4)}
+.vroute li.ap .vd{background:var(--primary)}
+.vroute li.pr .vd{background:#fff;border:2px solid var(--gray-4);color:var(--fg-3)}
+.vroute .vt{font-size:var(--fs-base);font-weight:500;line-height:1.3}
+.vroute .vs{font-size:11px;color:var(--fg-3)}
+.vroute li.new{animation:flash 1s ease}
+@keyframes flash{0%{background:rgba(255,198,88,.35)}100%{background:transparent}}
+
+/* ---------- KPI / BAR ---------- */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1rem;margin-bottom:1rem}
+.kpi{background:#fff;border-radius:8px;box-shadow:var(--shadow-card);padding:1rem;display:flex;gap:12px;align-items:flex-start;cursor:pointer}
+.kpi:hover{box-shadow:var(--shadow-md)}
+.kpi .k-ico{width:42px;height:42px;border-radius:8px;display:grid;place-items:center;flex:none}
+.kpi .k-lab{font-size:11px;color:var(--fg-3);font-weight:500}
+.kpi .k-val{font-size:1.45rem;font-weight:600;line-height:1.2;margin-top:2px}
+.kpi .k-sub{font-size:11px;color:var(--fg-3)}
+.t-primary{background:rgba(92,103,247,.12);color:var(--primary)} .t-success{background:rgba(33,206,158,.14);color:#0E8A66}
+.t-warning{background:rgba(255,198,88,.22);color:#9a7200} .t-danger{background:rgba(251,66,66,.12);color:var(--danger)}
+.t-info{background:rgba(14,165,232,.13);color:#0B85BC} .t-secondary{background:rgba(158,92,247,.13);color:#7A3FC4}
+.hbar{display:flex;flex-direction:column;gap:12px}
+.hbar-row{display:grid;grid-template-columns:120px minmax(0,1fr) 40px;gap:10px;align-items:center}
+.hbar-lab{font-size:var(--fs-base);color:var(--fg-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hbar-track{display:flex;height:10px;border-radius:6px;background:var(--gray-2);overflow:hidden}
+.hbar-track i{display:block;height:100%}
+.hbar-val{text-align:right;font-weight:600}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:var(--fg-3);margin-top:12px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+/* ---------- LANE / TIMELINE / KV ---------- */
+.lane{list-style:none;margin:0;padding:0}
+.lane li{display:flex;gap:12px;padding:11px 0;align-items:flex-start}
+.lane li+li{border-top:1px solid var(--card-border)}
+.lane .dot{width:10px;height:10px;border-radius:50%;flex:none;margin-top:5px;background:var(--gray-4)}
+.lane li.ok .dot{background:var(--success)} .lane li.wait .dot{background:var(--warning);box-shadow:0 0 0 4px rgba(255,198,88,.2)}
+.lane li.no .dot{background:var(--danger)}
+.lane .lw{flex:1;min-width:0}
+.lane .lw .nm{display:block;font-weight:600;font-size:var(--fs-base)}
+.lane .lw .ds{display:block;font-size:11px;color:var(--fg-3);margin-top:1px}
+.lane .lw .rs{display:block;font-size:11px;margin-top:4px;background:rgba(251,66,66,.07);border-left:2px solid var(--danger);padding:5px 8px;color:#9E2626;border-radius:0 4px 4px 0}
+.tl{list-style:none;margin:0;padding:0 0 0 18px;border-left:2px solid var(--card-border)}
+.tl li{position:relative;padding:0 0 16px 14px}
+.tl li::before{content:"";position:absolute;left:-25px;top:3px;width:10px;height:10px;border-radius:50%;background:#fff;border:2px solid var(--primary)}
+.tl li.ok::before{border-color:var(--success)} .tl li.no::before{border-color:var(--danger)}
+.tl li:last-child{padding-bottom:0}
+.tl .tt{font-size:var(--fs-base);font-weight:600}
+.tl .td{font-size:11px;color:var(--fg-3);margin-top:1px}
+.tl .tr{font-size:11px;margin-top:4px;color:#9E2626}
+.kv{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 18px}
+.kv.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.kv .k{font-size:11px;color:var(--fg-3);margin-bottom:2px}
+.kv .v{font-weight:500;word-break:break-word}
+.kv .full{grid-column:1/-1}
+
+/* ---------- NOTE ---------- */
+.note{background:var(--primary005);border:1px solid var(--primary02);border-radius:8px;padding:.7rem .9rem;font-size:var(--fs-base);color:var(--fg-2);
+  display:flex;gap:10px;margin-bottom:1rem;align-items:flex-start}
+.note svg{color:var(--primary);flex:none;margin-top:1px}
+.note b{color:var(--fg-1)}
+.note.warn{background:rgba(255,198,88,.1);border-color:rgba(255,198,88,.45)} .note.warn svg{color:#9a7200}
+.note.danger{background:rgba(251,66,66,.06);border-color:rgba(251,66,66,.3)} .note.danger svg{color:var(--danger)}
+.note.ok{background:rgba(33,206,158,.07);border-color:rgba(33,206,158,.35)} .note.ok svg{color:#0E8A66}
+.src-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:500;color:var(--fg-3);background:var(--gray-2);padding:1px 7px;border-radius:4px}
+.empty{padding:34px 16px;text-align:center;color:var(--fg-3)}
+.empty svg{width:34px;height:34px;color:var(--gray-4);margin-bottom:6px}
+
+/* ---------- ACTION BAR ---------- */
+.actionbar{position:sticky;bottom:0;z-index:20;background:#fff;border-radius:8px;box-shadow:0 -4px 16px rgba(0,0,0,.06);padding:10px 14px;
+  display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;align-items:center;margin-top:4px}
+
+/* ---------- JENIS PICKER ---------- */
+.jenis-pick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1rem;margin-bottom:1rem}
+.jp{background:#fff;border-radius:8px;box-shadow:var(--shadow-card);padding:.9rem 1rem;display:flex;gap:12px;align-items:center;text-align:left;border:2px solid transparent}
+.jp:hover{border-color:var(--primary02)}
+.jp.on{border-color:var(--primary);background:var(--primary005)}
+.jp .ji{width:40px;height:40px;border-radius:8px;display:grid;place-items:center;flex:none}
+.jp b{display:block;font-size:var(--fs-md);font-weight:600}
+.jp small{display:block;font-size:11px;color:var(--fg-3);line-height:1.35}
+
+/* ---------- ANALISA GRID (Excel-like) ---------- */
+.xgrid{font-size:12px;min-width:1250px}
+.xgrid th{background:#f3f5fa;font-size:11px;font-weight:600;text-align:center;padding:.5rem .4rem;border:1px solid var(--card-border);white-space:normal;line-height:1.25;color:var(--fg-2)}
+.xgrid td{border:1px solid var(--card-border);padding:0;text-align:right;font-variant-numeric:tabular-nums;height:32px}
+.xgrid td .cell{display:block;width:100%;height:100%;padding:6px 7px;outline:none;min-width:58px}
+.xgrid td.ed{background:#fff}
+.xgrid td.ed .cell:focus{background:var(--primary005);box-shadow:inset 0 0 0 2px var(--primary)}
+.xgrid td.calc{background:#fafbfd;color:var(--fg-2)}
+.xgrid td.calc.fin{color:var(--danger);font-weight:600}
+.xgrid td.avg{color:#7030a0;font-weight:700;text-align:center;vertical-align:middle}
+.xgrid td.txt{text-align:center;padding:0 6px}
+.xgrid td.code{text-align:center;font-weight:600}
+.xgrid tr.pair td{border-top:2px solid #dfe5ef}
+.ok-t{color:#0E8A66;font-weight:600} .bad-t{color:var(--danger);font-weight:600}
+.pchip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;padding:3px 9px;border-radius:5px;background:var(--gray-2);color:var(--fg-2)}
+.pchip.done{background:rgba(33,206,158,.16);color:#0E8A66}
+
+/* ---------- LABEL ---------- */
+.label-sheet{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.lbl-card{border:1px dashed #b9c3d6;border-radius:6px;padding:10px 12px;background:#fff;display:grid;grid-template-columns:78px minmax(0,1fr);gap:10px;font-size:11px}
+.lbl-card .qr{width:78px;height:78px}
+.lbl-card .lh{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px}
+.lbl-card .lid{font-size:13px;font-weight:700;letter-spacing:.02em}
+.lbl-card .ln{font-weight:600;font-size:12px;line-height:1.25;margin-bottom:3px}
+.lbl-card .lm{color:var(--fg-2);line-height:1.45}
+.lbl-card .lp{margin-top:4px;display:flex;flex-wrap:wrap;gap:3px}
+.lbl-card .lp span{background:var(--gray-2);border-radius:3px;padding:0 5px;font-size:10px}
+
+/* ---------- SENSORY PANEL ---------- */
+.panel-sheet{background:#fff;border-radius:8px;box-shadow:var(--shadow-card);overflow:hidden;margin-bottom:1rem}
+.ps-head{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--card-border);background:linear-gradient(90deg,rgba(92,103,247,.05),transparent)}
+.ps-head .brand{display:flex;align-items:center;gap:10px}
+.ps-head .brand .lg{width:38px;height:38px;border-radius:8px;background:#1f2a6b;color:#D4B64D;display:grid;place-items:center;font-weight:800;font-size:12px}
+.ps-head .fr{text-align:right;font-size:11px;color:var(--fg-3);line-height:1.4}
+.ps-head .fr b{display:block;color:var(--fg-1);font-size:var(--fs-md)}
+.ps-body{display:grid;grid-template-columns:220px minmax(0,1fr)}
+.ps-code{padding:18px;text-align:center;border-right:1px solid var(--card-border)}
+.ps-code .cd{font-size:3.2rem;font-weight:700;line-height:1;letter-spacing:.04em;color:var(--fg-1)}
+.ps-code .sn{font-size:var(--fs-base);font-weight:500;color:var(--fg-2);margin-top:6px}
+.ps-code .pg{font-size:11px;color:var(--fg-3);margin-top:14px}
+.hed{width:100%}
+.hed th{font-size:11px;font-weight:600;color:var(--fg-2);text-align:center;padding:10px 4px;line-height:1.25;border-bottom:1px solid var(--card-border)}
+.hed th:first-child{text-align:left;padding-left:18px;width:30%}
+.hed td{text-align:center;padding:9px 4px;border-bottom:1px solid var(--card-border)}
+.hed td:first-child{text-align:left;padding-left:18px;font-weight:600;font-size:var(--fs-md)}
+.hed tr.sep td{background:var(--gray-1);font-size:11px;font-weight:600;color:var(--fg-3);padding:6px 18px}
+.rad{width:26px;height:26px;border-radius:50%;border:2px solid var(--gray-4);display:inline-grid;place-items:center;cursor:pointer;transition:all .12s;background:#fff}
+.rad:hover{border-color:var(--primary)}
+.rad.on{border-color:var(--primary);background:var(--primary);box-shadow:inset 0 0 0 4px #fff}
+.rank-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;padding:18px}
+.rank-card{border:1px solid var(--card-border);border-radius:8px;padding:14px;text-align:center}
+.rank-card .cd{font-size:2rem;font-weight:700}
+.rank-card.pick{border-color:var(--primary);background:var(--primary005)}
+.code3{display:inline-block;font-weight:700;font-size:11px;background:#fff4e5;color:#b45309;border:1px solid #fcd9a8;border-radius:4px;padding:0 6px;margin:1px 2px 1px 0;font-variant-numeric:tabular-nums}
+
+/* ---------- COA PREVIEW ---------- */
+.coa{background:#fff;border:1px solid var(--card-border);border-radius:6px;padding:26px 28px;position:relative;overflow:hidden;font-size:12px}
+.coa .ch{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1f2a6b;padding-bottom:10px;margin-bottom:12px}
+.coa .ch .lg{display:flex;align-items:center;gap:10px}
+.coa .ch .lg .mk{width:44px;height:44px;border-radius:8px;background:#1f2a6b;color:#D4B64D;display:grid;place-items:center;font-weight:800}
+.coa .ch .lg b{display:block;font-size:14px;color:#1f2a6b}
+.coa .ch .lg small{color:var(--fg-3);font-size:10px;letter-spacing:.06em}
+.coa h3{text-align:center;font-size:14px;letter-spacing:.04em;margin:6px 0 2px}
+.coa .cno{text-align:center;color:var(--fg-3);font-size:11px;margin-bottom:12px}
+.coa table.ci td{padding:3px 6px;font-size:11.5px;vertical-align:top}
+.coa table.ci td:first-child{width:130px;color:var(--fg-3)}
+.coa table.cr{margin-top:12px}
+.coa table.cr th{background:#1f2a6b;color:#fff;font-weight:500;font-size:11px;padding:6px 8px;text-align:left}
+.coa table.cr td{border-bottom:1px solid var(--card-border);padding:6px 8px;font-size:11.5px}
+.coa .sig{display:flex;justify-content:space-between;margin-top:22px;gap:14px}
+.coa .sig>div{flex:1;text-align:center;font-size:11px}
+.coa .sig .box{height:66px;display:grid;place-items:center}
+.coa .wm{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;font-size:4.2rem;font-weight:800;color:rgba(251,66,66,.13);transform:rotate(-24deg);letter-spacing:.08em}
+.coa .wm.draft{color:rgba(92,103,247,.10)}
+.kan{display:inline-block;font-size:9px;font-weight:700;background:#1f2a6b;color:#fff;border-radius:3px;padding:0 4px;margin-left:4px}
+
+/* ---------- MATRIX / MISC ---------- */
+.mx td.ctr,.mx th.ctr{text-align:center}
+.mxc{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:5px;font-size:11px;font-weight:700}
+.mxc.k{background:rgba(33,206,158,.16);color:#0E8A66} .mxc.t{background:rgba(255,198,88,.25);color:#9a7200} .mxc.n{background:var(--gray-2);color:var(--gray-5)}
+.chain{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.chain .ar{color:var(--gray-5)}
+.bar-mini{display:inline-block;width:70px;height:6px;border-radius:4px;background:var(--gray-2);overflow:hidden;vertical-align:middle;margin-right:6px}
+.bar-mini i{display:block;height:100%}
+.stat-list{list-style:none;margin:0;padding:0}
+.stat-list li{display:flex;align-items:center;gap:10px;padding:9px 0}
+.stat-list li+li{border-top:1px solid var(--card-border)}
+.stat-list .sl{flex:1;min-width:0}
+.stat-list .sl b{display:block;font-weight:500}
+.stat-list .sl small{color:var(--fg-3);font-size:11px}
+.rev-tag{font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;background:var(--gray-2);color:var(--fg-2)}
+
+/* ---------- MODAL / TOAST ---------- */
+.modal-bg{position:fixed;inset:0;z-index:150;background:rgba(16,27,61,.45);display:none;align-items:flex-start;justify-content:center;padding:60px 16px;overflow-y:auto}
+.modal-bg.on{display:flex}
+.modal{background:#fff;border-radius:8px;box-shadow:var(--shadow-md);width:100%;max-width:560px}
+.modal.wide{max-width:860px}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:1rem;border-bottom:1px solid var(--card-border)}
+.modal-head h3{font-size:.95rem;font-weight:500}
+.modal-body{padding:1rem}
+.modal-foot{padding:.75rem 1rem;border-top:1px solid var(--card-border);display:flex;justify-content:flex-end;gap:8px}
+.modal-x{width:30px;height:30px;border-radius:5px;display:grid;place-items:center;color:var(--fg-3)}
+.modal-x:hover{background:var(--gray-2)}
+.toast{position:fixed;right:22px;bottom:22px;z-index:220;background:#202947;color:#fff;padding:11px 16px;border-radius:8px;box-shadow:var(--shadow-md);
+  font-size:var(--fs-base);max-width:420px;display:none;align-items:center;gap:9px}
+.toast.on{display:flex}
+.toast svg{color:#21CE9E}
+
+/* ---------- PRINT ---------- */
+@media print{
+  .rail,.topbar,.pagehead .acts,.actionbar,.no-print,.crumb{display:none!important}
+  .main{margin:0!important} .scroll{padding:0}
+  body.print-label .card:not(.print-area){display:none!important}
+  body.print-label .doc-infobar{display:none!important}
+  .card{box-shadow:none}
+}
+
+@media (max-width:1200px){
+  .g-aside{grid-template-columns:minmax(0,1fr)} .g-aside>aside{position:static}
+  .form-grid.c4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .jenis-pick{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:900px){
+  .g2,.g3,.g-60{grid-template-columns:minmax(0,1fr)}
+  .form-grid.c2,.form-grid.c3,.form-grid.c4{grid-template-columns:minmax(0,1fr)}
+  .field.span2,.field.span3{grid-column:auto}
+  .kv{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .ps-body{grid-template-columns:minmax(0,1fr)} .ps-code{border-right:0;border-bottom:1px solid var(--card-border)}
+  .scroll{padding:16px 16px 36px}
+  .who .nm,.who .rl,.top-mod small{display:none}
+}
+@media (max-width:640px){
+  .rail{width:0} .rail.expanded{width:var(--rail-w-open)}
+  .main,body.nav-open .main{margin-left:0}
+  .jenis-pick{grid-template-columns:minmax(0,1fr)}
+  .role-switch label{display:none}
+  .search .input{min-width:0;width:100%}
+}
+</style>
+</head>
+<body data-role="BSU">
+
+<aside class="rail" id="rail">
+  <div class="rail-brand">
+    <div class="logo"><img src="toggle-logo.png" alt="Garudafood"></div>
+  </div>
+  <nav class="rail-nav" id="railNav"></nav>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <button class="hamb" id="hamb" title="Pin / lepas menu">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <div class="top-mod">Lab Management<small>OneGenesis · TCL Holabsys</small></div>
+    <div class="sp"></div>
+    <div class="role-switch" title="Mockup: ganti peran untuk melihat tampilan & aksi tiap user">
+      <label for="roleSel">Lihat sebagai</label>
+      <select id="roleSel"></select>
+    </div>
+    <button class="iconbtn" id="bellBtn" title="Menunggu aksi saya">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      <span class="cnt" id="bellCnt">0</span>
+    </button>
+    <div class="who"><span class="avatar" id="whoAv">MV</span><div><div class="nm" id="whoNm">-</div><div class="rl" id="whoRl">-</div></div></div>
+  </header>
+  <main class="scroll" id="view"></main>
+</div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="toastMsg"></span></div>
+
+<script>
+'use strict';
+/* =====================================================================
+   1. ICONS (Lucide-style, inline)
+   ===================================================================== */
+const IC={
+ home:'<path d="m3 10 9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+ flask:'<path d="M9 3h6"/><path d="M10 3v6L4.5 18.5A2 2 0 0 0 6.2 21h11.6a2 2 0 0 0 1.7-2.5L14 9V3"/><path d="M7 15h10"/>',
+ file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+ fileText:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h6"/>',
+ sheet:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h8M12 13v4"/>',
+ clipboard:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>',
+ clipCheck:'<rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/>',
+ inbox:'<path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+ tag:'<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r=".5"/>',
+ truck:'<path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.62l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/>',
+ smile:'<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01M15 9h.01"/>',
+ hourglass:'<path d="M5 22h14M5 2h14"/><path d="M17 22v-4.17a2 2 0 0 0-.59-1.42L12 12l-4.41 4.41A2 2 0 0 0 7 17.83V22"/><path d="M7 2v4.17a2 2 0 0 0 .59 1.42L12 12l4.41-4.41A2 2 0 0 0 17 6.17V2"/>',
+ award:'<circle cx="12" cy="8" r="6"/><path d="M15.48 12.89 17 22l-5-3-5 3 1.52-9.11"/>',
+ folder:'<path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z"/>',
+ db:'<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5"/><path d="M3 12a9 3 0 0 0 18 0"/>',
+ chevR:'<path d="m9 18 6-6-6-6"/>', chevD:'<path d="m6 9 6 6 6-6"/>', chevL:'<path d="m15 18-6-6 6-6"/>',
+ sort:'<path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>',
+ check:'<path d="M20 6 9 17l-5-5"/>', x:'<path d="M18 6 6 18M6 6l12 12"/>',
+ lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+ eye:'<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+ edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+ trash:'<path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>', search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+ upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/>',
+ cloud:'<path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/>',
+ clip:'<path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/>',
+ download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/>',
+ printer:'<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+ send:'<path d="m22 2-7 20-4-9-9-4z"/><path d="M22 2 11 13"/>',
+ undo:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/>',
+ info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+ alert:'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/>',
+ clock:'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+ users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+ user:'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+ shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+ beaker:'<path d="M4.5 3h15"/><path d="M6 3v16a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V3"/><path d="M6 14h12"/>',
+ tool:'<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+ thermo:'<path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/>',
+ grid:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/>',
+ cal:'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+ activity:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+ link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+ refresh:'<path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/>',
+ save:'<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+ layers:'<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ qr:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 17h4v4h-4"/>',
+ sign:'<path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.59 7.59"/><circle cx="11" cy="11" r="2"/>',
+ dollar:'<path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+ pkg:'<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5M12 22V12"/>',
+ zap:'<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+ git:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="12" r="3"/><path d="M6 9v6M9 6h3a3 3 0 0 1 3 3v0"/>',
+ route:'<circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/>',
+ star:'<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/>',
+ box:'<path d="M21 8V21H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>',
+ bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+};
+const ic=(n,c='ico')=>`<svg class="${c}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">${IC[n]||''}</svg>`;
+
+/* =====================================================================
+   2. MASTER DATA (mock) — dari sheet Internal/Eksternal/Sensory/ASLT/Authority
+   ===================================================================== */
+const TODAY='18-09-2026';
+const LABS={FK:'Fisika Kimia',MB:'Mikrobiologi',SEN:'Sensory Evaluation',ASLT:'ASLT (Shelf Life)',EXT:'Eksternal (Subkontrak)'};
+const EXT_LABS=['Saraswanti Indo Genetech (SIG)','TÜV NORD Indonesia','SGS Indonesia','Angler BioChemLab'];
+const ROLES=[
+ {k:'BSU',n:'Basic User',d:'1. Membuat dan mengirimkan pengajuan pengujian sampel baru.\n2. Memantau status pengajuan (tracking) dan mengunduh LHU/CoA yang sudah terbit.'},
+ {k:'MGU',n:'Manager User',d:'1. Memeriksa & menyetujui/reject pengajuan Kategori Urgent dari BSU sebelum diteruskan ke tingkat lab.'},
+ {k:'HOL',n:'Head of Laboratory',d:'1. Memeriksa & menyetujui pengajuan Kategori Urgent (setelah Approval MGU).\n2. Memeriksa & menyetujui/reject seluruh pengajuan Kategori Eksternal.'},
+ {k:'HOR',n:'Head of R&D',d:'1. Memeriksa & memberikan persetujuan/reject akhir (Final Approval) untuk pengajuan Kategori Urgent (setelah Approval HOL).'},
+ {k:'FRA',n:'FRA Administrator',d:'1. Memeriksa & menyetujui pengajuan khusus kategori MD dan P5.\n2. Mengembalikan pengajuan ke pemohon jika data belum sesuai.'},
+ {k:'ADM',n:'Lab Administrator',d:'1. Menerima & mengesahkan pengajuan Normal/Reguler.\n2. Mengesahkan pengajuan Urgent setelah Approval HOR.\n3. Mengesahkan pengajuan P5 & MD setelah Approval FRA.\n4. Mengembalikan pengajuan ke pemohon jika dokumen/kondisi tidak lengkap.'},
+ {k:'CRL',n:'Koordinator Lab / Penyelia',d:'1. Memeriksa serta menyetujui/menolak draf Laporan Hasil Uji (Technical Review & Verification).\n2. Backup Role: dapat menjalankan fungsi penerimaan & kaji ulang ADM saat dibutuhkan.'},
+ {k:'TCM',n:'Technical Manager',d:'1. Otorisasi akhir & persetujuan terbit LHU/CoA (Final Approval & Digital Sign-off).\n2. Hak akses penuh mengelola alur verifikasi teknis dan administrasi sistem.'},
+ {k:'Analis',n:'Analis Laboratorium',d:'Mengeksekusi pengujian sesuai SPK, input hasil & raw data, lalu Push Data.'},
+ {k:'Panelis',n:'Panelis Sensori',d:'Mengisi form uji sensori (rating / ranking / triangle) pada sesi yang dijadwalkan.'},
+];
+const ROLE_USERS={
+ BSU:['Marsya Valentina','Andre Kusnadi','Rahmi Oktaviani'],
+ MGU:['Dewanti Sitorus','Hendra Gunawan','Lina Marlina','Yusuf Rahman'],
+ HOL:['Bayu Aditama','Ratna Sari','Agus Setiawan','Maya Putri'],
+ HOR:['Surya Darmawan','Fitri Handayani','Bambang Wijaya','Clara Tanoto'],
+ FRA:['Syifa Ramadhani','Nadia Puspita','Irwan Saputra','Desi Lestari'],
+ ADM:['Siti Aminah','Joko Prasetyo','Wulan Sari','Eko Nugroho'],
+ CRL:['Rizky Pratama','Indah Permata','Fajar Ramadhan','Tika Anggraini'],
+ TCM:['Hana Kusumawati','Andi Wirawan'],
+ Analis:['Putri Ayuningtyas','Dimas Aditya','Lestari Dewi','Galih Saputra','Nur Aini'],
+ Panelis:['Rafi Setiadi','Anggun Lestari','Yoga Pratama'],
+};
+const ROLE_DEPT={BSU:'R&D — Product Development',MGU:'R&D — Biscuit & Confectionery',HOL:'TCL Laboratory',HOR:'Research & Development',FRA:'Food Regulatory Affairs',ADM:'TCL Laboratory',CRL:'TCL Laboratory',TCM:'TCL Laboratory',Analis:'TCL Laboratory',Panelis:'Panel Sensori Internal'};
+
+const P=(c,n,l,m,s,lt,u,sp)=>({c,n,l,m,s:!!s,lt,u,sp});
+const PARAMS=[
+ P('KA','Kadar Air','FK','SNI 01-2891-1992 butir 5.1 / IK-LAB-FK-01',1,3,'%','maks. 4,0'),
+ P('TS','Total Solid','FK','AOAC Official Method 990.19, 2019',1,3,'%','min. 55,0'),
+ P('ABU','Kadar Abu','FK','SNI 01-2891-1992 butir 6.1 / IK-LAB-FK-02',1,3,'%','maks. 3,0'),
+ P('LMK','Kadar Lemak','FK','AOAC 2003.05 (Soxhlet) / IK-LAB-FK-03',1,4,'%','—'),
+ P('PRT','Kadar Protein','FK','AOAC 2001.11 (Kjeldahl) / IK-LAB-FK-04',1,4,'%','min. 5,0'),
+ P('KHD','Karbohidrat by difference','FK','Perhitungan / IK-LAB-FK-05',1,4,'%','—'),
+ P('AW','Activity Water (AW)','FK','AOAC 978.18 / IK-LAB-FK-06',1,1,'—','maks. 0,60'),
+ P('FFA','Free Fatty Acid (FFA)','FK','AOCS Ca 5a-40 / IK-LAB-FK-07',1,2,'%','maks. 0,5'),
+ P('PV','Bilangan Peroksida','FK','AOCS Cd 8b-90 / IK-LAB-FK-08',1,2,'meq O₂/kg','maks. 10'),
+ P('PH','pH','FK','SNI 06-6989.11-2004 / IK-LAB-FK-09',1,1,'—','3,5 – 4,5'),
+ P('BRX','Brix','FK','Refraktometri / IK-LAB-FK-10',0,1,'°Bx','—'),
+ P('NA','Sodium (Na)','FK','AOAC 985.35 (AAS)',1,5,'mg/100g','—'),
+ P('CA','Calsium (Ca)','FK','AOAC 985.35 (AAS)',1,5,'mg/100g','—'),
+ P('SRT','Serat Pangan','FK','AOAC 991.43',0,7,'%','—'),
+ P('TFA','Trans Fatty Acid','FK','AOAC 996.06 (GC)',0,7,'%','—'),
+ P('KOL','Cholesterol','FK','AOAC 994.10 (GC)',0,7,'mg/100g','—'),
+ P('SAK','Sakarin','FK','SNI 01-2893-1992 (HPLC)',1,4,'mg/kg','Negatif'),
+ P('SIK','Siklamat','FK','SNI 01-2893-1992',1,4,'mg/kg','Negatif'),
+ P('ACK','Acesulfame','FK','HPLC / IK-LAB-FK-14',0,4,'mg/kg','—'),
+ P('KSB','Kalium Sorbat','FK','HPLC / IK-LAB-FK-15',1,4,'mg/kg','maks. 1000'),
+ P('AFT','Aflatoxin Total','FK','AOAC 991.31 (HPLC)',0,7,'µg/kg','maks. 15'),
+ P('ALS','Alergen Susu','FK','ELISA / IK-LAB-FK-18',0,5,'ppm','—'),
+ P('TPC','Total Plate Count (TPC)','MB','ISO 4833-1:2013 / IK-LAB-MB-01',1,3,'koloni/g','maks. 1×10⁴'),
+ P('KK','Kapang dan Khamir','MB','ISO 21527-2:2008 / IK-LAB-MB-02',1,5,'koloni/g','maks. 1×10²'),
+ P('COL','Coliform','MB','ISO 4832:2006 / IK-LAB-MB-03',1,2,'APM/g','< 3'),
+ P('ECO','Escherichia coli','MB','ISO 16649-2:2001 / IK-LAB-MB-04',1,2,'APM/g','< 3'),
+ P('SAL','Salmonella sp','MB','ISO 6579-1:2017 / IK-LAB-MB-05',1,5,'/25 g','Negatif'),
+ P('ENT','Enterobacteriaceae','MB','ISO 21528-2:2017 / IK-LAB-MB-06',1,2,'koloni/g','maks. 10'),
+ P('STA','Staphylococcus aureus','MB','ISO 6888-1:2021 / IK-LAB-MB-07',1,3,'koloni/g','maks. 1×10²'),
+ P('BC','Bacillus cereus','MB','ISO 7932:2004 / IK-LAB-MB-08',1,3,'koloni/g','maks. 1×10²'),
+ P('CPF','Clostridium Perfringens','EXT','ISO 7937:2004 (subkontrak)',0,14,'koloni/g','maks. 1×10²'),
+ P('CBT','Clostridium Botulinum','EXT','BAM Ch.17 (subkontrak)',0,21,'—','Negatif'),
+ P('DEG','Diethylene Glycol (DEG)','EXT','GC-MS (subkontrak)',0,14,'mg/kg','—'),
+ P('EG','Ethylene Glycol (EG)','EXT','GC-MS (subkontrak)',0,14,'mg/kg','—'),
+ P('RPS','Residu Pestisida','EXT','QuEChERS LC-MS/MS (subkontrak)',0,21,'mg/kg','—'),
+ P('S-RT','Uji Sensori Internal - Afektif Rating','SEN','Hedonik 5 skala / IK-LAB-SN-01',1,5,'skor','≥ 3,5'),
+ P('S-RK','Uji Sensori Internal - Afektif Ranking','SEN','Ranking Test / IK-LAB-SN-02',1,5,'rank','—'),
+ P('S-ER','Uji Sensori Eksternal - Afektif Rating','SEN','Hedonik 5 skala / IK-LAB-SN-03',0,10,'skor','≥ 3,5'),
+ P('S-ERR','Uji Sensori Eksternal - Afektif Rating dan Ranking','SEN','IK-LAB-SN-04',0,10,'—','—'),
+ P('S-TR','Uji Triangle','SEN','ISO 4120:2021 / IK-LAB-SN-05',1,3,'—','Lolos bila 3 poin'),
+ P('S-QM','Quality Monitoring','SEN','IK-LAB-SN-06',1,3,'skor','≥ 6'),
+ P('A-ARR','Arrhenius','ASLT','Accelerated Shelf Life — Arrhenius',1,90,'bulan','—'),
+ P('A-LAB','Labuza (AW Kritis)','ASLT','Pendekatan kadar air kritis',1,60,'bulan','—'),
+ P('A-RET','Retain','ASLT','Real-time retain sample',1,180,'bulan','—'),
+];
+const PM=Object.fromEntries(PARAMS.map(p=>[p.c,p]));
+const REF={
+ site:['PT Tudung Putra Putri Jaya — Head Office, Jl. Bintaro Raya 10A, Jakarta Selatan','PT Tudung Putra Putri Jaya — Plant Pati, Jl. Raya Pati-Juwana Km 2.3','PT Tudung Putra Putri Jaya — Plant Sentul','PT Tudung Putra Putri Jaya — Plant Gresik','PT Tudung Putra Putri Jaya — Plant Rancaekek'],
+ dept:['R&D — Product Development','R&D — Biscuit & Confectionery','R&D — Dairy & Beverage','Quality Control','Quality Assurance','Process Development','Marketing'],
+ tujuan:['Scale Up','R&D Trial','Routine QC','Customer Complaint','MD','P5','MBR','Data Collect'],
+ sku:['WCC5L','MALS2','CSCO5','KALPA','POCO','DILAN','PSPD1','Others'],
+ kat:['Makanan Ringan Ekstrudat','Biskuit','Wafer','Kembang Gula / Permen','Roti & Produk Bakeri','Minuman Susu','Dairy','Rempah, Sup, Saus, Salad, Produk Protein'],
+ kemasan:['Plastik','Metalized','Alufo','Cup','Kaleng','Karton','Pouch'],
+ suhu:['Ambient Temp','Cool (2–8 °C)','Frozen (≤ -18 °C)'],
+ suhuSaji:['Ambient','Cool (sejuk)','Frozen','Hot','Warm'],
+ atribut:['Penampakan','Warna','Bentuk','Aroma','Tekstur','Mouth Feel','Rasa Keseluruhan','Aftertaste'],
+ ketepatan:['Rasa Manis','Rasa Asin','Rasa Asam','Rasa Pedas','Rasa Cokelat','Kerenyahan'],
+ genesis:['GEN-NPD-2026-014 · Biskuit Kelapa Susu','GEN-NPD-2026-022 · Wafer Crispy Caramel','GEN-NPD-2026-031 · Pilus Varian Baru','GEN-RNV-2026-007 · Renovasi Roti Krim'],
+ kategoriAslt:['NPL','EXISTING','TRIAL','RE-ASLT'],
+ perubahan:['Product Formulation','Process','Packaging'],
+ sampelAslt:['Biscon','Dairy','Snack','Beverage','Seasoning','Cheese'],
+ plastik:['Alufo','Metalized','Other'],
+ katKemasan:['Primer','Sekunder','Primer dan Sekunder'],
+ layer:['1 Layer','2 Layer','3 Layer','4 Layer','Others'],
+ metodeKemas:['With Nitrogen','Vacuum','With Oxigen','Other'],
+};
+
+/* =====================================================================
+   3. TRANSAKSI (mock)
+   ===================================================================== */
+const R=(o)=>Object.assign({state:'ok',hist:[],docs:[],pushed:[],jml:1,suhu:'Ambient Temp',kemasan:'Plastik',
+  alamatP:REF.site[0],alamatF:REF.site[1],dept:'R&D — Product Development',note:''},o);
+const REQUESTS=[
+ R({id:'REQ-202609-0041',tgl:'10-09-2026',jenis:'Internal',tipe:'Normal',tujuan:'Routine QC',lab:'FK',sampel:'Wafer Krim Salut Cokelat Tabur Kelapa',sku:'WCC5L',batch:'2T11 110327',prod:'08-09-2026',kat:'Wafer',pemohon:'Marsya Valentina',params:['KA','TS','ABU','LMK','TPC','KK'],step:'Proses Analisa',spk:'SPK/LAB/202609/0031',analis:'Putri Ayuningtyas',pushed:['KA','ABU'],jml:2}),
+ R({id:'REQ-202609-0042',tgl:'16-09-2026',jenis:'Internal',tipe:'Urgent',tujuan:'Customer Complaint',lab:'FK',sampel:'Pilus Rasa Mie Goreng — komplain melempem',sku:'POCO',batch:'SMD 080427 10:09',prod:'04-08-2026',kat:'Makanan Ringan Ekstrudat',pemohon:'Andre Kusnadi',dept:'Quality Assurance',params:['KA','AW'],step:'Approve HOL',alasan:'Komplain pelanggan modern trade — produk melempem. Hasil kadar air dibutuhkan < 3 hari untuk keputusan tarik produk.'}),
+ R({id:'REQ-202609-0043',tgl:'15-09-2026',jenis:'Internal',tipe:'Normal',tujuan:'MD',lab:'FK',sampel:'Biskuit Kelapa Susu (NPD)',sku:'Others',batch:'TRIAL-NPD014-03',prod:'12-09-2026',kat:'Biskuit',pemohon:'Marsya Valentina',genesis:REF.genesis[0],params:['KA','ABU','LMK','PRT','KHD','TPC','SAL','KK'],step:'Approve FRA'}),
+ R({id:'REQ-202609-0044',tgl:'17-09-2026',jenis:'Eksternal',tipe:'Normal',tujuan:'MD',lab:'EXT',extLab:EXT_LABS[0],sampel:'Bumbu Instan Pasta Rawon 05',batch:'BR05-260915',prod:'15-09-2026',kat:'Rempah, Sup, Saus, Salad, Produk Protein',kemasan:'Metalized',pemohon:'Rahmi Oktaviani',params:['CPF','CBT'],step:'Approve HOL'}),
+ R({id:'REQ-202609-0045',tgl:'05-09-2026',jenis:'Eksternal',tipe:'Normal',tujuan:'Data Collect',lab:'EXT',extLab:EXT_LABS[0],sampel:'Permen Lunak Rasa Stroberi Batch YZ2026019',batch:'YZ2026019',prod:'01-09-2026',kat:'Kembang Gula / Permen',pemohon:'Andre Kusnadi',params:['DEG','EG'],step:'Order Confirmation',ship:{kurir:'JNE YES',resi:'JNE0098812273',tgl:'09-09-2026'},inv:{id:'INV-LAB-202609-0003',no:'SIG/INV/IX/2026/1182',fppkb:'FPPKB-2609-0217',fppo:'PO-4500128811',biaya:1850000,adm:25000}}),
+ R({id:'REQ-202609-0038',tgl:'11-09-2026',jenis:'Internal',tipe:'Normal',tujuan:'Scale Up',lab:'FK',sampel:'Roti Isi Krim Cokelat',sku:'Others',batch:'PSPD2 (120827)',prod:'10-09-2026',kat:'Roti & Produk Bakeri',pemohon:'Rahmi Oktaviani',params:['KA','AW','PH','TPC','KK'],step:'Kaji Ulang & SPK',suhu:'Cool (2–8 °C)'}),
+ R({id:'REQ-202609-0039',tgl:'12-09-2026',jenis:'Internal',tipe:'Urgent',tujuan:'P5',lab:'MB',sampel:'Kacang Telur Balado',sku:'PSPD1',batch:'SUPD1 (ASLT)',prod:'09-09-2026',kat:'Makanan Ringan Ekstrudat',pemohon:'Marsya Valentina',params:['TPC','KK','COL','ECO','SAL'],step:'Labeling',spk:'SPK/LAB/202609/0034',analis:'Galih Saputra',alasan:'Persiapan audit P5 minggu depan.'}),
+ R({id:'REQ-202609-0031',tgl:'03-09-2026',jenis:'Internal',tipe:'Normal',tujuan:'R&D Trial',lab:'FK',sampel:'Makanan Ringan Jagung Rasa Seasalt',sku:'POCO',batch:'SMD 080427 10:09',prod:'01-09-2026',kat:'Makanan Ringan Ekstrudat',pemohon:'Andre Kusnadi',params:['KA','TS','LMK','FFA'],step:'Draf Report',spk:'SPK/LAB/202609/0022',analis:'Dimas Aditya',pushed:['KA','TS','LMK','FFA']}),
+ R({id:'REQ-202609-0028',tgl:'01-09-2026',jenis:'Internal',tipe:'Normal',tujuan:'Routine QC',lab:'MB',sampel:'Malkist Salut Cokelat',sku:'MALS2',batch:'3GSK100227 C6',prod:'28-08-2026',kat:'Biskuit',pemohon:'Rahmi Oktaviani',params:['TPC','KK','SAL'],step:'Final Report',spk:'SPK/LAB/202609/0017',analis:'Galih Saputra',pushed:['TPC','KK','SAL']}),
+ R({id:'REQ-202608-0112',tgl:'20-08-2026',jenis:'Internal',tipe:'Normal',tujuan:'Routine QC',lab:'FK',sampel:'Wafer Roll Rasa Cokelat',sku:'WCC5L',batch:'2027-08-26',prod:'18-08-2026',kat:'Wafer',pemohon:'Marsya Valentina',params:['KA','TS','ABU'],step:'Published / CoA',spk:'SPK/LAB/202608/0098',analis:'Putri Ayuningtyas',pushed:['KA','TS','ABU'],coa:'LHU/TCL/202608/0412',rev:1}),
+ R({id:'REQ-202609-0046',tgl:'16-09-2026',jenis:'Sensory',tipe:'Normal',tujuan:'Scale Up',lab:'SEN',sampel:'Yoghurt SAT 4 suhu 85 vs kompetitor',batch:'YG-SAT4-0916',prod:'15-09-2026',kat:'Dairy',kemasan:'Cup',pemohon:'Rahmi Oktaviani',dept:'R&D — Dairy & Beverage',params:['S-RK'],step:'Penjadwalan',sens:{samples:['Yoghurt SAT 4 (Trial)','Kompetitor A — Blueberry','Kompetitor B — Blueberry'],atribut:['Rasa Keseluruhan'],ketepatan:'',saji:'Cool (sejuk)',wadah:'Cawan / cup plastik'}}),
+ R({id:'REQ-202609-0047',tgl:'14-09-2026',jenis:'Sensory',tipe:'Normal',tujuan:'R&D Trial',lab:'SEN',sampel:'Milk Tea Brown Sugar',batch:'MTB-0913',prod:'13-09-2026',kat:'Minuman Susu',kemasan:'Cup',pemohon:'Marsya Valentina',dept:'R&D — Dairy & Beverage',params:['S-RT'],step:'Analisa',sens:{samples:['Milk Tea Brown Sugar F1','Milk Tea Brown Sugar F2'],atribut:['Aroma','Mouth Feel','Rasa Keseluruhan','Aftertaste'],ketepatan:'Rasa Manis',saji:'Cool (sejuk)',wadah:'Gelas plastik transparan'}}),
+ R({id:'REQ-202609-0036',tgl:'02-09-2026',jenis:'ASLT',tipe:'Normal',tujuan:'R&D Trial',lab:'ASLT',sampel:'Wafer Crispy Bersalut Caramel Cokelat',sku:'DILAN',batch:'DLN-0901',prod:'01-09-2026',kat:'Wafer',kemasan:'Metalized',pemohon:'Andre Kusnadi',params:['A-ARR','A-LAB'],step:'Analisa',genesis:REF.genesis[1]}),
+ R({id:'REQ-202609-0048',tgl:'17-09-2026',jenis:'Internal',tipe:'Normal',tujuan:'MBR',lab:'FK',sampel:'Formula MBR-07 (Confidential)',sku:'Others',batch:'MBR07-0917',prod:'16-09-2026',kat:'Biskuit',pemohon:'Rahmi Oktaviani',params:['KA','LMK','PRT'],step:'Approve Admin'}),
+ R({id:'REQ-202609-0035',tgl:'09-09-2026',jenis:'Internal',tipe:'Urgent',tujuan:'R&D Trial',lab:'FK',sampel:'Kukis Oat Rendah Gula',sku:'Others',batch:'KOG-0908',prod:'08-09-2026',kat:'Biskuit',pemohon:'Marsya Valentina',params:['KA','SRT'],state:'ret',step:'Submit',retBy:{role:'HOR',who:'Surya Darmawan',at:'Approve HOR',tgl:'11-09-2026 14:12',reason:'Alasan urgent belum cukup kuat — tidak ada deadline bisnis. Silakan ajukan ulang sebagai Normal.'},alasan:'Butuh cepat untuk presentasi internal.'}),
+ R({id:'REQ-202609-0049',tgl:'18-09-2026',jenis:'Internal',tipe:'Normal',tujuan:'R&D Trial',lab:'MB',sampel:'Selai Nanas Filling v2',sku:'Others',batch:'—',prod:'17-09-2026',kat:'Roti & Produk Bakeri',pemohon:'Marsya Valentina',params:['TPC','KK'],state:'draft',step:'Submit'}),
+];
+
+/* =====================================================================
+   4. ROUTING APPROVAL & PIPELINE
+   Normal → ADM · Urgent → MGU→HOL→HOR · MD/P5 → +FRA · Eksternal → +HOL
+   ===================================================================== */
+const A=(n,role)=>({n,role,k:'appr'}), S=(n,role,page)=>({n,role,k:'proc',page});
+const PROC={
+ Internal:[S('Kaji Ulang & SPK','ADM','kaji'),S('Labeling','ADM','label'),S('Proses Analisa','Analis','analisa'),S('Push Data','Analis','analisa'),S('Draf Report','CRL','rpt-draft'),S('Final Report','TCM','rpt-draft')],
+ Eksternal:[S('Pengiriman Sampel','ADM','ext'),S('Order Confirmation','ADM','ext'),S('Draf Report','CRL','rpt-draft'),S('Final Report','TCM','rpt-draft')],
+ Sensory:[S('Penjadwalan','ADM','sens'),A('Penerimaan Sampel','ADM'),S('Sensory Admin','ADM','sens'),S('Analisa','Panelis','panel'),S('Push Data','Analis','sens'),S('Draf Report','CRL','rpt-draft'),S('Final Report','TCM','rpt-draft')],
+ ASLT:[A('Penerimaan Sampel','ADM'),S('Cek Fiskim (Initial)','Analis','aslt'),S('Penjadwalan & ASLT Admin','ADM','aslt'),S('Analisa','Analis','aslt'),S('Cek Fiskim (Final)','Analis','aslt'),S('Draf Report','CRL','rpt-draft'),S('Final Report','TCM','rpt-draft')],
+};
+function approvals(o){
+ const s=[];
+ if(o.tipe==='Urgent') s.push(A('Approve MGU','MGU'),A('Approve HOL','HOL'),A('Approve HOR','HOR'));
+ if(o.tujuan==='MD'||o.tujuan==='P5') s.push(A('Approve FRA','FRA'));
+ if(o.jenis==='Eksternal'&&o.tipe!=='Urgent') s.push(A('Approve HOL','HOL'));
+ if(o.jenis==='Internal'||o.jenis==='Eksternal') s.push(A('Approve Admin','ADM'));
+ return s;
+}
+function pipeline(o){
+ return [{n:'Submit',role:'BSU',k:'sub'},...approvals(o),...PROC[o.jenis],{n:'Published / CoA',role:'SYS',k:'end'}];
+}
+function posOf(r){const p=pipeline(r);const i=p.findIndex(s=>s.n===r.step);return i<0?0:i}
+function cur(r){return pipeline(r)[posOf(r)]}
+function isPub(r){return r.step==='Published / CoA'}
+function actor(role,seed){const l=ROLE_USERS[role]||['Sistem'];let h=0;for(const ch of seed)h=(h*31+ch.charCodeAt(0))%997;return l[h%l.length]}
+function addHours(tgl,i){const [d,m,y]=tgl.split('-').map(Number);const dt=new Date(y,m-1,d,8+(i%9),(i*17)%60);dt.setDate(dt.getDate()+Math.floor(i/3));
+ return `${String(dt.getDate()).padStart(2,'0')}-${String(dt.getMonth()+1).padStart(2,'0')}-${dt.getFullYear()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`}
+// generate riwayat untuk step yang sudah lewat
+function seedHist(r){
+ if(r.hist.length)return;
+ const p=pipeline(r), pos=posOf(r);
+ if(r.state==='draft'){r.hist.push({t:'Draft disimpan',by:r.pemohon,role:'BSU',at:r.tgl+' 09:10',k:'info'});return}
+ const upto=r.state==='ret'?p.findIndex(s=>s.n===r.retBy.at):pos;
+ for(let i=0;i<upto;i++){const s=p[i];
+  const by=i===0?r.pemohon:actor(s.role,r.id+s.n);
+  r.hist.push({t:i===0?'Pengajuan disubmit':(s.k==='appr'?s.n+' — disetujui':s.n+' — selesai'),by,role:s.role,at:addHours(r.tgl,i),k:'ok'});}
+ if(r.state==='ret')r.hist.push({t:r.retBy.at+' — dikembalikan ke BSU',by:r.retBy.who,role:r.retBy.role,at:r.retBy.tgl,k:'no',reason:r.retBy.reason});
+}
+REQUESTS.forEach(seedHist);
+let SEQ=50;
+const newId=()=>'REQ-202609-'+String(SEQ++).padStart(4,'0');
+const reqById=id=>REQUESTS.find(r=>r.id===id);
+
+/* =====================================================================
+   5. HELPERS
+   ===================================================================== */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let ROLE='BSU';
+const me=()=>ROLE_USERS[ROLE][0];
+const initials=n=>n.split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
+const rupiah=n=>'Rp '+Number(n).toLocaleString('id-ID');
+const rchip=r=>`<span class="rchip r-${r}">${r}</span>`;
+function badge(t,c,i){return `<span class="badge ${c}">${i?ic(i):''}${esc(t)}</span>`}
+function jenisBadge(j){return badge(j,{Internal:'b-primary',Eksternal:'b-orange',Sensory:'b-pink',ASLT:'b-secondary'}[j])}
+function tipeBadge(t){return t==='Urgent'?badge('Urgent','b-danger','zap'):badge('Normal','b-muted')}
+function scopeBadge(p){return p.s?badge('In-Scope ISO 17025','b-success','check'):badge('Non-Scope','b-muted','x')}
+function statusBadge(r){
+ if(r.state==='draft')return badge('Draft','b-muted','edit');
+ if(r.state==='ret')return badge('Dikembalikan','b-danger','undo');
+ if(isPub(r))return badge('Published / CoA','b-success','check');
+ const c=cur(r);
+ if(c.k==='appr')return badge('Menunggu '+c.role,'b-warning','clock');
+ if(/Report/.test(c.n))return badge(c.n,'b-secondary','fileText');
+ return badge(c.n,'b-info','activity');
+}
+function statusDot(r){
+ if(r.state==='draft')return '<span class="dotchip b-muted"><i></i>Draft</span>';
+ if(r.state==='ret')return '<span class="dotchip b-danger"><i></i>Dikembalikan</span>';
+ if(isPub(r))return '<span class="dotchip b-success"><i></i>Published</span>';
+ const c=cur(r);return `<span class="dotchip ${c.k==='appr'?'b-warning':'b-info'}"><i></i>${esc(c.k==='appr'?'Menunggu Approval':'Diproses Lab')}</span>`;
+}
+function labName(r){return r.jenis==='Eksternal'?(r.extLab||'Lab Eksternal'):LABS[r.lab]}
+function canSee(r){ // pemisahan data MBR (MoM 27 Agt)
+ if(r.tujuan!=='MBR')return true;
+ return ['ADM','CRL','TCM','HOL','HOR','Analis'].includes(ROLE)||(ROLE==='BSU'&&r.pemohon===me());
+}
+function crumb(...a){return `<div class="crumb"><a data-go="dashboard">Lab Management</a>${a.map((x,i)=>ic('chevR','ico-xs')+(i===a.length-1?`<b>${x[0]}</b>`:`<a data-go="${x[1]}">${x[0]}</a>`)).join('')}</div>`}
+function head(title,sub,acts=''){return `<div class="pagehead"><div><h1>${title}</h1>${sub?`<div class="sub">${sub}</div>`:''}</div><div class="acts">${acts}</div></div>`}
+function card(title,body,o={}){
+ return `<div class="card ${o.cls||''}" ${o.id?`id="${o.id}"`:''}>${title!==null?`<div class="card-head ${o.div?'div':''}"><div><div class="card-title ${o.sm?'sm':''}">${o.icon?ic(o.icon,'ico-sm'):''}${title}</div>${o.sub?`<div class="card-sub">${o.sub}</div>`:''}</div>${o.acts?`<div class="row">${o.acts}</div>`:''}</div>`:''}<div class="card-body ${o.flush?'flush':''} ${o.pt0?'pt0':''}">${body}</div>${o.foot?`<div class="card-foot">${o.foot}</div>`:''}</div>`;
+}
+const th=(l,sort=true,cls='')=>`<th class="${cls}">${l}${sort?ic('sort','th-sort-ic'):''}</th>`;
+function table(heads,rows,o={}){
+ const h=heads.map(x=>Array.isArray(x)?th(x[0],x[1]!==false,x[2]||''):th(x)).join('');
+ return `<div class="tbl-wrap"><table class="tbl ${o.cls||''}"><thead><tr>${h}</tr></thead><tbody>${rows.length?rows.join(''):`<tr><td colspan="${heads.length}"><div class="empty">${ic('inbox')}<div>${o.empty||'Tidak ada data'}</div></div></td></tr>`}</tbody></table></div>`;
+}
+const act=(k,icon,title,attrs='')=>`<button class="act-ico ${k}" title="${title}" ${attrs}>${ic(icon)}</button>`;
+const tlink=(t,attrs)=>`<a class="tbl-link" ${attrs}>${esc(t)}</a>`;
+function pager(n){return `<div class="pager"><span>Menampilkan 1–${n} dari ${n} data</span><div class="pg"><button>${ic('chevL','ico-xs')}</button><button class="on">1</button><button>${ic('chevR','ico-xs')}</button></div></div>`}
+function field(label,input,o={}){return `<div class="field ${o.cls||''}" ${o.id?`id="${o.id}"`:''} ${o.hidden?'hidden':''}><label class="label">${label}${o.req?'<span class="req">*</span>':''}${o.tag||''}</label>${input}${o.hint?`<div class="hint">${o.hint}</div>`:''}</div>`}
+const inp=(v='',a='')=>`<input class="input" value="${esc(v)}" ${a}>`;
+const sel=(opts,v='',a='')=>`<select class="select" ${a}>${opts.map(o=>{const [val,lab]=Array.isArray(o)?o:[o,o];return `<option value="${esc(val)}" ${val===v?'selected':''}>${esc(lab)}</option>`}).join('')}</select>`;
+const ta=(v='',a='')=>`<textarea class="textarea" ${a}>${esc(v)}</textarea>`;
+const unit=(v,u,a='')=>`<div class="unit"><input class="input" value="${esc(v)}" ${a}><span>${u}</span></div>`;
+function note(html,k='',icon='info'){return `<div class="note ${k}">${ic(icon,'ico-sm')}<div>${html}</div></div>`}
+function dz(label,required,o={}){
+ const exts=o.exts||'PDF, DOCX, XLSX, JPG, PNG';
+ return `<div class="attach">
+  <div class="attach-sub-head"><span class="attach-sub-title">${ic('clip')}${esc(label)}</span><button class="btn btn-light btn-sm" data-fake-up="${esc(label)}">${ic('plus','ico-xs')}Add file(s)</button></div>
+  <div class="attach-row"><div class="attach-ico">${ic(o.icon||'fileText','ico-sm')}</div>
+   <div class="attach-meta"><div class="attach-name">${esc(label)}</div><div class="attach-sub">${exts} · Maks. ${o.max||'10MB'} · ${required?'Wajib':'Opsional'}</div></div>
+   <div class="attach-side"><span class="attach-badge ${required?'req':'opt'}">${required?'Wajib':'Opsional'}</span><span class="attach-upload" data-fake-up="${esc(label)}">${ic('upload')}Drop atau klik untuk upload</span></div></div>
+  <div class="dropzone" data-fake-up="${esc(label)}">${ic('cloud')}<div class="dz-t">Drag &amp; drop file di sini atau <b class="dz-browse">klik untuk pilih</b></div><div class="hint">Arsip terkompresi (zip, rar, dll) dan file HTML tidak diperbolehkan</div></div>
+  <div class="doc-list" data-list="${esc(label)}">${(o.files||[]).map(docRow).join('')}</div></div>`;
+}
+function docRow(f){const ext=(f.split('.').pop()||'').toUpperCase();const col={PDF:'#FB4242',XLSX:'#21a366',XLS:'#21a366',CSV:'#21a366',DOCX:'#2b6fe0',JPG:'#9E5CF7',PNG:'#9E5CF7'}[ext]||'#949eb7';
+ return `<div class="doc-row"><span class="doc-ico" style="background:${col}">${ext.slice(0,4)}</span><div class="doc-meta"><span class="dn">${esc(f)}</span><span class="du">${(120+f.length*37)%900+80} KB · diunggah ${TODAY}</span></div><button class="doc-dl" title="Unduh">${ic('download','ico-xs')}</button><button class="doc-rm" title="Hapus" data-rm-doc>${ic('trash','ico-xs')}</button></div>`}
+function infobar(status,items,right=''){
+ return `<div class="doc-infobar"><div class="doc-infobar-l">${status}${items.map((it,i)=>`${i?'<span class="doc-infobar-sep">|</span>':''}<div class="doc-infobar-item"><span class="lbl">${it[0]}</span><span class="val">${it[1]}</span></div>`).join('')}</div>${right?`<div class="row">${right}</div>`:''}</div>`;
+}
+function tabcard(group,tabs,active){
+ return `<div class="pd-tabcard"><div class="tabs-seg" data-tabgroup="${group}">${tabs.map(t=>`<button class="tab ${t.id===active?'on':''}" data-tab="${t.id}"><span class="tc">${ic(t.icon)}</span>${t.label}${t.n!=null?`<span class="n">${t.n}</span>`:''}</button>`).join('')}</div>${tabs.map(t=>`<div class="tabpane ${t.id===active?'on':''}" id="pane-${t.id}">${t.body}</div>`).join('')}</div>`;
+}
+function pipeHtml(r){
+ const p=pipeline(r), pos=posOf(r), ret=r.state==='ret'?p.findIndex(s=>s.n===r.retBy.at):-1;
+ return `<div class="pipe">${p.map((s,i)=>{let c='';
+  if(r.state==='draft')c=i===0?'now':'';
+  else if(ret>=0)c=i<ret?'done':(i===ret?'ret':'');
+  else c=i<pos||isPub(r)?'done':(i===pos?'now':'');
+  const inner=c==='done'?ic('check'):(c==='ret'?ic('undo'):i+1);
+  return `<div class="pstep ${c} ${s.k==='appr'?'appr':''}"><span class="bub">${inner}</span><span class="cap">${s.n}</span>${s.role!=='SYS'?`<span class="rl">${rchip(s.role)}</span>`:''}</div>`}).join('')}</div>`;
+}
+function toast(m){$('#toastMsg').textContent=m;const t=$('#toast');t.classList.add('on');clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove('on'),2800)}
+function openModal(title,body,foot,wide){
+ $('#modal').className='modal'+(wide?' wide':'');
+ $('#modal').innerHTML=`<div class="modal-head"><h3>${title}</h3><button class="modal-x" data-close>${ic('x')}</button></div><div class="modal-body">${body}</div>${foot?`<div class="modal-foot">${foot}</div>`:''}`;
+ $('#modalBg').classList.add('on');
+}
+function closeModal(){$('#modalBg').classList.remove('on')}
+function qrSvg(seed,size=78){ // QR tiruan, deterministik
+ let h=0;for(const c of seed)h=(h*131+c.charCodeAt(0))>>>0;const n=21,cell=size/n;let r='';
+ const fin=(x,y)=>`<rect x="${x*cell}" y="${y*cell}" width="${7*cell}" height="${7*cell}" fill="#111"/><rect x="${(x+1)*cell}" y="${(y+1)*cell}" width="${5*cell}" height="${5*cell}" fill="#fff"/><rect x="${(x+2)*cell}" y="${(y+2)*cell}" width="${3*cell}" height="${3*cell}" fill="#111"/>`;
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++){if((x<8&&y<8)||(x>12&&y<8)||(x<8&&y>12))continue;h=(h*1103515245+12345)>>>0;if(h&0x40000)r+=`<rect x="${x*cell}" y="${y*cell}" width="${cell}" height="${cell}" fill="#111"/>`}
+ return `<svg class="qr" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}"><rect width="${size}" height="${size}" fill="#fff"/>${r}${fin(0,0)}${fin(14,0)}${fin(0,14)}</svg>`;
+}
+function pendingFor(role){return REQUESTS.filter(r=>r.state==='ok'&&!isPub(r)&&cur(r).role===role&&canSee(r))}
+
+/* =====================================================================
+   6. MENU / RAIL / ROUTER
+   ===================================================================== */
+const MENU=[
+ {cat:'Main'},
+ {id:'dash',label:'Dashboard',icon:'home',page:'dashboard'},
+ {cat:'Lab Management'},
+ {id:'req',label:'Pengajuan Analisa',icon:'clipboard',items:[['req-list','Daftar Pengajuan'],['req-form','Buat Pengajuan'],['inbox','Approval Inbox']]},
+ {id:'proc',label:'Proses Lab',icon:'flask',items:[['kaji','Kaji Ulang & SPK'],['label','Labeling Sampel'],['analisa','Proses Analisa'],['ext','Lab Eksternal']]},
+ {id:'sen',label:'Sensory & ASLT',icon:'smile',items:[['sens','Penjadwalan & Sesi'],['panel','Form Uji Panelis'],['aslt','ASLT Monitoring']]},
+ {id:'rpt',label:'Report & CoA',icon:'award',items:[['rpt-draft','Draf & Final Report'],['rpt-coa','CoA Terbit'],['rpt-rev','Revisi Report']]},
+ {cat:'Internal Document'},
+ {id:'doc',label:'Internal Document',icon:'folder',items:[['doc-control','Document Control'],['kompetensi','Kompetensi Analis'],['reagen','Reagen & Stok'],['alat','Status Alat'],['logakom','Log Akomodasi']]},
+ {id:'mst',label:'Master Data',icon:'db',items:[['m-param','Parameter & Metode'],['m-lab','Laboratorium'],['m-ref','Data Referensi'],['authority','Authority & Alur']]},
+];
+const PARENT={'req-detail':'req-list'};
+let openSec='req';
+function renderRail(page){
+ const active=PARENT[page]||page;
+ $('#railNav').innerHTML=MENU.map(m=>{
+  if(m.cat)return `<div class="rail-cat">${m.cat}</div>`;
+  const isAct=m.page===active||(m.items||[]).some(i=>i[0]===active);
+  if(!m.items)return `<div class="rail-sec ${isAct?'act':''}"><button class="rail-head" data-go="${m.page}" title="${m.label}">${ic(m.icon)}<span class="lbl">${m.label}</span></button></div>`;
+  return `<div class="rail-sec ${openSec===m.id?'open':''} ${isAct?'act':''}" data-sec="${m.id}"><button class="rail-head" data-sec-toggle="${m.id}" title="${m.label}">${ic(m.icon)}<span class="lbl">${m.label}</span>${ic('chevR','ico-sm chev')}</button>
+   <ul class="rail-sub">${m.items.map(i=>`<li><button data-go="${i[0]}" class="${i[0]===active?'on':''}">${i[1]}</button></li>`).join('')}</ul></div>`;
+ }).join('');
+}
+const rail=$('#rail');let railT;
+rail.addEventListener('mouseenter',()=>{clearTimeout(railT);rail.classList.add('expanded')});
+rail.addEventListener('mouseleave',()=>{clearTimeout(railT);railT=setTimeout(()=>{if(!document.body.classList.contains('nav-open'))rail.classList.remove('expanded')},300)});
+$('#hamb').addEventListener('click',()=>{const on=document.body.classList.toggle('nav-open');rail.classList.toggle('expanded',on)});
+
+const PAGES={};
+let CUR={page:'dashboard',arg:''};
+function go(page,arg){location.hash='#/'+page+(arg?'/'+encodeURIComponent(arg):'')}
+function route(){
+ const h=location.hash.replace(/^#\//,'').split('/');
+ const page=PAGES[h[0]]?h[0]:'dashboard', arg=h[1]?decodeURIComponent(h[1]):'';
+ CUR={page,arg};
+ for(const m of MENU)if(m.items&&m.items.some(i=>i[0]===(PARENT[page]||page)))openSec=m.id;
+ renderRail(page);
+ $('#view').innerHTML=PAGES[page](arg);
+ PAGES[page].after&&PAGES[page].after(arg);
+ window.scrollTo(0,0);
+ updateBell();
+}
+function rerender(){const y=window.scrollY;$('#view').innerHTML=PAGES[CUR.page](CUR.arg);PAGES[CUR.page].after&&PAGES[CUR.page].after(CUR.arg);window.scrollTo(0,y);updateBell()}
+function updateBell(){$('#bellCnt').textContent=pendingFor(ROLE).length}
+function setRole(r){
+ ROLE=r;document.body.dataset.role=r;
+ $('#whoNm').textContent=me();$('#whoRl').textContent=r+' · '+ROLES.find(x=>x.k===r).n;$('#whoAv').textContent=initials(me());
+ rerender();
+}
+$('#roleSel').innerHTML=ROLES.map(r=>`<option value="${r.k}">${r.k} — ${r.n}</option>`).join('');
+$('#roleSel').addEventListener('change',e=>{setRole(e.target.value);toast('Tampilan sebagai '+e.target.value+' — '+me())});
+$('#bellBtn').addEventListener('click',()=>go('inbox'));
+
+/* =====================================================================
+   7. AKSI APPROVAL (dipakai Detail & Inbox)
+   ===================================================================== */
+function advance(r,label){
+ const p=pipeline(r),pos=posOf(r),s=p[pos];
+ r.hist.push({t:label||(s.k==='appr'?s.n+' — disetujui':s.n+' — selesai'),by:me(),role:ROLE,at:TODAY+' '+new Date().toTimeString().slice(0,5),k:'ok'});
+ r.step=p[Math.min(pos+1,p.length-1)].n;
+}
+function approve(id){const r=reqById(id);const s=cur(r);advance(r);
+ toast(`${r.id}: ${s.n} disetujui oleh ${me()} → ${isPub(r)?'Published':'lanjut ke '+cur(r).n}`);rerender()}
+function askReject(id){const r=reqById(id);const s=cur(r);
+ openModal('Kembalikan ke Pemohon (BSU)',`${note(`Sesuai flow: <b>apabila ada reject, semua kembali ke BSU</b> dan setiap authority <b>wajib memberikan keterangan</b> kenapa dikembalikan.`,'warn','alert')}
+ <div class="kv c2" style="margin-bottom:14px"><div><div class="k">No. Pengajuan</div><div class="v">${r.id}</div></div><div><div class="k">Tahap</div><div class="v">${s.n} ${rchip(s.role)}</div></div></div>
+ ${field('Alasan pengembalian',ta('','id="rejReason" placeholder="Tuliskan alasan / data yang perlu diperbaiki…"'),{req:true})}`,
+ `<button class="btn btn-light" data-close>Batal</button><button class="btn btn-danger" data-do-reject="${id}">${ic('undo','ico-sm')}Kembalikan ke BSU</button>`);
+}
+function doReject(id){const v=$('#rejReason').value.trim();if(!v){$('#rejReason').focus();$('#rejReason').style.borderColor='var(--danger)';return}
+ const r=reqById(id);const s=cur(r);r.state='ret';r.retBy={role:ROLE,who:me(),at:s.n,tgl:TODAY+' '+new Date().toTimeString().slice(0,5),reason:v};
+ r.hist.push({t:s.n+' — dikembalikan ke BSU',by:me(),role:ROLE,at:r.retBy.tgl,k:'no',reason:v});r.step='Submit';
+ closeModal();toast(r.id+' dikembalikan ke '+r.pemohon);rerender()}
+function resubmit(id){const r=reqById(id);r.state='ok';r.step=pipeline(r)[1].n;r.hist.push({t:'Pengajuan disubmit ulang',by:me(),role:'BSU',at:TODAY+' '+new Date().toTimeString().slice(0,5),k:'ok'});toast(r.id+' disubmit ulang → '+cur(r).n);rerender()}
+function approverNote(role){const u=ROLE_USERS[role];return `Cukup <b>salah satu</b> dari ${u.length} user ${rchip(role)} (${u.join(', ')}) — begitu satu approve, proses lanjut.`}
+
+/* =====================================================================
+   8. PAGE: DASHBOARD
+   ===================================================================== */
+PAGES.dashboard=()=>{
+ const vis=REQUESTS.filter(canSee), live=vis.filter(r=>r.state!=='draft');
+ const cnt=f=>live.filter(f).length;
+ const kpi=(l,v,s,t,i,to)=>`<div class="kpi" data-go="${to}"><div class="k-ico ${t}">${ic(i)}</div><div><div class="k-lab">${l}</div><div class="k-val">${v}</div><div class="k-sub">${s}</div></div></div>`;
+ const labs=['FK','MB','SEN','ASLT','EXT'];
+ const col=['#5C67F7','#21CE9E','#FF5D9F','#9E5CF7','#FF8E6F'];
+ const max=Math.max(...labs.map(l=>live.filter(r=>r.lab===l).length),1);
+ const mine=pendingFor(ROLE);
+ const low=REAGEN.filter(x=>x.stok<=x.min), due=ALAT.filter(a=>a.st!=='ok');
+ return crumb(['Dashboard'])+head('Dashboard Laboratorium',`Selamat datang, <b>${me()}</b> — ${ROLES.find(x=>x.k===ROLE).n}. Data per ${TODAY}.`,
+  `<button class="btn btn-light">${ic('cal','ico-sm')}September 2026</button><button class="btn btn-primary" data-go="req-form">${ic('plus','ico-sm')}Buat Pengajuan</button>`)+
+ `<div class="kpi-grid">
+  ${kpi('Pengajuan Aktif',cnt(r=>!isPub(r)&&r.state==='ok'),'Draft '+vis.filter(r=>r.state==='draft').length+' · Dikembalikan '+cnt(r=>r.state==='ret'),'t-primary','clipboard','req-list')}
+  ${kpi('Menunggu Approval',cnt(r=>r.state==='ok'&&cur(r).k==='appr'),'Urgent '+cnt(r=>r.state==='ok'&&r.tipe==='Urgent'&&cur(r).k==='appr'),'t-warning','clock','inbox')}
+  ${kpi('Dalam Proses Lab',cnt(r=>r.state==='ok'&&cur(r).k==='proc'&&!/Report/.test(cur(r).n)),'Kaji ulang → push data','t-info','flask','analisa')}
+  ${kpi('Draf / Final Report',cnt(r=>r.state==='ok'&&/Report/.test(cur(r).n)),'CRL & TCM','t-secondary','fileText','rpt-draft')}
+  ${kpi('CoA Terbit',cnt(isPub)+3,'bulan ini','t-success','award','rpt-coa')}
+  ${kpi('Overdue',2,'melewati est. selesai','t-danger','alert','analisa')}
+ </div>
+ <div class="g-60">
+  ${card('Aksi Menunggu Saya',mine.length?`<ul class="stat-list">${mine.map(r=>`<li><span class="act-ico ${cur(r).k==='appr'?'warn':'view'}">${ic(cur(r).k==='appr'?'clock':'activity')}</span><div class="sl"><b>${esc(r.sampel)}</b><small>${r.id} · ${cur(r).n} · ${r.tipe}</small></div>${tipeBadge(r.tipe)}<button class="btn btn-light btn-sm" data-open="${r.id}">Buka</button></li>`).join('')}</ul>`
+   :`<div class="empty">${ic('check')}<div>Tidak ada aksi yang menunggu Anda sebagai ${ROLE}.</div></div>`,{icon:'bell',sub:'Berdasarkan peran aktif: '+ROLE,acts:rchip(ROLE)})}
+  ${card('Beban per Laboratorium',`<div class="hbar">${labs.map((l,i)=>{const n=live.filter(r=>r.lab===l).length;return `<div class="hbar-row"><span class="hbar-lab">${LABS[l]}</span><span class="hbar-track"><i style="width:${n/max*100}%;background:${col[i]}"></i></span><span class="hbar-val">${n}</span></div>`}).join('')}</div>
+   <div class="legend"><span>Termasuk pengajuan yang masih dalam approval</span></div>`,{sub:'Jumlah pengajuan aktif'})}
+ </div>
+ <div class="g3">
+  ${card('Reagen Menipis',`<ul class="stat-list">${low.map(x=>`<li><span class="act-ico warn">${ic('beaker')}</span><div class="sl"><b>${x.n}</b><small>${x.lab} · min ${x.min} ${x.u}</small></div><b class="bad-t">${x.stok} ${x.u}</b></li>`).join('')}</ul>`,{acts:`<a class="tbl-link" data-go="reagen">Lihat stok</a>`})}
+  ${card('Alat — Kalibrasi / Status',`<ul class="stat-list">${due.map(a=>`<li><span class="act-ico ${a.st==='oos'?'del':'warn'}">${ic('tool')}</span><div class="sl"><b>${a.n}</b><small>${a.k} · jatuh tempo ${a.due}</small></div>${a.st==='oos'?badge('Out of Service','b-danger','x'):badge('Due ≤ 30 hari','b-warning','clock')}</li>`).join('')}</ul>`,{acts:`<a class="tbl-link" data-go="alat">Lihat alat</a>`})}
+  ${card('Lingkungan Uji (Live)',`<ul class="stat-list">${LOGAKOM.slice(0,4).map(l=>`<li><span class="act-ico ${l.ok?'ok':'del'}">${ic('thermo')}</span><div class="sl"><b>${l.ruang}</b><small>${l.src} · ${l.at}</small></div><span class="${l.ok?'ok-t':'bad-t'}">${l.t} °C · ${l.rh}%</span></li>`).join('')}</ul>`,{acts:`<a class="tbl-link" data-go="logakom">Log</a>`})}
+ </div>
+ ${card('Alur Approval per Kategori',routeLegend(),{icon:'route',sub:'Sumber: Flow proses & Holabsys Submission Workflow (Excel). Reject di tahap mana pun → kembali ke BSU dengan alasan wajib.'})}`;
+};
+function routeLegend(){
+ const rows=[['Normal / Reguler (Internal)',{jenis:'Internal',tipe:'Normal'}],['Urgent (Internal)',{jenis:'Internal',tipe:'Urgent'}],['MD & P5 (Internal)',{jenis:'Internal',tipe:'Normal',tujuan:'MD'}],['Eksternal (Subkontrak)',{jenis:'Eksternal',tipe:'Normal'}],['Sensory',{jenis:'Sensory',tipe:'Normal'}],['ASLT',{jenis:'ASLT',tipe:'Normal'}]];
+ return `<div class="tbl-wrap"><table class="tbl tbl-sm"><tbody>${rows.map(([l,o])=>`<tr><td class="w1 strong">${l}</td><td><div class="chain">${pipeline(o).map((s,i)=>`${i?`<span class="ar">${ic('chevR','ico-xs')}</span>`:''}<span class="badge ${s.k==='appr'?'b-warning':(s.k==='end'?'b-success':(s.k==='sub'?'b-primary':'b-muted'))}">${s.role!=='SYS'?`<b>${s.role}</b>&nbsp;`:''}${s.n}</span>`).join('')}</div></td></tr>`).join('')}</tbody></table></div>`;
+}
+
+/* =====================================================================
+   9. PAGE: DAFTAR PENGAJUAN
+   ===================================================================== */
+const LF={q:'',jenis:'',tipe:'',st:'all'};
+PAGES['req-list']=()=>{
+ const grp=r=>r.state==='draft'?'draft':r.state==='ret'?'ret':isPub(r)?'done':cur(r).k==='appr'?'appr':'lab';
+ const base=REQUESTS.filter(r=>ROLE!=='BSU'||r.pemohon===me()||true);
+ const counts={all:base.length};base.forEach(r=>counts[grp(r)]=(counts[grp(r)]||0)+1);
+ const rows=base.filter(r=>(LF.st==='all'||grp(r)===LF.st)&&(!LF.jenis||r.jenis===LF.jenis)&&(!LF.tipe||r.tipe===LF.tipe)&&(!LF.q||(r.id+r.sampel+r.pemohon).toLowerCase().includes(LF.q.toLowerCase())))
+ .map(r=>{
+  if(!canSee(r))return `<tr class="dim"><td class="w1">${act('lock','lock','Data MBR — terbatas')}</td><td class="nowrap strong">${r.id}</td><td>${r.tgl}</td><td>${jenisBadge(r.jenis)}</td><td>${tipeBadge(r.tipe)}</td><td colspan="4"><span class="locked">${ic('lock','ico-xs')} Data analisa MBR — hanya terlihat oleh tim MBR & Lab</span></td><td>${badge('Terbatas','b-muted','lock')}</td></tr>`;
+  const c=cur(r);const acts=[act('view','eye','Lihat detail',`data-open="${r.id}"`)];
+  if(r.state==='draft'||r.state==='ret')acts.unshift(act('edit','edit','Edit',`data-open="${r.id}"`));
+  if(r.state==='ok'&&c.role===ROLE&&c.k==='appr')acts.unshift(act('ok','check','Approve',`data-approve="${r.id}"`));
+  return `<tr><td class="w1">${acts.join('')}</td><td>${tlink(r.id,`data-open="${r.id}"`)}</td><td class="nowrap">${r.tgl}</td><td>${jenisBadge(r.jenis)}</td><td>${tipeBadge(r.tipe)}</td>
+   <td><div class="strong">${esc(r.sampel)}</div><div class="xs muted">${r.pemohon} · ${r.dept}</div></td><td>${esc(labName(r))}</td><td>${r.tujuan==='MBR'?badge('MBR','b-secondary','lock'):esc(r.tujuan)}</td>
+   <td class="nowrap">${r.state==='ok'&&!isPub(r)?`${rchip(c.role)} <span class="xs">${c.n}</span>`:'—'}</td><td>${statusBadge(r)}</td></tr>`});
+ const pill=(k,l)=>`<button class="pill ${LF.st===k?'on':''}" data-lf-st="${k}">${l}<span class="n">${counts[k]||0}</span></button>`;
+ return crumb(['Pengajuan Analisa','req-list'],['Daftar Pengajuan'])+head('Daftar Pengajuan Analisa','Seluruh pengajuan Internal, Eksternal, Sensory & ASLT. Nomor transaksi <b>REQ-YYYYMM-XXXX</b> dibuat otomatis oleh sistem.',
+  `<button class="btn btn-light">${ic('download','ico-sm')}Export Excel</button><button class="btn btn-primary" data-go="req-form">${ic('plus','ico-sm')}Buat Pengajuan</button>`)+
+ card(null,`<div style="padding-top:1rem">${`<div class="pills">${pill('all','Semua')}${pill('draft','Draft')}${pill('appr','Dalam Approval')}${pill('lab','Diproses Lab')}${pill('done','Selesai / CoA')}${pill('ret','Dikembalikan')}</div>`}
+  <div class="filterbar"><div class="search">${ic('search','ico-sm')}<input class="input" placeholder="Cari no. pengajuan, sampel, pemohon…" value="${esc(LF.q)}" data-lf-q></div>
+  ${sel([['','Semua Jenis'],'Internal','Eksternal','Sensory','ASLT'],LF.jenis,'data-lf="jenis"')}${sel([['','Semua Tipe'],'Normal','Urgent'],LF.tipe,'data-lf="tipe"')}</div>
+  ${table([['Aksi',false],'No. Pengajuan','Tanggal','Jenis','Tipe','Nama Sampel','Laboratorium','Tujuan',['Posisi Saat Ini',false],'Status'],rows)}${pager(rows.length)}</div>`,{flush:true})+
+ note('Baris dengan tujuan <b>MBR</b> dikunci untuk user di luar tim MBR (pemisahan data analisa MBR — MoM 27 Agt). Coba ganti peran ke <b>MGU</b> atau <b>FRA</b> untuk melihat efeknya.','', 'lock');
+};
+
+/* =====================================================================
+   10. PAGE: APPROVAL INBOX
+   ===================================================================== */
+let INBOX_ALL=false;
+PAGES.inbox=()=>{
+ const approvalRoles=['MGU','HOL','HOR','FRA','ADM'];
+ const list=INBOX_ALL?REQUESTS.filter(r=>r.state==='ok'&&!isPub(r)&&cur(r).k==='appr'&&canSee(r)):pendingFor(ROLE).filter(r=>cur(r).k==='appr');
+ const rows=list.map(r=>{const c=cur(r),mine=c.role===ROLE;
+  return `<tr><td class="w1"><input type="checkbox" class="chk-row" value="${r.id}" ${mine?'':'disabled'}></td><td class="w1">${mine?act('ok','check','Approve',`data-approve="${r.id}"`)+act('del','undo','Kembalikan ke BSU',`data-reject="${r.id}"`):act('lock','lock','Bukan giliran peran Anda')}</td>
+  <td>${tlink(r.id,`data-open="${r.id}"`)}</td><td>${jenisBadge(r.jenis)}</td><td>${tipeBadge(r.tipe)}</td><td><div class="strong">${esc(r.sampel)}</div>${r.alasan&&r.tipe==='Urgent'?`<div class="xs muted">Alasan urgent: ${esc(r.alasan)}</div>`:''}</td>
+  <td>${esc(r.tujuan)}</td><td>${r.pemohon}<div class="xs muted">${r.dept}</div></td><td class="nowrap">${r.tgl}</td><td class="nowrap">${rchip(c.role)} ${c.n}</td></tr>`});
+ const rule={MGU:'Pengajuan <b>Urgent</b> dari BSU (tahap pertama).',HOL:'Pengajuan <b>Urgent</b> setelah MGU, dan <b>seluruh pengajuan Eksternal</b>.',HOR:'Final approval pengajuan <b>Urgent</b> setelah HOL.',FRA:'Pengajuan dengan tujuan <b>MD</b> dan <b>P5</b>.',ADM:'Pengesahan akhir seluruh pengajuan (Normal langsung; Urgent/MD/P5/Eksternal setelah approver sebelumnya) serta penerimaan sampel Sensory/ASLT.'}[ROLE];
+ return crumb(['Pengajuan Analisa','req-list'],['Approval Inbox'])+head('Approval Inbox',`Pengajuan yang menunggu keputusan peran <b>${ROLE}</b>.`,
+  `<div class="seg-toggle"><button class="${INBOX_ALL?'':'on'}" data-inbox="0">Menunggu Saya</button><button class="${INBOX_ALL?'on':''}" data-inbox="1">Semua Pending</button></div><button class="btn btn-success" data-bulk-approve>${ic('check','ico-sm')}Approve Terpilih</button>`)+
+ (approvalRoles.includes(ROLE)?note(`${rule}<br>${approverNote(ROLE)}`):note(`Peran <b>${ROLE}</b> tidak memiliki tahap approval pengajuan. Ganti peran ke MGU / HOL / HOR / FRA / ADM pada switcher “Lihat sebagai”.`,'warn','alert'))+
+ card(null,table([['',false],['Aksi',false],'No. Pengajuan','Jenis','Tipe','Nama Sampel','Tujuan','Pemohon','Tgl Pengajuan',['Tahap',false]],rows,{empty:'Tidak ada pengajuan yang menunggu approval Anda.'})+pager(rows.length),{flush:true});
+};
+
+/* =====================================================================
+   11. PAGE: BUAT PENGAJUAN (Internal / Eksternal / Sensory / ASLT)
+   ===================================================================== */
+const JENIS=[
+ {k:'Internal',i:'flask',t:'t-primary',d:'Uji Fisika Kimia & Mikrobiologi di Lab TCL'},
+ {k:'Eksternal',i:'truck',t:'t-warning',d:'Subkontrak ke lab eksternal (SIG, TÜV NORD, SGS…)'},
+ {k:'Sensory',i:'smile',t:'t-danger',d:'Rating, ranking, triangle & quality monitoring'},
+ {k:'ASLT',i:'hourglass',t:'t-secondary',d:'Accelerated Shelf Life Test & kemasan'},
+];
+let FORM;
+function resetForm(j='Internal'){FORM={jenis:j,tipe:'Normal',tujuan:j==='Eksternal'?'Data Collect':'R&D Trial',params:[],samples:[{n:'',tgl:'',exp:''},{n:'',tgl:'',exp:''}],atribut:['Rasa Keseluruhan'],editId:null}}
+resetForm();
+const labFor=j=>({Internal:['FK','MB'],Eksternal:['EXT','FK','MB'],Sensory:['SEN'],ASLT:['ASLT']}[j]);
+PAGES['req-form']=(editId)=>{
+ if(!editId&&FORM.editId)resetForm();
+ if(editId&&(!FORM.editId||FORM.editId!==editId)){const r=reqById(editId);if(r){resetForm(r.jenis);Object.assign(FORM,{tipe:r.tipe,tujuan:r.tujuan,params:[...r.params],editId})}}
+ const F=FORM,j=F.jenis,r=F.editId?reqById(F.editId):null;
+ const v=k=>r?r[k]||'':'';
+ const jp=JENIS.map(x=>`<button class="jp ${x.k===j?'on':''}" data-jenis="${x.k}" ${r?'disabled':''}><span class="ji ${x.t}">${ic(x.i)}</span><span><b>${x.k}</b><small>${x.d}</small></span></button>`).join('');
+ const s1=card('Informasi Pengajuan',`<div class="form-grid c3">
+   ${field('No. ID Transaksi',inp(r?r.id:'REQ-202609-XXXX','readonly'),{hint:'System generated saat draf disimpan / dikirim'})}
+   ${field('Tanggal Pengajuan',inp(TODAY+' 10:24','readonly'),{hint:'System timestamp'})}
+   ${field('Tipe Pengajuan',sel(['Normal','Urgent'],F.tipe,'id="f_tipe"'),{req:true,hint:'Trigger routing — Urgent membutuhkan approval MGU → HOL → HOR'})}
+   ${field('Alasan Urgent',ta(v('alasan'),'id="f_alasan" placeholder="Jelaskan kebutuhan urgensi…" style="min-height:60px"'),{req:true,cls:'full',id:'wrapAlasan',hidden:F.tipe!=='Urgent'})}
+   ${j!=='Eksternal'?field('No. ID GENESIS',sel([['','— Pilih ID Genesis —'],...REF.genesis],v('genesis'),'id="f_gen"'),{cls:j==='Internal'?'span2':'',hint:'Wajib diisi bila <b>automatic report</b> ke aplikasi Genesis ingin aktif',tag:`<span class="src-tag">${ic('link','ico-xs')}Genesis</span>`}):''}
+   ${j==='Sensory'||j==='ASLT'?field('Laboratorium',sel(j==='Sensory'?['Sensory Evaluation']:['ASLT (Shelf Life)'],'','disabled'),{req:true}):''}
+  </div>`,{icon:'fileText'});
+ const s2=card('Informasi Pelanggan',`<div class="form-grid c2">
+   ${field('Alamat Pelanggan',sel(REF.site,v('alamatP')||REF.site[0]),{req:true,hint:'Dropdown master site, bisa dicari dengan free text'})}
+   ${field('Alamat Pabrik',sel(REF.site,v('alamatF')||REF.site[1]),{req:true})}
+   ${field('Departemen Pemohon',sel(REF.dept,v('dept')||ROLE_DEPT.BSU),{req:true,hint:'Otomatis dari profil akun BSU yang login'})}
+   ${j==='Internal'?field('Laboratorium',sel([['FK','Fisika Kimia'],['MB','Mikrobiologi']],v('lab')||'FK','id="f_lab"'),{req:true,hint:'Mengarahkan penugasan ke Admin Lab (ADM) terkait'}):''}
+   ${j==='Eksternal'?field('Laboratorium Tujuan',sel(EXT_LABS,v('extLab')),{req:true,hint:'Master Data Lab Eksternal (SIG, TÜV NORD, SGS, dll.)'}):''}
+   ${field('Tujuan Analisa',sel(REF.tujuan,F.tujuan,'id="f_tujuan"'),{req:true,hint:'MD / P5 menambah approval <b>FRA</b> · MBR → data hanya terlihat tim MBR'})}
+  </div>`,{icon:'users'});
+ let s3;
+ if(j==='Sensory'){
+  s3=card('Informasi Sampel & Pengujian Sensori',`<div class="form-grid c3">
+   ${field('Nama Sampel',inp(v('sampel'),'id="f_sampel" placeholder="mis. Yoghurt SAT 4 suhu 85 vs kompetitor"'),{req:true,cls:'span2'})}
+   ${field('Kode Batch',inp(v('batch'),'id="f_batch"'),{req:true})}
+   ${field('Tanggal Produksi',inp(v('prod'),'type="text" placeholder="DD-MM-YYYY"'),{req:true})}
+   ${field('Kategori Pangan',sel(REF.kat,v('kat')),{req:true})}
+   ${field('Jenis Kemasan',sel(REF.kemasan,v('kemasan')),{req:true})}
+   ${field('Suhu Penyajian',sel(REF.suhuSaji),{req:true})}
+   ${field('Kondisi Penyajian / Wadah Saji',inp('','placeholder="mis. cawan / cup plastik, suhu ruang"'),{req:true,cls:'span2'})}
+  </div>
+  <div class="sec-h mt16">Jenis Pengujian (Parameter)</div>
+  ${paramPicker()}
+  <div class="sec-h mt16">Jenis Sampel yang Diuji</div>
+  <div id="sensRows">${sensRows()}</div>
+  <button class="btn btn-light btn-sm mt8" data-add-sample>${ic('plus','ico-xs')}Tambah Sampel</button>
+  <div class="form-grid c2 mt16">
+   ${field('Atribut',msStatic('atribut',REF.atribut,F.atribut),{req:true,hint:'Master atribut sensori — mis. aroma, rasa, aftertaste'})}
+   ${field('Ketepatan',sel([['','— Tidak ada —'],...REF.ketepatan]),{req:true,hint:'Skala Kurang / Cukup / Berlebih pada form panelis'})}
+  </div>`,{icon:'smile'});
+ }else if(j==='ASLT'){
+  s3=card('Informasi Sampel ASLT',`<div class="form-grid c3">
+   ${field('Nama Sampel',inp(v('sampel'),'id="f_sampel"'),{req:true,cls:'span2'})}
+   ${field('Nama SKU',inp(v('sku'),'placeholder="Opsional"'),{})}
+   ${field('Kode Batch',inp(v('batch'),'id="f_batch"'),{req:true})}
+   ${field('Tanggal Produksi',inp(v('prod'),'placeholder="DD-MM-YYYY"'),{req:true})}
+   ${field('Kategori Pangan',sel(REF.kat,v('kat')),{req:true})}
+   ${field('Nilai Standar Release Produksi Fiskim',inp('','placeholder="mis. KA maks 3%, AW maks 0,5"'),{req:true,cls:'span2'})}
+   ${field('Standar Release Organoleptik',sel(['Skor 6','Skor 7']),{req:true,hint:'Aroma, tekstur, rasa, aftertaste, penampakan'})}
+   ${field('Kategori ASLT',sel(REF.kategoriAslt),{req:true})}
+   ${field('Kategori Perubahan',sel(REF.perubahan),{req:true})}
+   ${field('Kategori Sampel ASLT',sel(REF.sampelAslt),{req:true})}
+   ${field('Penambahan Pengawet',inp('','placeholder="mis. Kalium sorbat 0,05%"'),{req:true})}
+   ${field('Perkiraan Rejection Point',inp('','placeholder="mis. KA > 4% / tengik"'),{req:true})}
+   ${field('Netto Product',unit('','gram'),{req:true})}
+   ${field('Komposisi Mayor Produk',ta('','style="min-height:60px"'),{req:true,cls:'full'})}
+  </div>`,{icon:'hourglass'})+
+  card('Informasi Kemasan',`<div class="form-grid c3">
+   ${field('Jenis Kemasan',sel(REF.kemasan,v('kemasan')),{req:true})}
+   ${field('Jenis Plastik',sel(REF.plastik),{req:true})}
+   ${field('Spesifikasi Kemasan',inp('','placeholder="mis. OPP20/VMPET12/LLDPE30"'),{req:true})}
+   ${field('Kategori Kemasan',sel(REF.katKemasan),{req:true})}
+   ${field('Jumlah Layer',sel(REF.layer),{req:true})}
+   ${field('Ukuran Kemasan (dimensi)',unit('','mm'),{req:true})}
+   ${field('Nilai O2TR',unit('','ml/m²·hari'),{req:true})}
+   ${field('Nilai WVTR',unit('','g/m²·hari·mmHg'),{req:true})}
+   ${field('Metode Pengemasan',sel(REF.metodeKemas),{req:true})}
+   ${field('Uji Kebocoran Sealing',sel(['PASS','NOT PASS']),{req:true})}
+   ${field('Uji Kebocoran Vacuum',sel(['PASS','NOT PASS']),{req:true})}
+  </div><div class="sec-h mt16">Parameter ASLT</div>${paramPicker()}`,{icon:'pkg'});
+ }else{
+  s3=card('Informasi Sampel & Parameter Uji',`<div class="form-grid c3">
+   ${field('Nama Sampel',inp(v('sampel'),'id="f_sampel" placeholder="Nama produk / sampel"'),{req:true,cls:'span2'})}
+   ${j==='Internal'?field('Nama SKU',sel(REF.sku,v('sku')),{req:true,hint:'Pilih Others bila SKU belum terdaftar'}):field('Jumlah Sampel',inp(v('jml')||'1','type="number" min="1"'),{req:true})}
+   ${field('Kode Batch',inp(v('batch'),'id="f_batch"'),{req:true})}
+   ${field('Tanggal Produksi',inp(v('prod'),'placeholder="DD-MM-YYYY"'),{req:true})}
+   ${field('Kategori Pangan',sel(REF.kat,v('kat')),{req:true})}
+   ${field('Jenis Kemasan',sel(REF.kemasan,v('kemasan')),{req:true})}
+   ${j==='Internal'?field('Jumlah Sampel',inp(v('jml')||'1','type="number" min="1"'),{req:true}):''}
+   ${j==='Internal'?field('Suhu Penyimpanan',sel(REF.suhu,v('suhu')),{req:true,hint:'Kondisi simpan sampel sebelum dianalisa'}):''}
+  </div><div class="sec-h mt16">Parameter Uji</div>${paramPicker()}`,{icon:'flask'})+
+  (j==='Eksternal'?card('Data Pembayaran (Eksternal)',`${note('Data pembayaran di-<b>push</b> dari sistem keuangan dengan key <b>ID Pengajuan</b> (No FPPKB, FPPO, No Invoice). Invoice vendor yang digabung dalam satu dokumen tetap bisa ditelusuri per ID pengajuan.','', 'dollar')}
+   <div class="form-grid c3">${field('No. FPPKB',inp('','readonly placeholder="Terisi via push data"'))}${field('No. FPPO',inp('','readonly placeholder="Terisi via push data"'))}${field('No. Invoice',inp('','readonly placeholder="Terisi via push data"'))}</div>`,{icon:'dollar'}):'');
+ }
+ const s4=card('Catatan & Lampiran',`${field('Catatan Tambahan',ta(v('note'),'placeholder="Instruksi khusus untuk analis / penyelia…"'),{hint:'Opsional'})}<div class="mt16">${dz('Lampiran Dokumen (Spec Sheet, Foto Sampel, Memo)',j==='ASLT',{exts:'PDF, PNG, JPG, DOCX'})}</div>`,{icon:'clip'});
+ return crumb(['Pengajuan Analisa','req-list'],[r?'Edit Pengajuan':'Buat Pengajuan'])+head(r?'Edit Pengajuan '+r.id:'Buat Pengajuan Analisa',`Analysis Request Form — field mengikuti Blue Print Holabsys (sheet ${j}).`,'')+
+  (r&&r.state==='ret'?note(`<b>Dikembalikan oleh ${r.retBy.who} (${r.retBy.role})</b> pada tahap ${r.retBy.at}: “${esc(r.retBy.reason)}”`,'danger','undo'):'')+
+  `<div class="jenis-pick">${jp}</div>
+  <div class="g-aside"><div>${s1}${s2}${s3}${s4}
+   <div class="actionbar"><span class="xs muted sp">${ic('info','ico-xs')} Save = simpan DRAFT tanpa notifikasi · Submit = status SUBMITTED & notifikasi ke approver berikutnya</span>
+    <button class="btn btn-light" data-go="req-list">Batal</button><button class="btn btn-outline" data-form-save>${ic('save','ico-sm')}Save</button><button class="btn btn-primary" data-form-submit>${ic('send','ico-sm')}Submit</button></div></div>
+  <aside><div id="routeBox">${routeCard()}</div>
+   ${card('Kelengkapan',`<ul class="stat-list small" id="chkBox">${checklist()}</ul>`,{sm:true})}</aside></div>`;
+};
+PAGES['req-form'].after=()=>{};
+function routeCard(){
+ const p=pipeline({jenis:FORM.jenis,tipe:FORM.tipe,tujuan:FORM.tujuan});
+ return card('Preview Rute Approval',`<ul class="vroute">${p.map((s,i)=>`<li class="${s.k==='appr'?'ap':(s.k==='proc'?'pr':'')}"><span class="vd" style="${s.k==='sub'?'background:#21a366':''}${s.k==='end'?'background:#21CE9E':''}">${s.k==='end'?'✓':i+1}</span><div><div class="vt">${s.n}</div><div class="vs">${s.role!=='SYS'?rchip(s.role)+' ':''}${s.k==='appr'?'approval — cukup 1 user':(s.k==='proc'?'proses lab':'')}</div></div></li>`).join('')}</ul>`,
+  {icon:'route',sm:true,sub:`${FORM.jenis} · ${FORM.tipe} · ${FORM.tujuan}`});
+}
+function checklist(){
+ const ok=(b,t)=>`<li><span class="act-ico ${b?'ok':'lock'}" style="width:22px;height:22px">${ic(b?'check':'x')}</span><div class="sl">${t}</div></li>`;
+ return ok(true,'Informasi pelanggan')+ok(FORM.params.length>0,`Parameter dipilih (${FORM.params.length})`)+ok(FORM.tipe!=='Urgent'||true,'Alasan urgent (bila Urgent)')+ok(FORM.jenis!=='ASLT','Lampiran '+(FORM.jenis==='ASLT'?'(wajib ASLT)':'(opsional)'));
+}
+function paramPicker(){
+ const labs=labFor(FORM.jenis);
+ const opts=labs.map(l=>`<div class="ms-grp">${LABS[l]}</div>`+PARAMS.filter(p=>p.l===l).map(p=>`<label class="ms-opt" data-pname="${esc(p.n.toLowerCase())}"><input type="checkbox" data-param="${p.c}" ${FORM.params.includes(p.c)?'checked':''}>${esc(p.n)}<span class="mt">${p.s?'In-Scope':'Non-Scope'} · ${p.lt} hr</span></label>`).join('')).join('');
+ return `<div class="ms" id="paramMs"><div class="ms-box" id="paramBox">${FORM.params.map(c=>`<span class="ms-chip">${esc(PM[c].n)}<button data-unparam="${c}">${ic('x','ico-xs')}</button></span>`).join('')}<input id="paramQ" placeholder="${FORM.params.length?'Tambah parameter…':'Cari & pilih parameter (mis. Kadar Air, Salmonella, TPC)…'}" autocomplete="off"></div><div class="ms-list">${opts}</div></div>
+ <div class="hint">Searchable multi-select dari <b>Master Scope Lab</b>. Metode acuan & status scope ISO 17025 terisi otomatis.</div>
+ <div class="mt12" id="paramTbl">${paramTable()}</div>`;
+}
+function paramTable(){
+ if(!FORM.params.length)return '';
+ const lt=Math.max(...FORM.params.map(c=>PM[c].lt));
+ return `<div class="tbl-wrap"><table class="tbl tbl-sm"><thead><tr><th>Parameter</th><th>Lab</th><th>Metode Acuan Uji</th><th>Status Scope ISO 17025</th><th class="num">Lead Time</th><th></th></tr></thead><tbody>${FORM.params.map(c=>{const p=PM[c];return `<tr><td class="strong">${esc(p.n)}</td><td>${LABS[p.l]}</td><td class="small">${esc(p.m)}</td><td>${scopeBadge(p)}</td><td class="num">${p.lt} hari</td><td class="w1">${act('del','trash','Hapus',`data-unparam="${c}"`)}</td></tr>`}).join('')}</tbody></table></div>
+ <div class="row mt8 small"><span class="muted">${ic('clock','ico-xs')} Estimasi selesai (lead time terlama):</span><b>${lt} hari kerja</b>${FORM.params.some(c=>!PM[c].s)?`<span class="sp"></span>${badge('Ada parameter Non-Scope → kaji ulang manual','b-warning','alert')}`:`<span class="sp"></span>${badge('Semua In-Scope → kaji ulang auto-pass','b-success','check')}`}</div>`;
+}
+function sensRows(){return FORM.samples.map((s,i)=>`<div class="form-grid c4" style="margin-bottom:8px;align-items:end">${field(i?'':'Jenis Sampel',inp(s.n,`data-sidx="${i}" placeholder="Sampel ${i+1}"`),{cls:'span2'})}${field(i?'':'Tgl Pembuatan',inp(s.tgl,'placeholder="DD-MM-YYYY"'))}<div class="field" style="display:flex;gap:6px;align-items:flex-end"><div style="flex:1">${i?'':'<label class="label">Exp. Date</label>'}${inp(s.exp,'placeholder="DD-MM-YYYY"')}</div>${FORM.samples.length>1?act('del','trash','Hapus sampel',`data-del-sample="${i}"`):''}</div></div>`).join('')}
+function msStatic(key,opts,selv){return `<div class="ms-box" style="cursor:default">${opts.map(o=>`<button class="ms-chip" style="${selv.includes(o)?'':'background:var(--gray-2);color:var(--fg-3)'}" data-ms-tog="${key}|${esc(o)}">${esc(o)}${selv.includes(o)?`<span style="display:grid;place-items:center;width:16px">${ic('check','ico-xs')}</span>`:''}</button>`).join('')}</div>`}
+function refreshForm(){$('#routeBox').innerHTML=routeCard();$('#chkBox').innerHTML=checklist();const t=$('#paramTbl');if(t)t.innerHTML=paramTable();
+ const box=$('#paramBox');if(box){box.querySelectorAll('.ms-chip').forEach(x=>x.remove());box.insertAdjacentHTML('afterbegin',FORM.params.map(c=>`<span class="ms-chip">${esc(PM[c].n)}<button data-unparam="${c}">${ic('x','ico-xs')}</button></span>`).join(''));}
+ $$('[data-param]').forEach(cb=>cb.checked=FORM.params.includes(cb.dataset.param))}
+function saveForm(submit){
+ const nm=($('#f_sampel')||{}).value?.trim();
+ if(!nm){$('#f_sampel').focus();$('#f_sampel').style.borderColor='var(--danger)';toast('Nama Sampel wajib diisi');return}
+ if(submit&&!FORM.params.length){toast('Pilih minimal satu parameter uji');$('#paramQ').focus();return}
+ if(submit&&FORM.tipe==='Urgent'&&!$('#f_alasan').value.trim()){$('#f_alasan').focus();$('#f_alasan').style.borderColor='var(--danger)';toast('Alasan Urgent wajib diisi');return}
+ let r=FORM.editId?reqById(FORM.editId):null;
+ const data={jenis:FORM.jenis,tipe:FORM.tipe,tujuan:FORM.tujuan,params:[...FORM.params],sampel:nm,batch:$('#f_batch').value||'—',
+  lab:FORM.jenis==='Internal'?$('#f_lab').value:({Eksternal:'EXT',Sensory:'SEN',ASLT:'ASLT'}[FORM.jenis]),alasan:($('#f_alasan')||{}).value||''};
+ if(FORM.jenis==='Sensory')data.sens={samples:FORM.samples.map((s,i)=>($(`[data-sidx="${i}"]`)||{}).value||'Sampel '+(i+1)),atribut:[...FORM.atribut],saji:'Ambient',wadah:'—'};
+ if(FORM.jenis==='Eksternal')data.extLab=EXT_LABS[0];
+ if(!r){r=R(Object.assign({id:newId(),tgl:TODAY,pemohon:me(),kat:REF.kat[0],prod:TODAY,sku:'Others',state:'draft',step:'Submit'},data));REQUESTS.unshift(r);r.hist.push({t:'Draft disimpan',by:me(),role:ROLE,at:TODAY+' 10:24',k:'info'})}
+ else Object.assign(r,data);
+ if(submit){r.state='ok';r.step=pipeline(r)[1].n;r.hist.push({t:'Pengajuan disubmit',by:me(),role:ROLE,at:TODAY+' 10:26',k:'ok'});toast(`${r.id} disubmit → menunggu ${cur(r).n} (${cur(r).role})`)}
+ else toast(r.id+' disimpan sebagai DRAFT');
+ resetForm();go('req-detail',r.id);
+}
+
+/* =====================================================================
+   12. PAGE: DETAIL PENGAJUAN
+   ===================================================================== */
+const RES={KA:['2,84','ok'],TS:['60,76','ok'],ABU:['1,92','ok'],LMK:['21,40','ok'],PRT:['6,85','ok'],KHD:['67,0','ok'],AW:['0,41','ok'],FFA:['0,21','ok'],PV:['2,4','ok'],PH:['4,1','ok'],
+ TPC:['3,2×10²','ok'],KK:['< 10','ok'],COL:['< 3','ok'],ECO:['< 3','ok'],SAL:['Negatif','ok'],ENT:['< 10','ok'],STA:['< 10','ok'],BC:['< 10','ok'],DEG:['< 1,0','ok'],EG:['< 1,0','ok'],CPF:['< 10','ok'],CBT:['Negatif','ok'],
+ SRT:['4,6','ok'],'S-RT':['3,9','ok'],'S-RK':['1 (Trial)','ok'],'A-ARR':['9 bulan','ok'],'A-LAB':['8 bulan','ok']};
+let DTAB='info';
+PAGES['req-detail']=(id)=>{
+ const r=reqById(id);if(!r)return head('Pengajuan tidak ditemukan','');
+ if(!canSee(r))return crumb(['Pengajuan Analisa','req-list'],[r.id])+`<div class="card"><div class="empty">${ic('lock')}<div><b>Data analisa MBR — akses terbatas.</b><br>Pengajuan ini hanya dapat dilihat oleh tim MBR dan Laboratorium.</div></div></div>`;
+ const c=cur(r),pub=isPub(r);
+ let acts=`<button class="btn btn-light" data-print-req="${r.id}">${ic('printer','ico-sm')}Cetak Permohonan</button>`;
+ if((r.state==='draft'||r.state==='ret')&&ROLE==='BSU')acts+=`<button class="btn btn-outline" data-go-edit="${r.id}">${ic('edit','ico-sm')}Edit</button><button class="btn btn-primary" data-resubmit="${r.id}">${ic('send','ico-sm')}${r.state==='ret'?'Submit Ulang':'Submit'}</button>`;
+ if(r.state==='ok'&&!pub&&c.role===ROLE&&c.k==='appr')acts+=`<button class="btn btn-outline-danger" data-reject="${r.id}">${ic('undo','ico-sm')}Kembalikan</button><button class="btn btn-success" data-approve="${r.id}">${ic('check','ico-sm')}Approve</button>`;
+ if(r.state==='ok'&&!pub&&c.role===ROLE&&c.k==='proc')acts+=`<button class="btn btn-primary" data-go="${c.page}" data-arg="${r.id}">${ic('chevR','ico-sm')}Buka ${c.n}</button>`;
+ if(pub)acts+=`<button class="btn btn-success" data-coa="${r.id}">${ic('download','ico-sm')}Unduh CoA</button>`;
+ const info=`<div class="kv">
+  ${[['Jenis Pengajuan',jenisBadge(r.jenis)],['Tipe Pengajuan',tipeBadge(r.tipe)],['Tujuan Analisa',esc(r.tujuan)],['Laboratorium',esc(labName(r))],['No. ID GENESIS',r.genesis?`<a class="tbl-link">${esc(r.genesis)}</a>`:'—'],['Departemen Pemohon',esc(r.dept)],
+   ['Alamat Pelanggan',esc(r.alamatP)],['Alamat Pabrik',esc(r.alamatF)],['Pemohon',esc(r.pemohon)],['Nama Sampel',esc(r.sampel)],['Nama SKU',esc(r.sku||'—')],['Kode Batch',esc(r.batch)],
+   ['Tanggal Produksi',esc(r.prod)],['Kategori Pangan',esc(r.kat)],['Jenis Kemasan',esc(r.kemasan)],['Jumlah Sampel',r.jml],['Suhu Penyimpanan',esc(r.suhu)],['No. SPK',r.spk||'—']]
+   .map(([k,v])=>`<div><div class="k">${k}</div><div class="v">${v}</div></div>`).join('')}
+  ${r.tipe==='Urgent'?`<div class="full"><div class="k">Alasan Urgent</div><div class="v">${esc(r.alasan||'—')}</div></div>`:''}
+  ${r.sens?`<div class="full"><div class="k">Sampel Sensori</div><div class="v">${r.sens.samples.map((s,i)=>`<span class="badge b-pink" style="margin:2px">${i+1}. ${esc(s)}</span>`).join('')}</div></div><div><div class="k">Atribut</div><div class="v">${r.sens.atribut.join(', ')}</div></div><div><div class="k">Ketepatan</div><div class="v">${r.sens.ketepatan||'—'}</div></div><div><div class="k">Suhu Saji / Wadah</div><div class="v">${r.sens.saji} · ${r.sens.wadah}</div></div>`:''}
+  ${r.ship?`<div class="full"><div class="k">Pengiriman Sampel</div><div class="v">${r.ship.kurir} · resi ${r.ship.resi} · ${r.ship.tgl}</div></div>`:''}
+ </div>`;
+ const par=table(['Parameter','Lab','Metode Acuan',['Scope ISO 17025',false],'Satuan','Spesifikasi',['Status Data',false]],r.params.map(cd=>{const p=PM[cd],done=r.pushed.includes(cd)||pub;
+  return `<tr style="${done?'background:rgba(33,206,158,.06)':''}"><td class="strong">${esc(p.n)}</td><td>${LABS[p.l]}</td><td class="small">${esc(p.m)}</td><td>${scopeBadge(p)}</td><td>${p.u}</td><td>${p.sp}</td><td>${done?badge('Pengajuan ✓ · Push Data ✓','b-success','check'):badge('Menunggu push data','b-muted','clock')}</td></tr>`}),{cls:'tbl-sm'})+
+  `<div class="hint">Parameter pengajuan dan push data ditandai warna yang sama (hijau) bila keduanya sudah ada — sesuai catatan Draf Report di Blue Print.</div>`;
+ const chain=pipeline(r).filter(s=>s.k==='appr'||s.k==='sub');
+ const lane=`<ul class="lane">${chain.map(s=>{const h=r.hist.find(x=>x.t.startsWith(s.k==='sub'?'Pengajuan disubmit':s.n+' — disetujui'));const no=r.state==='ret'&&r.retBy.at===s.n;
+  const wait=r.state==='ok'&&c.n===s.n;
+  return `<li class="${h&&!no?'ok':(no?'no':(wait?'wait':''))}"><span class="dot"></span><div class="lw"><span class="nm">${s.n} ${rchip(s.role)}</span><span class="ds">${h&&!no?`${h.by} · ${h.at}`:(no?`Dikembalikan oleh ${r.retBy.who} · ${r.retBy.tgl}`:(wait?'Menunggu salah satu dari: '+ROLE_USERS[s.role].join(', '):'Belum'))}</span>${no?`<span class="rs">${esc(r.retBy.reason)}</span>`:''}</div>${h&&!no?badge('Approved','b-success','check'):(no?badge('Dikembalikan','b-danger','undo'):(wait?badge('Pending','b-warning','clock'):''))}</li>`}).join('')}</ul>`;
+ const tl=`<ul class="tl">${[...r.hist].reverse().map(h=>`<li class="${h.k}"><div class="tt">${esc(h.t)}</div><div class="td">${esc(h.by)} ${rchip(h.role)} · ${h.at}</div>${h.reason?`<div class="tr">Alasan: ${esc(h.reason)}</div>`:''}</li>`).join('')}</ul>`;
+ const docs=dz('Lampiran Pengajuan',false,{files:r.jenis==='ASLT'?['Spesifikasi_Kemasan_DLN.pdf','Formula_Wafer_Caramel.xlsx']:['Spec_Sheet_'+r.batch.replace(/\W+/g,'_')+'.pdf']})+(r.jenis==='Eksternal'?'<div class="mt16"></div>'+dz('Sertifikat Vendor / Invoice',false,{files:r.inv?['Invoice_'+r.inv.no.replace(/\W+/g,'_')+'.pdf']:[]}):'');
+ const hasil=(r.pushed.length||pub)?table(['Parameter','Hasil','Satuan','Spesifikasi','Kesimpulan'],r.params.filter(cd=>pub||r.pushed.includes(cd)).map(cd=>{const p=PM[cd],x=RES[cd]||['—','ok'];return `<tr><td class="strong">${esc(p.n)}</td><td class="strong">${x[0]}</td><td>${p.u}</td><td>${p.sp}</td><td>${x[1]==='ok'?badge('Memenuhi','b-success','check'):badge('Tidak memenuhi','b-danger','x')}</td></tr>`}),{cls:'tbl-sm'})+
+  (pub?`<div class="row mt12">${badge(r.coa+(r.rev?' · Rev-0'+r.rev:''),'b-success','award')}<button class="btn btn-light btn-sm" data-coa="${r.id}">${ic('eye','ico-xs')}Preview CoA</button></div>`:note('Hasil sementara (push data analis). LHU/CoA terbit setelah validasi CRL dan sign-off TCM.','', 'info'))
+  :`<div class="empty">${ic('flask')}<div>Belum ada hasil analisa.</div></div>`;
+ const posTxt=r.state==='draft'?'Draft — belum disubmit':(r.state==='ret'?`Dikembalikan ke BSU oleh ${r.retBy.who} (${r.retBy.role}) — perbaiki lalu submit ulang`:(pub?'Selesai — CoA terbit':`Posisi saat ini: <b>${c.n}</b> ${rchip(c.role)}`));
+ return crumb(['Pengajuan Analisa','req-list'],['Daftar Pengajuan','req-list'],[r.id])+
+  head(esc(r.sampel),`${r.id} · diajukan ${r.pemohon} (${r.dept})`,acts)+
+  infobar(statusDot(r),[['No. Pengajuan',r.id],['Tanggal',r.tgl],['Jenis',r.jenis],['Tipe',r.tipe],['Tujuan',r.tujuan],['Laboratorium',esc(labName(r))],['No. SPK',r.spk||'—']])+
+  (r.state==='ret'?note(`<b>Dikembalikan oleh ${r.retBy.who} (${r.retBy.role})</b> pada tahap <b>${r.retBy.at}</b> — ${r.retBy.tgl}<br>“${esc(r.retBy.reason)}”`,'danger','undo'):'')+
+  card('Alur Proses',pipeHtml(r)+`<div class="pipe-foot">${ic('route','ico-sm')}<span>${posTxt}</span>${r.state==='ok'&&!pub&&c.k==='appr'?`<span class="sp"></span><span class="xs muted">${approverNote(c.role)}</span>`:''}</div>`,{icon:'git'})+
+  tabcard('dt',[{id:'info',label:'Informasi',icon:'fileText',body:info},{id:'param',label:'Parameter',icon:'flask',n:r.params.length,body:par},
+   {id:'appr',label:'Approval & Riwayat',icon:'shield',body:`<div class="g2"><div>${card('Rantai Approval',lane,{sm:true})}</div><div>${card('Riwayat Aktivitas',tl,{sm:true})}</div></div>`},
+   {id:'docs',label:'Dokumen',icon:'clip',body:docs},{id:'hasil',label:'Hasil & Report',icon:'award',body:hasil}],DTAB);
+};
+function printReq(id){const r=reqById(id);
+ const rows=[['No ID Transaksi',r.id],['Tanggal Pengajuan',r.tgl],['Jenis Pengajuan',r.jenis],['Pelanggan',r.alamatP],['Pabrik',r.alamatF],['Tipe',r.tipe],['Lab',labName(r)],['Nama Sampel',r.sampel],['Jenis Kemasan',r.kemasan],['Jumlah Sampel',r.jml],['Tujuan Analisa',r.tujuan],['Parameter',r.params.map(c=>PM[c].n).join(', ')],['Catatan',r.note||'—']];
+ const appr=r.hist.filter(h=>h.k==='ok'&&/disetujui/.test(h.t));
+ openModal('Permohonan Analisa — '+r.id,`<div class="coa"><div class="ch"><div class="lg"><span class="mk">TCL</span><div><b>PERMOHONAN ANALISA</b><small>TUDUNG CORPORATE LABORATORY · HOLABSYS</small></div></div>${qrSvg(r.id,64)}</div>
+  <table class="ci">${rows.map(x=>`<tr><td>${x[0]}</td><td>: ${esc(x[1])}</td></tr>`).join('')}</table>
+  <div class="sig"><div><div class="box">${badge('SUBMITTED','b-primary','check')}</div>Created By<br><b>${r.pemohon}</b></div>${appr.map(h=>`<div><div class="box">${badge('APPROVED','b-success','check')}</div>${h.t.replace(' — disetujui','')}<br><b>${h.by}</b></div>`).join('')}</div></div>`,
+  `<button class="btn btn-light" data-close>Tutup</button><button class="btn btn-primary" onclick="window.print()">${ic('printer','ico-sm')}Cetak</button>`,true)}
+
+/* =====================================================================
+   13. DATA INTERNAL DOCUMENT (analis, reagen, alat, log akomodasi)
+   ===================================================================== */
+const COMP_COLS=['KA','TS','ABU','LMK','PRT','AW','FFA','TPC','KK','SAL','COL','S-RT'];
+const ANALIS=[
+ {n:'Putri Ayuningtyas',lab:'FK',sert:'Kompeten s/d 03-2027',k:{KA:'k',TS:'k',ABU:'k',LMK:'k',PRT:'t',AW:'k',FFA:'k'}},
+ {n:'Dimas Aditya',lab:'FK',sert:'Kompeten s/d 11-2026',k:{KA:'k',TS:'k',LMK:'k',PRT:'k',FFA:'k',AW:'t'}},
+ {n:'Lestari Dewi',lab:'FK',sert:'Training',k:{KA:'t',TS:'t',ABU:'k'}},
+ {n:'Galih Saputra',lab:'MB',sert:'Kompeten s/d 06-2027',k:{TPC:'k',KK:'k',SAL:'k',COL:'k'}},
+ {n:'Nur Aini',lab:'MB',sert:'Kompeten s/d 01-2027',k:{TPC:'k',KK:'k',SAL:'t',COL:'k'}},
+ {n:'Rafi Setiadi',lab:'SEN',sert:'Panel leader',k:{'S-RT':'k'}},
+];
+const REAGEN=[
+ {c:'RG-FK-001',n:'Heksana p.a.',lab:'Fisika Kimia',stok:2.5,min:5,u:'L',ed:'12-2027',use:'Kadar Lemak (Soxhlet)'},
+ {c:'RG-FK-002',n:'H₂SO₄ pekat 98%',lab:'Fisika Kimia',stok:8,min:4,u:'L',ed:'06-2028',use:'Kadar Protein (Kjeldahl)'},
+ {c:'RG-FK-003',n:'Katalis Kjeldahl (tablet)',lab:'Fisika Kimia',stok:180,min:100,u:'tab',ed:'03-2027',use:'Kadar Protein'},
+ {c:'RG-FK-004',n:'KOH 0,1 N (etanolik)',lab:'Fisika Kimia',stok:0.8,min:2,u:'L',ed:'10-2026',use:'FFA'},
+ {c:'RG-MB-001',n:'Plate Count Agar (PCA)',lab:'Mikrobiologi',stok:1.2,min:1,u:'kg',ed:'02-2027',use:'TPC'},
+ {c:'RG-MB-002',n:'DRBC Agar',lab:'Mikrobiologi',stok:0.3,min:0.5,u:'kg',ed:'11-2026',use:'Kapang dan Khamir'},
+ {c:'RG-MB-003',n:'Buffered Peptone Water',lab:'Mikrobiologi',stok:2,min:1,u:'kg',ed:'08-2027',use:'Salmonella, pengenceran'},
+ {c:'CS-001',n:'Cawan porselen',lab:'Fisika Kimia',stok:46,min:30,u:'pcs',ed:'—',use:'Kadar Air / Abu'},
+];
+const ALAT=[
+ {k:'AL-FK-01',n:'Oven Memmert UN55',lab:'Fisika Kimia',kal:'10-01-2026',due:'10-01-2027',st:'ok',int:false},
+ {k:'AL-FK-02',n:'Moisture Analyzer MA-02',lab:'Fisika Kimia',kal:'05-10-2025',due:'05-10-2026',st:'due',int:true},
+ {k:'AL-FK-03',n:'Kjeldahl Distillation Unit',lab:'Fisika Kimia',kal:'20-03-2026',due:'20-03-2027',st:'ok',int:true},
+ {k:'AL-FK-04',n:'Neraca Analitik 4 digit',lab:'Fisika Kimia',kal:'01-09-2026',due:'01-03-2027',st:'ok',int:true},
+ {k:'AL-FK-05',n:'aw-meter Aqualab 4TE',lab:'Fisika Kimia',kal:'22-09-2025',due:'22-09-2026',st:'due',int:false},
+ {k:'AL-MB-01',n:'Inkubator 35 °C',lab:'Mikrobiologi',kal:'15-02-2026',due:'15-02-2027',st:'ok',int:false},
+ {k:'AL-MB-02',n:'Autoclave HVE-50',lab:'Mikrobiologi',kal:'12-06-2026',due:'12-06-2027',st:'oos',int:false},
+ {k:'AL-MB-03',n:'Laminar Air Flow',lab:'Mikrobiologi',kal:'30-04-2026',due:'30-10-2026',st:'ok',int:false},
+];
+const LOGAKOM=[
+ {ruang:'R. Instrumen Fisika Kimia',t:23.4,rh:52,bt:'20–25 °C · RH ≤ 60%',src:'IoT sensor',at:'18-09-2026 10:15',ok:true},
+ {ruang:'R. Penimbangan',t:24.1,rh:48,bt:'20–25 °C · RH ≤ 60%',src:'IoT sensor',at:'18-09-2026 10:15',ok:true},
+ {ruang:'R. Mikrobiologi (BSL-2)',t:26.8,rh:63,bt:'20–25 °C · RH ≤ 60%',src:'IoT sensor',at:'18-09-2026 10:10',ok:false},
+ {ruang:'R. Uji Sensori (booth)',t:24.0,rh:55,bt:'22–26 °C · RH ≤ 65%',src:'Manual',at:'18-09-2026 08:00',ok:true},
+ {ruang:'Chiller Sampel 2–8 °C',t:4.2,rh:0,bt:'2–8 °C',src:'IoT sensor',at:'18-09-2026 10:15',ok:true},
+ {ruang:'Chamber ASLT 45 °C',t:45.1,rh:74,bt:'45 ± 1 °C · RH 75 ± 5%',src:'IoT sensor',at:'18-09-2026 10:15',ok:true},
+];
+
+/* helper halaman antrian per tahap */
+function queue(steps,o={}){
+ const list=REQUESTS.filter(r=>r.state==='ok'&&canSee(r)&&(steps.includes(r.step)||(o.done&&o.done(r))));
+ const rows=list.map(r=>{const c=cur(r),here=steps.includes(r.step),mine=here&&c.role===ROLE;
+  return `<tr class="${CUR.arg===r.id?'sel':''}"><td class="w1">${act(mine?'edit':'view',mine?'edit':'eye',mine?'Proses':'Lihat',`data-go="${o.page}" data-arg="${r.id}"`)}</td><td>${tlink(r.id,`data-go="${o.page}" data-arg="${r.id}"`)}</td>
+  <td><div class="strong">${esc(r.sampel)}</div><div class="xs muted">${r.batch}</div></td><td>${jenisBadge(r.jenis)}</td><td>${tipeBadge(r.tipe)}</td><td>${esc(labName(r))}</td>${o.cols?o.cols(r):''}<td>${statusBadge(r)}</td></tr>`});
+ return card(o.title||'Antrian',table([['Aksi',false],'No. Pengajuan','Sampel','Jenis','Tipe','Laboratorium',...(o.heads||[]),'Status'],rows,{empty:o.empty}),{flush:true,sub:o.sub,icon:'list'});
+}
+function lockedStep(r,need){return `<div class="card"><div class="empty">${ic('lock')}<div><b>${need}</b><br>Posisi pengajuan saat ini: ${statusBadge(r)}</div></div></div>`}
+function reqHeaderBar(r){return infobar(statusDot(r),[['No. Pengajuan',tlink(r.id,`data-open="${r.id}"`)],['Sampel',esc(r.sampel)],['Batch',esc(r.batch)],['Tipe',r.tipe],['Lab',esc(labName(r))],['No. SPK',r.spk||'—']])}
+
+/* =====================================================================
+   14. PAGE: KAJI ULANG & SPK
+   ===================================================================== */
+const KJ={};
+PAGES.kaji=(id)=>{
+ const top=crumb(['Proses Lab','kaji'],['Kaji Ulang & SPK'])+head('Kaji Ulang Permintaan & SPK','Contract review (ISO 17025 Kl. 7.1) — mirip halaman admin pemeriksaan pengajuan. ADM / CRL (backup) mencentang kesiapan lalu menerbitkan SPK.','');
+ const q=queue(['Kaji Ulang & SPK'],{page:'kaji',title:'Antrian Kaji Ulang',done:r=>!!r.spk&&!isPub(r),heads:['No. SPK'],cols:r=>`<td class="nowrap">${r.spk||'—'}</td>`,sub:'Pengajuan yang sudah disahkan Admin'});
+ if(!id)return top+note('Pilih pengajuan pada antrian untuk melakukan kaji ulang. Parameter <b>In-Scope</b> dengan kapasitas memadai otomatis <b>PASS</b>; parameter Non-Scope / sampel khusus dialihkan ke review manual.')+q;
+ const r=reqById(id),atStep=r.step==='Kaji Ulang & SPK';
+ if(!atStep&&!r.spk)return top+reqHeaderBar(r)+lockedStep(r,'Kaji ulang tersedia setelah pengajuan disahkan Admin (Approve Admin).');
+ const k=KJ[id]||(KJ[id]={hasil:'Diterima Full',chk:Object.fromEntries(r.params.map(c=>[c,PM[c].s?[1,1,1,1,1]:[1,1,0,0,1]]))});
+ const cand=ANALIS.filter(a=>a.lab===r.lab);
+ const can=atStep&&['ADM','CRL'].includes(ROLE);
+ const aspects=['Sampel/Bahan','Metode','Alat','Reagen','Kompetensi'];
+ const rows=r.params.map(c=>{const p=PM[c],ch=k.chk[c],all=ch.every(Boolean);return `<tr><td class="strong">${esc(p.n)}</td><td class="small">${esc(p.m)}</td><td>${scopeBadge(p)}</td>${ch.map((v,i)=>`<td class="ctr"><input type="checkbox" ${v?'checked':''} ${can?'':'disabled'} data-kj="${id}|${c}|${i}" style="width:16px;height:16px;accent-color:var(--success)"></td>`).join('')}<td>${all?(p.s?badge('Auto-Pass','b-success','zap'):badge('OK (manual)','b-success','check')):badge('Perlu review','b-warning','alert')}</td></tr>`});
+ const allOk=r.params.every(c=>k.chk[c].every(Boolean));
+ return top+reqHeaderBar(r)+`<div class="g-aside"><div>
+  ${card('Checklist Kesiapan per Parameter',`<div class="tbl-wrap"><table class="tbl tbl-sm mx"><thead><tr><th>Parameter</th><th>Metode</th><th>Scope</th>${aspects.map(a=>`<th class="ctr">${a}</th>`).join('')}<th>Hasil</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`,{icon:'clipCheck',sub:'Centang = bahan siap diuji (MoM 27 Agt). Rekaman auto-pass tersimpan di audit trail.',flush:false})}
+  ${card('Penerimaan Sampel Fisik',`<div class="form-grid c4">${field('Tgl Terima',inp(TODAY+' 08:40',can?'':'disabled'))}${field('Suhu Saat Diterima',unit('24,1','°C',can?'':'disabled'))}${field('Kondisi Kemasan',sel(['Utuh / baik','Rusak ringan','Rusak'],'',can?'':'disabled'))}${field('Jumlah Cukup?',sel(['Ya','Tidak'],'',can?'':'disabled'))}</div><div class="hint">Klausul 7.4 — pemeriksaan fisik/suhu diinput manual oleh Admin, validasi keberterimaan diproses sistem.</div>`,{icon:'pkg'})}
+ </div><aside>
+  ${card('Hasil Kaji Ulang & SPK',`<div class="form-grid">
+   ${field('No. SPK (Surat Perintah Kerja)',inp(r.spk||'SPK/LAB/202609/XXXX','readonly'),{hint:'Auto-generate saat klik “Terima & Terbit SPK”'})}
+   ${field('Hasil Kaji Ulang Teknis',sel(['Diterima Full','Diterima Parsial','Ditolak'],k.hasil,`data-kj-hasil="${id}" ${can?'':'disabled'}`),{req:true})}
+   ${field('Catatan Kaji Ulang',ta(k.cat||'',`id="kjCat" ${can?'':'disabled'} placeholder="Alasan penolakan / penyesuaian parameter"`),{req:k.hasil!=='Diterima Full',hint:'Wajib jika Ditolak / Parsial'})}
+   ${field('Penunjukan Analis',sel(cand.map(a=>[a.n,`${a.n} — ${a.sert}`]),r.analis||cand[0]?.n,`id="kjAnalis" ${can?'':'disabled'}`),{req:true,hint:'Rekomendasi dari matriks kompetensi personel (Kl. 6.2)'})}
+   ${field('Est. Tanggal Selesai Uji',inp('24-09-2026',can?'':'disabled'),{req:true,hint:'Target penyerahan draf LHU (lead time terlama '+Math.max(...r.params.map(c=>PM[c].lt))+' hari)'})}
+  </div>`,{icon:'clipboard',foot:can?`<button class="btn btn-outline-danger" data-reject="${id}">${ic('undo','ico-sm')}Kembalikan</button><button class="btn btn-primary" data-kj-go="${id}" ${allOk||k.hasil!=='Diterima Full'?'':'disabled'}>${ic('check','ico-sm')}Terima &amp; Terbit SPK</button>`
+     :(r.spk?`<button class="btn btn-secondary" data-go="label" data-arg="${id}">${ic('printer','ico-sm')}Cetak Label</button>`:`<span class="xs muted">Hanya ADM / CRL</span>`)})}
+  ${r.spk?note(`SPK <b>${r.spk}</b> terbit · analis <b>${r.analis}</b>. Label dapat dicetak (bisa bersamaan dengan kaji ulang).`,'ok','check'):note('Label baru bisa dicetak setelah status kaji ulang dinyatakan OK & SPK terbit.','warn','lock')}
+ </aside></div>`;
+};
+
+/* =====================================================================
+   15. PAGE: LABELING
+   ===================================================================== */
+PAGES.label=(id)=>{
+ const top=crumb(['Proses Lab','kaji'],['Labeling Sampel'])+head('Labeling Sampel','Label ditempel pada dokumen / sampel lab. Nomor sampel melanjutkan ID pengajuan.','');
+ const q=queue(['Labeling'],{page:'label',title:'Antrian Cetak Label',done:r=>!!r.spk&&['Proses Analisa','Push Data'].includes(r.step),heads:['No. SPK'],cols:r=>`<td>${r.spk||'—'}</td>`});
+ if(!id)return top+q;
+ const r=reqById(id);
+ if(!r.spk)return top+reqHeaderBar(r)+lockedStep(r,'Label dapat dicetak setelah kaji ulang OK & SPK terbit.');
+ const groups=[...new Set(r.params.map(c=>PM[c].l))];let n=0;
+ const labels=[];for(let s=1;s<=r.jml;s++)for(const g of groups){n++;const sid=`${r.id}-${String(n).padStart(2,'0')}`;
+  labels.push(`<div class="lbl-card">${qrSvg(sid)}<div><div class="lh"><span class="lid">${sid}</span>${tipeBadge(r.tipe)}</div><div class="ln">${esc(r.sampel)}</div>
+  <div class="lm">Batch: ${esc(r.batch)} · Prod: ${r.prod}<br>Lab: <b>${LABS[g]}</b> · Terima: ${TODAY}<br>Simpan: ${r.suhu} · ${r.spk}</div>
+  <div class="lp">${r.params.filter(c=>PM[c].l===g).map(c=>`<span>${PM[c].c}</span>`).join('')}</div></div></div>`)}
+ const can=r.step==='Labeling'&&ROLE==='ADM';
+ return top+reqHeaderBar(r)+card(`Preview Label (${labels.length})`,`<div class="label-sheet">${labels.join('')}</div>`,{cls:'print-area',icon:'tag',sub:'Ukuran label 50 × 30 mm · QR berisi ID sampel unik (Kl. 7.4)',
+  acts:`<select class="select" style="width:auto">${['Zebra ZD230 (50×30)','A4 — 3×7 label','PDF'].map(x=>`<option>${x}</option>`).join('')}</select><button class="btn btn-secondary" data-print-label>${ic('printer','ico-sm')}Cetak Label</button>${can?`<button class="btn btn-success" data-label-done="${id}">${ic('check','ico-sm')}Label Ditempel — Serahkan ke Analis</button>`:''}`});
+};
+
+/* =====================================================================
+   16. PAGE: PROSES ANALISA / PUSH DATA
+   ===================================================================== */
+const GRAV=['KA','TS'];
+const GRID_SEED=[
+ ['27-03-2026','.01','D-12',50.1125,3.0018,[51.9804,51.9670,51.9584,51.9570,51.9565,51.9560,'']],
+ ['27-03-2026','.01','D-13',54.6514,3.0010,[56.5000,56.4708,56.4564,56.4552,56.4548,56.4541,'']],
+ ['28-03-2026','.02','D-14',48.0964,3.0033,[49.9621,49.9601,49.9590,49.9585,49.9580,49.9574,'']],
+ ['28-03-2026','.02','D-15',48.1545,3.0013,[49.8673,49.8650,49.8629,49.8620,49.8614,49.8607,'']],
+ ['31-03-2026','.03','D-16',52.7502,3.0029,[54.5258,54.5221,54.5211,54.5195,54.5189,54.5186,'']],
+ ['31-03-2026','.03','D-17',47.2988,3.0028,[49.0398,49.0370,49.0355,49.0320,49.0309,'','']],
+];
+const fmt=(x,d=4)=>x===''||x==null||isNaN(x)?'':Number(x).toFixed(d).replace('.',',');
+const num=s=>{const v=parseFloat(String(s).replace(',','.'));return isNaN(v)?null:v};
+PAGES.analisa=(arg)=>{
+ const top=crumb(['Proses Lab','kaji'],['Proses Analisa'])+head('Proses Analisa & Push Data','Worklist analis per SPK & parameter. Hasil dihitung otomatis (menggantikan rumus Excel), raw data wajib dilampirkan sebagai technical record (Kl. 7.5).','');
+ const [id,code]=(arg||'').split('~');
+ const work=[];REQUESTS.filter(r=>r.state==='ok'&&r.spk&&canSee(r)&&['Proses Analisa','Push Data','Labeling'].includes(r.step)&&r.jenis==='Internal').forEach(r=>r.params.forEach(c=>work.push([r,c])));
+ const rows=work.map(([r,c])=>{const p=PM[c],done=r.pushed.includes(c),mine=r.analis===me()||ROLE!=='Analis';const k=r.id+'~'+c;
+  return `<tr class="${arg===k?'sel':''}"><td class="w1">${r.step==='Labeling'?act('lock','lock','Menunggu label'):act(done?'view':'edit',done?'eye':'edit',done?'Lihat':'Input hasil',`data-go="analisa" data-arg="${k}"`)}</td><td>${tlink(r.spk,`data-go="analisa" data-arg="${k}"`)}</td><td class="nowrap">${r.id}</td><td>${esc(r.sampel)}</td><td class="strong">${esc(p.n)}${GRAV.includes(c)?` <span class="src-tag">${ic('grid','ico-xs')}grid</span>`:''}</td><td>${r.analis}</td><td>${tipeBadge(r.tipe)}</td><td>${done?badge('Pushed','b-success','check'):(r.step==='Labeling'?badge('Menunggu label','b-muted','lock'):badge('Belum input','b-warning','clock'))}</td></tr>`});
+ const wl=card('Worklist Analis',table([['Aksi',false],'No. SPK','No. Pengajuan','Sampel','Parameter','Analis','Tipe','Status'],rows),{flush:true,icon:'list',sub:`${work.filter(w=>!w[0].pushed.includes(w[1])).length} parameter belum di-push`});
+ if(!id)return top+wl;
+ const r=reqById(id),p=PM[code],done=r.pushed.includes(code),can=!done&&['Analis','CRL'].includes(ROLE);
+ let body;
+ if(GRAV.includes(code)){
+  const isKA=code==='KA';
+  body=card(`Lembar Kerja Gravimetri — ${p.n}`,`<div class="tbl-wrap"><table class="xgrid" id="xgrid"><thead><tr><th>Date</th><th>Sample Code</th><th>Dish Code</th><th>g constant dish</th><th>g sample</th>${[1,2,3,4,5,6,7].map(i=>`<th>W ${i}</th>`).join('')}<th style="color:var(--danger)">(g) final dish</th><th>${isKA?'% Kadar Air':'% Solid'}</th><th style="color:#7030a0">AVG</th><th>RPD &lt; 10%</th><th>Inference</th><th>Metode</th></tr></thead><tbody>
+   ${GRID_SEED.map((g,i)=>`<tr data-i="${i}" class="${i%2===0&&i?'pair':''}"><td class="txt">${g[0]}</td><td class="code" style="background:${i<2?'#e0f4fd':i<4?'#efe6f8':'#e7f8f1'}">${r.id.slice(-4)}${g[1]}</td>
+    <td class="ed txt"><span class="cell" contenteditable="${can}">${g[2]}</span></td><td class="ed"><span class="cell" contenteditable="${can}" data-f="d">${fmt(g[3])}</span></td><td class="ed"><span class="cell" contenteditable="${can}" data-f="s">${fmt(g[4])}</span></td>
+    ${g[5].map((w,j)=>`<td class="ed"><span class="cell" contenteditable="${can}" data-f="w">${fmt(w)}</span></td>`).join('')}
+    <td class="calc fin" data-o="fin"></td><td class="calc" data-o="pct"></td>${i%2===0?`<td class="avg" rowspan="2" data-o="avg"></td><td class="calc txt" rowspan="2" data-o="rpd"></td><td class="calc txt" rowspan="2" data-o="inf"></td>`:''}<td class="txt small" style="text-align:left">${esc(p.m.split(' / ')[0])}</td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="row small mt12" style="padding:0 2px"><span class="muted">Rumus: ${isKA?'% KA = (g dish + g sample − final) / g sample × 100':'% Solid = (final − g dish) / g sample × 100'} · final = W terakhir (bobot konstan) · RPD = |x₁−x₂| / AVG × 100 · Inference “teliti” bila RPD &lt; 10%</span><span class="sp"></span><span>Spesifikasi: <b>${p.sp}</b></span><span id="specFlag"></span></div>`,
+   {icon:'grid',sub:'Sel putih dapat diedit (seperti Excel); kolom abu-abu dihitung sistem.',acts:can?`<button class="btn btn-info btn-sm" data-import-alat>${ic('zap','ico-xs')}Import dari Alat</button>`:''});
+ }else{
+  body=card(`Input Hasil — ${p.n}`,`<div class="tbl-wrap"><table class="tbl tbl-sm"><thead><tr><th>Sampel</th><th>Ulangan 1</th><th>Ulangan 2</th><th>Hasil Akhir</th><th>Satuan</th><th>Spesifikasi</th><th>Kesimpulan</th></tr></thead><tbody>
+   ${Array.from({length:r.jml},(_,i)=>`<tr><td class="strong">${r.id}-${String(i+1).padStart(2,'0')}</td><td>${inp(done?(RES[code]||['—'])[0]:'',`class="input input-sm" ${can?'':'disabled'}`)}</td><td>${inp(done?(RES[code]||['—'])[0]:'',`class="input input-sm" ${can?'':'disabled'}`)}</td><td>${inp(done?(RES[code]||['—'])[0]:'',`class="input input-sm" ${can?'':'disabled'}`)}</td><td>${p.u}</td><td>${p.sp}</td><td>${sel(['Memenuhi','Tidak memenuhi'],'',`class="select input-sm" ${can?'':'disabled'}`)}</td></tr>`).join('')}
+  </tbody></table></div>`,{icon:'edit',sub:'Sistem memvalidasi format/range data dan mengunci riwayat input.'});
+ }
+ return top+reqHeaderBar(r)+body+`<div class="g2">${card('Raw Data (Technical Record)',dz('Raw Data '+p.n,true,{exts:'XLSX, PDF, CSV, spektrum',files:done?['RAW_'+r.id+'_'+code+'.xlsx']:[]}),{sm:true})}
+  ${card('Alat & Reagen Terpakai',`<ul class="stat-list">${ALAT.filter(a=>a.lab===LABS[p.l]).slice(0,3).map(a=>`<li><span class="act-ico ${a.st==='ok'?'ok':(a.st==='oos'?'del':'warn')}">${ic('tool')}</span><div class="sl"><b>${a.n}</b><small>${a.k} · kalibrasi s/d ${a.due}${a.int?' · terintegrasi':''}</small></div>${a.st==='ok'?badge('Siap','b-success','check'):a.st==='oos'?badge('OOS','b-danger','x'):badge('Due','b-warning','clock')}</li>`).join('')}</ul>
+   <div class="hint">Stok reagen akan dipotong otomatis (auto-deduct) saat Push Data.</div>`,{sm:true})}</div>
+  <div class="actionbar"><span class="sp xs muted">${done?'Data sudah di-push dan terkunci.':'Push Data mengirim hasil ke Draf Report (CRL).'}</span><button class="btn btn-light" data-go="analisa">Kembali</button>${can?`<button class="btn btn-outline" data-toast="Draft hasil disimpan">${ic('save','ico-sm')}Simpan</button><button class="btn btn-primary" data-push="${arg}">${ic('upload','ico-sm')}Push Data</button>`:''}</div>`;
+};
+PAGES.analisa.after=()=>{if($('#xgrid'))recalc()};
+function recalc(){
+ const tb=$('#xgrid tbody');if(!tb)return;const isKA=CUR.arg.endsWith('~KA');const trs=$$('tr',tb);const pct=[];
+ trs.forEach((tr,i)=>{const d=num($('[data-f="d"]',tr).textContent),s=num($('[data-f="s"]',tr).textContent);
+  const ws=$$('[data-f="w"]',tr).map(c=>num(c.textContent)).filter(v=>v!=null);const fin=ws.length?ws[ws.length-1]:null;
+  $('[data-o="fin"]',tr).textContent=fmt(fin);let v=null;if(d!=null&&s&&fin!=null)v=isKA?(d+s-fin)/s*100:(fin-d)/s*100;pct[i]=v;$('[data-o="pct"]',tr).textContent=v==null?'':fmt(v,2)});
+ let allOk=true;
+ trs.forEach((tr,i)=>{if(i%2)return;const a=pct[i],b=pct[i+1];const avg=(a!=null&&b!=null)?(a+b)/2:null;const rpd=avg?Math.abs(a-b)/avg*100:null;
+  $('[data-o="avg"]',tr).textContent=avg==null?'':fmt(avg,2);$('[data-o="rpd"]',tr).innerHTML=rpd==null?'':fmt(rpd,2)+'%';
+  $('[data-o="inf"]',tr).innerHTML=rpd==null?'':(rpd<10?'<span class="ok-t">teliti</span>':'<span class="bad-t">ulang</span>');if(rpd==null||rpd>=10)allOk=false});
+ const f=$('#specFlag');if(f)f.innerHTML=allOk?badge('Presisi OK — semua duplo RPD < 10%','b-success','check'):badge('Ada duplo belum lengkap / perlu diulang','b-warning','alert');
+}
+function pushData(arg){const [id,c]=arg.split('~');const r=reqById(id);if(!r.pushed.includes(c))r.pushed.push(c);
+ if(r.step==='Proses Analisa'&&r.pushed.length<r.params.length){advance(r,'Proses Analisa — mulai push data')}
+ if(r.pushed.length>=r.params.length){while(r.step!=='Draf Report')advance(r,cur(r).n+' — selesai');toast(`Semua parameter ${r.id} ter-push → Draf Report (CRL)`)}
+ else toast(`${PM[c].n} di-push (${r.pushed.length}/${r.params.length}). Reagen terkait di-auto-deduct.`);
+ go('analisa');}
+
+/* =====================================================================
+   17. PAGE: LAB EKSTERNAL
+   ===================================================================== */
+PAGES.ext=(id)=>{
+ const top=crumb(['Proses Lab','kaji'],['Lab Eksternal'])+head('Lab Eksternal (Subkontrak)','Pengujian yang belum tersedia di lab internal (mis. Clostridium) dikirim ke vendor; hasilnya tetap berupa sertifikat.','');
+ if(!id)return top+card('Pengajuan Eksternal',table([['Aksi',false],'No. Pengajuan','Sampel','Lab Tujuan','Tipe','Tahap','ID Biaya','Status'],REQUESTS.filter(r=>r.jenis==='Eksternal'&&r.state==='ok').map(r=>`<tr><td class="w1">${act(cur(r).role===ROLE?'edit':'view',cur(r).role===ROLE?'edit':'eye','Buka',`data-go="ext" data-arg="${r.id}"`)}</td><td>${tlink(r.id,`data-go="ext" data-arg="${r.id}"`)}</td><td class="strong">${esc(r.sampel)}</td><td>${esc(r.extLab)}</td><td>${tipeBadge(r.tipe)}</td><td>${rchip(cur(r).role)} ${cur(r).n}</td><td>${r.inv?tlink(r.inv.id,`data-inv="${r.id}"`):'—'}</td><td>${statusBadge(r)}</td></tr>`)),{flush:true,icon:'truck'});
+ const r=reqById(id),s=r.step,adm=ROLE==='ADM';
+ const idx=['Pengiriman Sampel','Order Confirmation'].indexOf(s);
+ const ship=r.ship||{kurir:'',resi:'',tgl:''};
+ const canShip=s==='Pengiriman Sampel'&&adm, canOC=s==='Order Confirmation'&&adm;
+ const shipCard=card('1 · Pengiriman Sampel',`<div class="form-grid c2">${field('Kurir / Ekspedisi',inp(ship.kurir,canShip?'placeholder="mis. JNE YES / kurir internal"':'disabled'),{req:true})}${field('No. Resi',inp(ship.resi,canShip?'':'disabled'),{req:true})}${field('Tanggal Kirim',inp(ship.tgl||TODAY,canShip?'':'disabled'),{req:true})}${field('Kondisi Pengiriman',sel(['Cool box 2–8 °C','Ambient'],'',canShip?'':'disabled'))}</div>
+  <div class="mt12">${dz('Bukti Pengiriman / Surat Jalan',true,{files:r.ship?['Surat_Jalan_'+r.id+'.pdf']:[]})}</div><div class="hint">Pengiriman sampel dilakukan manual; sistem hanya mencatat bukti & resi.</div>`,
+  {icon:'truck',acts:idx>0||s==='Draf Report'||s==='Final Report'?badge('Terkirim','b-success','check'):'',foot:canShip?`<button class="btn btn-primary" data-ext-ship="${id}">${ic('send','ico-sm')}Konfirmasi Terkirim</button>`:''});
+ const ocCard=card('2 · Order Confirmation',`${note('Order confirm memastikan sampel sampai di vendor. Setelah <b>Submit</b>, Admin menekan <b>Close</b> untuk menutup order (MoM: sebelumnya belum ada fitur close).','', 'info')}
+  <div class="form-grid c3">${field('No. Order Vendor',inp(r.oc?'SIG-ORD-26-4471':'',canOC?'':'disabled'),{req:true})}${field('Tgl Diterima Vendor',inp(r.oc?'10-09-2026':'',canOC?'placeholder="DD-MM-YYYY"':'disabled'),{req:true})}${field('Estimasi Hasil',inp(r.oc?'24-09-2026':'',canOC?'placeholder="DD-MM-YYYY"':'disabled'))}</div>`,
+  {icon:'clipCheck',acts:r.oc==='submitted'?badge('Submitted — menunggu Close','b-warning','clock'):(['Draf Report','Final Report'].includes(s)?badge('Closed','b-success','check'):''),
+   foot:canOC?`<button class="btn btn-outline" data-ext-oc="${id}" ${r.oc?'disabled':''}>${ic('send','ico-sm')}Submit</button><button class="btn btn-success" data-ext-close="${id}" ${r.oc?'':'disabled'}>${ic('check','ico-sm')}Close Order</button>`:''});
+ const certCard=card('3 · Sertifikat Vendor',dz('Sertifikat Hasil Uji Vendor',true,{files:['Draf Report','Final Report'].includes(s)?['CoA_SIG_'+r.batch+'.pdf']:[]})+`<div class="hint">Data hasil sertifikat vendor diinput ke Draf Report untuk divalidasi CRL.</div>`,{icon:'award'});
+ const inv=r.inv;
+ const payCard=card('Data Pembayaran',inv?`<div class="kv c2"><div><div class="k">ID Biaya (key)</div><div class="v">${tlink(inv.id,`data-inv="${r.id}"`)}</div></div><div><div class="k">No. Invoice Vendor</div><div class="v">${inv.no}</div></div><div><div class="k">No. FPPKB</div><div class="v">${inv.fppkb}</div></div><div><div class="k">No. FPPO</div><div class="v">${inv.fppo}</div></div><div><div class="k">Biaya Pengujian</div><div class="v">${rupiah(inv.biaya)}</div></div><div><div class="k">Biaya Administrasi</div><div class="v">${rupiah(inv.adm)}</div></div></div><div class="row mt12">${badge('Push data keuangan: tersinkron','b-success','refresh')}<span class="xs muted">key: ${r.id}</span></div>`
+   :`<div class="empty">${ic('dollar')}<div>Belum ada data pembayaran — akan terisi otomatis via push data (FPPKB, FPPO, Invoice).</div></div>`,{icon:'dollar',sm:true});
+ return top+reqHeaderBar(r)+card('Alur Eksternal',pipeHtml(r),{icon:'git'})+`<div class="g-aside"><div>${shipCard}${ocCard}${certCard}</div><aside>${payCard}${card('Info Vendor',`<div class="kv c2"><div><div class="k">Lab Tujuan</div><div class="v">${esc(r.extLab)}</div></div><div><div class="k">Parameter</div><div class="v">${r.params.map(c=>PM[c].n).join(', ')}</div></div></div>`,{sm:true})}</aside></div>`;
+};
+function showInvoice(id){const r=reqById(id),inv=r.inv;
+ const lines=[[r.id,r.sampel,'Diethylene Glycol (DEG)',900000],[r.id,r.sampel,'Ethylene Glycol (EG)',950000],['REQ-202609-0033','Saus Sambal Botol 340 ml','Residu Pestisida',2400000],['REQ-202609-0029','Tepung Bumbu Serbaguna','Clostridium Perfringens',650000]];
+ openModal('Rincian Biaya — '+inv.no,`${note(`Satu invoice vendor dapat menggabungkan beberapa pengajuan. Setiap baris memiliki <b>ID pengajuan</b> sehingga biaya dapat ditelusuri (poin MoM — detail menyusul dari Pak Bayu).`,'', 'dollar')}
+  ${table(['ID Pengajuan','Sampel','Parameter','Biaya'],lines.map(l=>`<tr class="${l[0]===r.id?'sel':''}"><td class="strong">${l[0]}</td><td>${esc(l[1])}</td><td>${l[2]}</td><td class="num">${rupiah(l[3])}</td></tr>`),{cls:'tbl-sm'})}
+  <div class="row mt12"><span class="sp"></span><span class="muted">Total invoice</span><b>${rupiah(lines.reduce((a,l)=>a+l[3],0)+inv.adm)}</b></div>`,`<button class="btn btn-light" data-close>Tutup</button>`,true)}
+
+/* =====================================================================
+   18. SENSORY — PENJADWALAN & SESI
+   ===================================================================== */
+const SESS=[{no:1,tgl:'18-09-2026',jam:'09:00–10:30',room:'Booth 1–6',pan:12},{no:2,tgl:'18-09-2026',jam:'13:30–15:00',room:'Booth 1–6',pan:12},{no:3,tgl:'19-09-2026',jam:'09:00–10:30',room:'Booth 7–12',pan:30}];
+const SROWS=[
+ {tgl:'18-09-2026',req:'REQ-202609-0047',kode:'125',nama:'Milk Tea Brown Sugar F1',jenis:'Minuman Susu',batch:'MTB-0913',uji:'Afektif Rating',prio:1,sesi:1},
+ {tgl:'18-09-2026',req:'REQ-202609-0047',kode:'709',nama:'Milk Tea Brown Sugar F2',jenis:'Minuman Susu',batch:'MTB-0913',uji:'Afektif Rating',prio:1,sesi:1},
+ {tgl:'18-09-2026',req:'REQ-202609-0046',kode:'109',nama:'Yoghurt SAT 4 (Trial)',jenis:'Dairy',batch:'YG-SAT4-0916',uji:'Afektif Ranking',prio:2,sesi:0},
+ {tgl:'18-09-2026',req:'REQ-202609-0046',kode:'713',nama:'Kompetitor A — Blueberry',jenis:'Dairy',batch:'—',uji:'Afektif Ranking',prio:2,sesi:0},
+ {tgl:'18-09-2026',req:'REQ-202609-0046',kode:'392',nama:'Kompetitor B — Blueberry',jenis:'Dairy',batch:'—',uji:'Afektif Ranking',prio:2,sesi:0},
+ {tgl:'17-09-2026',req:'REQ-202609-0030',kode:'458',nama:'Wafer Crispy Caramel (Trial)',jenis:'Wafer',batch:'DLN-0901',uji:'Uji Triangle',prio:3,sesi:2},
+ {tgl:'17-09-2026',req:'REQ-202609-0030',kode:'899',nama:'Wafer Crispy Caramel (Trial)',jenis:'Wafer',batch:'DLN-0901',uji:'Uji Triangle',prio:3,sesi:2},
+ {tgl:'17-09-2026',req:'REQ-202609-0030',kode:'596',nama:'Wafer Crispy Caramel (Existing)',jenis:'Wafer',batch:'DLN-0815',uji:'Uji Triangle',prio:3,sesi:2},
+ {tgl:'16-09-2026',req:'REQ-202609-0026',kode:'650',nama:'Malkist Salut Cokelat',jenis:'Biskuit',batch:'3GSK100227 C6',uji:'Quality Monitoring',prio:4,sesi:3},
+];
+PAGES.sens=()=>{
+ const r46=reqById('REQ-202609-0046'),canSched=r46.step==='Penjadwalan'&&ROLE==='ADM';
+ const rows=[...SROWS].sort((a,b)=>a.prio-b.prio).map((s,i)=>`<tr><td class="w1"><input type="checkbox" class="sens-chk" value="${SROWS.indexOf(s)}"></td><td class="w1">${act('edit','edit','Edit')}</td><td class="nowrap">${s.tgl}</td><td>${tlink(s.req,reqById(s.req)?`data-open="${s.req}"`:'')}</td><td><span class="code3">${s.kode}</span></td><td class="strong">${esc(s.nama)}</td><td>${esc(s.jenis)}</td><td>${esc(s.batch)}</td><td>${badge(s.uji,'b-pink')}</td><td class="ctr">${badge('P'+s.prio,s.prio===1?'b-danger':'b-muted')}</td><td>${s.sesi?badge('Sesi '+s.sesi,'b-primary','cal'):badge('Belum dijadwalkan','b-warning','clock')}</td></tr>`);
+ const res=reqById('REQ-202609-0047');
+ const att=res.sens.atribut;
+ const mean={125:[3.8,4.1,3.9,3.6],709:[4.2,3.9,4.3,4.0]};
+ return crumb(['Sensory & ASLT','sens'],['Penjadwalan & Sesi'])+head('Sensory Management — Penjadwalan & Sesi','Urutan sampel disusun berdasarkan <b>prioritas pengujian</b> lalu dibagi ke beberapa sesi. Kode sampel 3 digit acak (blind code).',
+  `<button class="btn btn-light" data-toast="Kode acak 3 digit dibuat untuk sampel yang belum memiliki kode">${ic('refresh','ico-sm')}Generate Kode Acak</button><button class="btn btn-light" data-toast="Data sesi diekspor ke Excel (format rekap panelis)">${ic('sheet','ico-sm')}Export Excel</button>`)+
+ `<div class="g3">${SESS.map(s=>card(`Sesi ${s.no}`,`<div class="kv c2"><div><div class="k">Tanggal</div><div class="v">${s.tgl}</div></div><div><div class="k">Jam</div><div class="v">${s.jam}</div></div><div><div class="k">Ruang</div><div class="v">${s.room}</div></div><div><div class="k">Panelis</div><div class="v">${s.pan} orang</div></div></div>
+   <div class="mt12">${SROWS.filter(x=>x.sesi===s.no).map(x=>`<span class="code3">${x.kode}</span>`).join('')||'<span class="xs muted">Belum ada sampel</span>'}</div>`,{icon:'cal',sm:true,acts:badge(SROWS.filter(x=>x.sesi===s.no).length+' sampel','b-muted')})).join('')}</div>`+
+ card('Tab Sensory Management',`<div class="filterbar" style="padding-top:.25rem">${inp(TODAY,'style="width:130px"')}<div class="search">${ic('search','ico-sm')}<input class="input" placeholder="Nomor pengajuan / nama sampel / kode batch"></div>${sel([['','Semua Jenis Sampel'],...REF.kat])}
+   <span class="sp"></span>${sel([['0','Pilih sesi…'],...SESS.map(s=>[String(s.no),'Sesi '+s.no+' · '+s.jam])],'','id="sensSesi" style="width:auto"')}<button class="btn btn-primary" data-sens-assign>${ic('cal','ico-sm')}Assign ke Sesi</button></div>
+   ${table([['',false],['Aksi',false],'Tanggal','Nomor Pengajuan','Kode','Nama Sampel','Jenis Sampel','Kode Batch','Jenis Uji','Prioritas','Sesi'],rows)}`,{flush:true,icon:'list',
+   foot:canSched?`<span class="xs muted sp">REQ-202609-0046 menunggu penjadwalan oleh Admin</span><button class="btn btn-success" data-step-done="REQ-202609-0046">${ic('check','ico-sm')}Jadwal Selesai → Penerimaan Sampel</button>`:''})+
+ card('Rekap Hasil — '+res.id+' · '+res.sampel,`<div class="tbl-wrap"><table class="tbl tbl-sm"><thead><tr><th>Kode</th><th>Sampel</th>${att.map(a=>`<th class="num">${a}</th>`).join('')}<th>Ketepatan (${res.sens.ketepatan})</th></tr></thead><tbody>
+   ${['125','709'].map((k,i)=>`<tr><td><span class="code3">${k}</span></td><td class="strong">${res.sens.samples[i]}</td>${mean[k].map(v=>`<td class="num"><span class="bar-mini"><i style="width:${v/5*100}%;background:${v>=4?'#21CE9E':'#FFC658'}"></i></span>${v.toFixed(1).replace('.',',')}</td>`).join('')}<td>${i?'Cukup 58% · Berlebih 25%':'Kurang 42% · Cukup 50%'}</td></tr>`).join('')}</tbody></table></div>
+   <div class="hint">Skala hedonik 1–5 (Sangat Tidak Suka → Sangat Suka), n = 8 dari 12 panelis. Data di-push dari tab ke Excel untuk perhitungan statistik lanjutan; pengujian sensori juga menghasilkan sertifikat.</div>`,
+  {icon:'activity',acts:`${badge('8/12 panelis','b-warning','users')}<button class="btn btn-light btn-sm" data-toast="Rekap panelis diekspor ke Excel">${ic('sheet','ico-xs')}Export Excel</button>`});
+};
+
+/* =====================================================================
+   19. SENSORY — FORM UJI PANELIS
+   ===================================================================== */
+const PNL={mode:'rating',idx:0,ans:{},rank:{},tri:null};
+PAGES.panel=()=>{
+ const r=reqById('REQ-202609-0047'),codes=['125','709'],att=r.sens.atribut;
+ const tabs=`<div class="seg-toggle">${[['rating','Afektif Rating'],['ranking','Afektif Ranking'],['triangle','Uji Triangle']].map(m=>`<button class="${PNL.mode===m[0]?'on':''}" data-pnl-mode="${m[0]}">${m[1]}</button>`).join('')}</div>`;
+ const sheetHead=`<div class="ps-head"><div class="brand"><span class="lg">TCL</span><div><b>Form Uji Sensori</b><div class="xs muted">Panel Sensori Internal · Sesi 1 · ${TODAY}</div></div></div><div class="fr">TCL/FR 7.2.1/78<br>Selamat datang<b>${ROLE==='Panelis'?me():'Rafi Setiadi'}</b></div></div>`;
+ let body;
+ if(PNL.mode==='rating'){
+  const code=codes[PNL.idx],hed=['Sangat Tidak Suka','Tidak Suka','Antara Suka dan Tidak Suka','Suka','Sangat Suka'];
+  body=`<div class="panel-sheet">${sheetHead}<div class="ps-body"><div class="ps-code"><div class="cd">${code}</div><div class="sn">${r.sens.samples[PNL.idx].replace(/ F\d$/,'')}</div><div class="pg">Sampel ${PNL.idx+1} dari ${codes.length}</div>
+   <div class="mt16">${codes.map((c,i)=>`<span class="code3" style="${i===PNL.idx?'background:#5C67F7;color:#fff;border-color:#5C67F7':''}">${c}</span>`).join('')}</div></div>
+   <div class="tbl-wrap"><table class="hed"><thead><tr><th>Atribut</th>${hed.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>
+   ${att.map(a=>`<tr><td>${a}</td>${hed.map((h,i)=>`<td><span class="rad ${PNL.ans[code+a]===i?'on':''}" data-rad="${code}|${a}|${i}" title="${h}"></span></td>`).join('')}</tr>`).join('')}
+   ${r.sens.ketepatan?`<tr class="sep"><td colspan="6">Ketepatan</td></tr><tr><td>Ketepatan ${r.sens.ketepatan}</td>${['Kurang','Cukup','Berlebih'].map((h,i)=>`<td><span class="rad ${PNL.ans[code+'KT']===i?'on':''}" data-rad="${code}|KT|${i}"></span><div class="xs muted">${h}</div></td>`).join('')}<td colspan="2"></td></tr>`:''}
+   </tbody></table></div></div>
+   <div class="card-foot"><button class="btn btn-light" data-pnl-idx="-1" ${PNL.idx?'':'disabled'}>${ic('chevL','ico-sm')}Sebelumnya</button><span class="sp"></span>${PNL.idx<codes.length-1?`<button class="btn btn-primary" data-pnl-idx="1">Sampel Berikutnya${ic('chevR','ico-sm')}</button>`:`<button class="btn btn-success" data-pnl-submit>${ic('send','ico-sm')}Submit Jawaban</button>`}</div></div>`;
+ }else if(PNL.mode==='ranking'){
+  const rc=['109','713','392'];
+  body=`<div class="panel-sheet">${sheetHead}<div style="padding:14px 18px 0"><b>Rasa Keseluruhan</b> — urutkan sampel dari yang <b>paling disukai (1)</b> hingga paling tidak disukai. Acuan ranking per 2–3 sampel.</div>
+   <div class="rank-grid">${rc.map(c=>`<div class="rank-card ${PNL.rank[c]?'pick':''}"><div class="xs muted">Kode</div><div class="cd">${c}</div><div class="mt8">${sel([['','Ranking…'],'1','2','3'],PNL.rank[c]||'',`data-rank="${c}"`)}</div></div>`).join('')}</div>
+   ${Object.values(PNL.rank).filter(Boolean).length&&new Set(Object.values(PNL.rank).filter(Boolean)).size!==Object.values(PNL.rank).filter(Boolean).length?`<div style="padding:0 18px">${note('Setiap ranking hanya boleh dipakai satu kali.','danger','alert')}</div>`:''}
+   <div class="card-foot"><button class="btn btn-success" data-pnl-submit>${ic('send','ico-sm')}Submit Ranking</button></div></div>`;
+ }else{
+  const tc=['458','899','596'];
+  body=`<div class="panel-sheet">${sheetHead}<div style="padding:14px 18px 0">Tiga sampel disajikan; <b>dua sama</b> dan <b>satu berbeda</b>. Pilih kode sampel yang berbeda.</div>
+   <div class="rank-grid">${tc.map(c=>`<button class="rank-card ${PNL.tri===c?'pick':''}" data-tri="${c}"><div class="xs muted">Kode</div><div class="cd">${c}</div><div class="mt8">${PNL.tri===c?badge('Dipilih berbeda','b-primary','check'):'<span class="xs muted">Klik untuk memilih</span>'}</div></button>`).join('')}</div>
+   <div style="padding:0 18px">${note('Uji triangle: produk dibandingkan dengan pembanding/kompetitor; dinyatakan <b>lolos</b> bila produk mendapat <b>poin 3</b>.','', 'info')}</div>
+   <div class="card-foot"><button class="btn btn-success" data-pnl-submit>${ic('send','ico-sm')}Submit</button></div></div>`;
+ }
+ const canClose=r.step==='Analisa'&&['ADM','Panelis'].includes(ROLE);
+ return crumb(['Sensory & ASLT','sens'],['Form Uji Panelis'])+head('Form Uji Panelis','Tampilan yang dilihat panelis di booth sensori (tablet). Format data & skala berbeda per jenis uji.',tabs+(canClose?`<button class="btn btn-outline" data-step-done="REQ-202609-0047">${ic('check','ico-sm')}Tutup Sesi → Push Data</button>`:''))+body;
+};
+
+/* =====================================================================
+   20. ASLT MONITORING
+   ===================================================================== */
+PAGES.aslt=(id)=>{
+ const top=crumb(['Sensory & ASLT','sens'],['ASLT Monitoring'])+head('ASLT Monitoring','Penerimaan → Cek Fiskim (Initial) → Penjadwalan & ASLT Admin → Analisa → Cek Fiskim (Final) → Draf & Final Report.','');
+ const list=REQUESTS.filter(r=>r.jenis==='ASLT');
+ if(!id)return top+card('Pengajuan ASLT',table([['Aksi',false],'No. Pengajuan','Sampel','Parameter','Suhu Chamber','Progres','Status'],list.map(r=>`<tr><td class="w1">${act('view','eye','Buka',`data-go="aslt" data-arg="${r.id}"`)}</td><td>${tlink(r.id,`data-go="aslt" data-arg="${r.id}"`)}</td><td class="strong">${esc(r.sampel)}</td><td>${r.params.map(c=>PM[c].n).join(', ')}</td><td>25 / 35 / 45 °C</td><td><span class="bar-mini"><i style="width:45%;background:var(--primary)"></i></span>H15 / H35</td><td>${statusBadge(r)}</td></tr>`)),{flush:true,icon:'hourglass'});
+ const r=reqById(id),c=cur(r);
+ const days=['H0','H7','H14','H21','H28','H35'],done=3;
+ const temps=[['25 °C',[3.1,3.2,3.4,'','','']],['35 °C',[3.1,3.4,3.8,'','','']],['45 °C',[3.1,3.7,4.3,'','','']]];
+ return top+reqHeaderBar(r)+card('Alur ASLT',pipeHtml(r)+(c.role===ROLE&&r.state==='ok'?`<div class="pipe-foot"><span>Tahap aktif: <b>${c.n}</b></span><span class="sp"></span><button class="btn btn-primary btn-sm" data-step-done="${r.id}">${ic('check','ico-xs')}Selesaikan ${c.n}</button></div>`:''),{icon:'git'})+
+ `<div class="g2">${card('Cek Fiskim (Initial) vs Standar Release',table(['Parameter','Standar','Initial','Status'],[['Kadar Air','maks. 3,0 %','2,62 %'],['Activity Water (AW)','maks. 0,45','0,32'],['FFA','maks. 0,5 %','0,18 %'],['Bilangan Peroksida','maks. 5 meq/kg','0,9']].map(x=>`<tr><td class="strong">${x[0]}</td><td>${x[1]}</td><td>${x[2]}</td><td>${badge('Sesuai','b-success','check')}</td></tr>`),{cls:'tbl-sm'}),{icon:'clipCheck',sm:true})}
+ ${card('Estimasi Umur Simpan',`<div class="kv c2"><div><div class="k">Metode</div><div class="v">Arrhenius (orde 0) · Labuza AW kritis</div></div><div><div class="k">Parameter kritis</div><div class="v">Kadar Air (rejection point 4,0 %)</div></div><div><div class="k">Estimasi sementara (30 °C)</div><div class="v" style="font-size:1.1rem;color:var(--primary)">± 9 bulan</div></div><div><div class="k">Ea / R²</div><div class="v">42,6 kJ/mol · 0,97</div></div></div><div class="hint">Estimasi diperbarui setiap titik pengamatan; final setelah Cek Fiskim (Final).</div>`,{icon:'activity',sm:true})}</div>`+
+ card('Jadwal Pengamatan — Kadar Air (%)',`<div class="tbl-wrap"><table class="tbl tbl-sm"><thead><tr><th>Chamber</th>${days.map((d,i)=>`<th class="ctr">${d}<div class="xs muted" style="font-weight:400">${addHours('02-09-2026',i*21).slice(0,10)}</div></th>`).join('')}</tr></thead><tbody>
+  ${temps.map(t=>`<tr><td class="strong">${t[0]}</td>${t[1].map((v,i)=>`<td class="ctr">${v!==''?`<b class="${v>=4?'bad-t':''}">${String(v).replace('.',',')}</b>`:(i===done?badge('Dijadwalkan','b-info','cal'):'<span class="muted">—</span>')}</td>`).join('')}</tr>`).join('')}
+  <tr><td class="strong">Organoleptik (skor)</td>${[7.2,7.0,6.6,'','',''].map((v,i)=>`<td class="ctr">${v!==''?`<b class="${v<6?'bad-t':''}">${String(v).replace('.',',')}</b>`:(i===done?badge('Dijadwalkan','b-info','cal'):'<span class="muted">—</span>')}</td>`).join('')}</tr></tbody></table></div>
+  <div class="hint">Reject bila skor organoleptik &lt; standar release (skor 6) atau kadar air melewati rejection point. Kondisi chamber dipantau di Log Akomodasi.</div>`,{icon:'cal',acts:`<button class="btn btn-light btn-sm" data-toast="Data pengamatan diekspor">${ic('sheet','ico-xs')}Export</button>`});
+};
+
+/* =====================================================================
+   21. REPORT — DRAF & FINAL, CoA, REVISI
+   ===================================================================== */
+function coaHtml(r,o={}){
+ const rows=r.params.map(c=>{const p=PM[c],x=RES[c]||['—','ok'];return `<tr><td>${esc(p.n)}${o.kan!==false&&p.s?'<span class="kan">KAN</span>':''}</td><td><b>${x[0]}</b></td><td>${p.u}</td><td>${p.sp}</td><td class="small">${esc(p.m.split(' / ')[0])}</td></tr>`}).join('');
+ const no=(r.coa||'LHU/TCL/202609/'+r.id.slice(-4))+(o.rev!=null?' Rev-'+String(o.rev).padStart(2,'0'):'');
+ return `<div class="coa">${o.wm?`<div class="wm ${o.wm==='DRAFT'?'draft':''}">${o.wm}</div>`:''}<div class="ch"><div class="lg"><span class="mk">TCL</span><div><b>TUDUNG CORPORATE LABORATORY</b><small>SMART LABORATORY MANAGEMENT · HOLABSYS</small></div></div>${o.kan!==false?'<div class="xs" style="text-align:right">Terakreditasi KAN<br>LP-XXX-IDN · ISO/IEC 17025:2017</div>':'<div class="xs muted">NON-KAN</div>'}</div>
+  <h3>LAPORAN HASIL UJI / CERTIFICATE OF ANALYSIS</h3><div class="cno">No. ${no}</div>
+  <table class="ci"><tr><td>No. Pengajuan</td><td>: ${r.id}</td></tr><tr><td>Nama Sampel</td><td>: ${esc(r.sampel)}</td></tr><tr><td>Kode Batch</td><td>: ${esc(r.batch)}</td></tr><tr><td>Pelanggan</td><td>: ${esc(r.alamatP)}</td></tr><tr><td>Tgl Terima / Uji</td><td>: ${r.tgl} / ${addHours(r.tgl,6).slice(0,10)}</td></tr><tr><td>No. SPK</td><td>: ${r.spk||'—'}</td></tr></table>
+  <table class="cr"><thead><tr><th>Parameter</th><th>Hasil</th><th>Satuan</th><th>Spesifikasi</th><th>Metode</th></tr></thead><tbody>${rows}</tbody></table>
+  <div class="sig"><div>Diverifikasi oleh<div class="box">${o.crl?badge('VERIFIED','b-success','check'):'<span class="muted xs">menunggu</span>'}</div><b>${o.crl||'Koordinator Lab (CRL)'}</b></div><div>Disahkan oleh<div class="box">${o.tcm?qrSvg(no,60):'<span class="muted xs">menunggu sign-off</span>'}</div><b>${o.tcm||'Technical Manager (TCM)'}</b>${o.tcm?'<div class="xs muted">Digital signature · scan QR untuk verifikasi</div>':''}</div></div></div>`;
+}
+const KAN={};
+PAGES['rpt-draft']=(id)=>{
+ const top=crumb(['Report & CoA','rpt-draft'],['Draf & Final Report'])+head('Draf & Final Report','Draf divalidasi CRL (technical review, Kl. 7.7) → Final Report di-sign-off TCM (Kl. 7.8) → PDF read-only dengan QR & digital signature.','');
+ const q=queue(['Draf Report','Final Report'],{page:'rpt-draft',title:'Antrian Report',heads:['Tahap'],cols:r=>`<td>${rchip(cur(r).role)} ${cur(r).n}</td>`});
+ if(!id)return top+q;
+ const r=reqById(id),c=cur(r),kan=KAN[id]!==false;
+ const isDraft=r.step==='Draf Report',isFinal=r.step==='Final Report';
+ const crl=r.hist.find(h=>h.t.startsWith('Draf Report'));
+ let side;
+ if(isDraft){side=card('Verifikasi Teknis (CRL)',`<div class="stat-list">${['Raw data & perhitungan sesuai lembar kerja','Hasil dibandingkan terhadap spesifikasi (flag Lulus/Gagal otomatis)','Metode acuan & status scope sesuai','Duplo memenuhi RPD < 10%'].map(t=>`<label class="chk" style="padding:7px 0;display:flex"><input type="checkbox" ${ROLE==='CRL'?'':'disabled'} checked> ${t}</label>`).join('')}</div>
+   <div class="mt12">${field('Jenis Laporan',`<div class="seg-toggle"><button class="${kan?'on':''}" data-kan="${id}|1">KAN</button><button class="${kan?'':'on'}" data-kan="${id}|0">NON-KAN</button></div>`,{hint:'Data informasi uji revisi hanya sampai ADM (KAN & NON-KAN)'})}</div>
+   ${field('Catatan Verifikasi',ta('',ROLE==='CRL'?'':'disabled'))}`,{icon:'shield',foot:ROLE==='CRL'?`<button class="btn btn-outline-danger" data-back-analis="${id}">${ic('undo','ico-sm')}Kembalikan ke Analis</button><button class="btn btn-success" data-step-done="${id}">${ic('check','ico-sm')}Validasi &amp; Approve</button>`:`<span class="xs muted">Menunggu ${rchip('CRL')}</span>`});}
+ else if(isFinal){side=card('Final Approval & Digital Sign-off (TCM)',`${note(`Draf telah divalidasi oleh <b>${crl?crl.by:'CRL'}</b>. PDF yang ditandatangani akan mengikuti identitas approver (MoM 27 Agt).`,'ok','check')}
+   ${field('Metode Tanda Tangan',sel(['Digital Signature (sertifikat elektronik)','QR Code terverifikasi']))}${field('PIN Tanda Tangan',inp('','type="password" placeholder="••••••"'))}`,{icon:'sign',foot:ROLE==='TCM'?`<button class="btn btn-outline-danger" data-back-crl="${id}">${ic('undo','ico-sm')}Kembalikan ke CRL</button><button class="btn btn-primary" data-publish="${id}">${ic('sign','ico-sm')}Sign &amp; Publish CoA</button>`:`<span class="xs muted">Menunggu ${rchip('TCM')}</span>`});}
+ else side=card('Status',statusBadge(r),{sm:true});
+ return top+reqHeaderBar(r)+`<div class="g-aside"><div>${card('Preview '+(isPub(r)?'CoA':'Draf LHU'),coaHtml(r,{wm:isPub(r)?null:'DRAFT',kan,crl:isFinal||isPub(r)?(crl?crl.by:'Rizky Pratama'):null,tcm:isPub(r)?'Hana Kusumawati':null}),{icon:'fileText'})}</div><aside>${side}${card('Hasil dari Push Data',`<ul class="stat-list">${r.params.map(cd=>`<li><span class="pchip ${r.pushed.includes(cd)?'done':''}">${ic(r.pushed.includes(cd)?'check':'clock','ico-xs')}${PM[cd].n}</span><span class="sp"></span><b>${(RES[cd]||['—'])[0]}</b></li>`).join('')}</ul>`,{sm:true})}</aside></div>`;
+};
+const COA_HIST=[
+ {coa:'LHU/TCL/202609/0431',id:'REQ-202609-0019',s:'Biskuit Kelapa (Routine)',tgl:'12-09-2026',kan:true,rev:0},
+ {coa:'LHU/TCL/202609/0425',id:'REQ-202609-0012',s:'Pilus Original — komplain',tgl:'08-09-2026',kan:true,rev:0},
+ {coa:'EXT/SIG/202609/0007',id:'REQ-202608-0140',s:'Saus Sambal Botol 340 ml',tgl:'05-09-2026',kan:false,rev:0,ext:true},
+ {coa:'SNS/TCL/202609/0011',id:'REQ-202608-0133',s:'Wafer Roll — uji triangle',tgl:'03-09-2026',kan:false,rev:0},
+];
+PAGES['rpt-coa']=()=>{
+ const pub=REQUESTS.filter(r=>isPub(r)&&canSee(r)).map(r=>({coa:r.coa,id:r.id,s:r.sampel,tgl:r.pubAt||'28-08-2026',kan:KAN[r.id]!==false,rev:r.rev||0,live:true}));
+ const all=[...pub,...COA_HIST];
+ return crumb(['Report & CoA','rpt-draft'],['CoA Terbit'])+head('LHU / CoA Terbit','PDF terproteksi (read-only) dengan QR unik untuk verifikasi keaslian dokumen. BSU dapat mengunduh sertifikat di sini.',`<button class="btn btn-light">${ic('qr','ico-sm')}Verifikasi QR</button>`)+
+ card(null,table([['Aksi',false],'No. LHU / CoA','No. Pengajuan','Sampel','Tgl Terbit',['Jenis',false],['Revisi',false],'Status'],all.map(x=>`<tr><td class="w1">${act('view','eye','Preview',x.live?`data-coa="${x.id}"`:'data-toast="Preview CoA arsip"')}${act('ok','download','Unduh PDF','data-toast="PDF CoA diunduh (read-only)"')}</td><td>${tlink(x.coa+(x.rev?' Rev-0'+x.rev:''),x.live?`data-coa="${x.id}"`:'')}</td><td class="nowrap">${x.id}</td><td>${esc(x.s)}</td><td>${x.tgl}</td><td>${x.kan?badge('KAN','b-primary','shield'):badge(x.ext?'Sertifikat Vendor':'NON-KAN','b-muted')}</td><td>${x.rev?`<span class="rev-tag">Rev-0${x.rev}</span>`:'<span class="rev-tag">Rev-00</span>'}</td><td>${badge('Published','b-success','check')}</td></tr>`)),{flush:true});
+};
+const REVS=[{id:'REQ-202608-0112',from:0,to:1,by:'Marsya Valentina',tgl:'02-09-2026',alasan:'Salah ketik kode batch pada LHU (2027-08-26 → 2T11 260827).',st:'approved',adm:'Siti Aminah'}];
+PAGES['rpt-rev']=()=>{
+ const pubs=REQUESTS.filter(r=>isPub(r)&&canSee(r));
+ const r=pubs[0];
+ const rows=REVS.map(v=>`<tr><td class="w1">${act('view','eye','Lihat',`data-coa="${v.id}"`)}</td><td>${tlink(v.id,`data-open="${v.id}"`)}</td><td><span class="rev-tag">Rev-0${v.from}</span> → <span class="rev-tag">Rev-0${v.to}</span></td><td>${esc(v.alasan)}</td><td>${v.by}<div class="xs muted">${v.tgl}</div></td><td>${v.st==='approved'?`${badge('Disetujui '+v.adm,'b-success','check')}`:badge('Menunggu ADM','b-warning','clock')}</td><td class="w1">${v.st!=='approved'&&ROLE==='ADM'?`<button class="btn btn-success btn-sm" data-rev-ok="${REVS.indexOf(v)}">${ic('check','ico-xs')}Approve</button>`:''}</td></tr>`);
+ return crumb(['Report & CoA','rpt-draft'],['Revisi Report'])+head('Revisi Report (Amandemen)','Revisi diajukan oleh BSU dan di-approve oleh ADM. Sistem menerbitkan versi baru (Rev-01, dst.), alasan wajib diisi, versi lama otomatis diberi watermark <b>SUPERSEDED</b> (Kl. 7.8.8).','')+
+ `<div class="g-aside"><div>${card('Riwayat Pengajuan Revisi',table([['Aksi',false],'No. Pengajuan','Versi','Alasan Perubahan','Diajukan',['Status',false],['',false]],rows),{flush:true,icon:'refresh'})}
+  <div class="g2">${card('Versi lama',coaHtml(r,{wm:'SUPERSEDED',rev:0,crl:'Rizky Pratama',tcm:'Hana Kusumawati'}),{sm:true,acts:'<span class="rev-tag">Rev-00</span>'})}${card('Versi berlaku',coaHtml(r,{rev:r.rev||1,crl:'Rizky Pratama',tcm:'Hana Kusumawati'}),{sm:true,acts:`<span class="rev-tag">Rev-0${r.rev||1}</span>`})}</div></div>
+ <aside>${card('Ajukan Revisi',ROLE==='BSU'?`<div class="form-grid">${field('LHU / CoA',sel(pubs.map(p=>[p.id,p.coa+' · '+p.sampel])),{req:true})}${field('Bagian yang direvisi',sel(['Data informasi sampel','Data pelanggan','Hasil uji (perlu verifikasi CRL)']),{req:true,hint:'Data informasi uji hanya sampai ADM'})}${field('Alasan Perubahan',ta('','id="revReason" placeholder="Jelaskan perubahan yang diminta…"'),{req:true})}
+   <label class="chk"><input type="checkbox" id="revAgree"> Saya menyetujui penerbitan versi baru dan penarikan versi lama</label></div>`:note('Pengajuan revisi dilakukan oleh <b>BSU</b>; approval oleh <b>ADM</b>. Ganti peran untuk mencoba.','', 'info'),
+  {icon:'edit',foot:ROLE==='BSU'?`<button class="btn btn-primary" data-rev-submit>${ic('send','ico-sm')}Ajukan Revisi</button>`:''})}</aside></div>`;
+};
+
+/* =====================================================================
+   22. INTERNAL DOCUMENT & MASTER CONTROL
+   ===================================================================== */
+const DOCS=[
+ ['IK-LAB-FK-01','Penetapan Kadar Air — Metode Oven','WI / Metode','03','01-02-2026','Kadar Air','Upload'],
+ ['IK-LAB-FK-04','Penetapan Kadar Protein — Kjeldahl','WI / Metode','02','15-03-2026','Kadar Protein','Upload'],
+ ['IK-LAB-MB-05','Deteksi Salmonella sp (ISO 6579-1)','WI / Metode','04','10-06-2026','Salmonella sp','Push Data'],
+ ['SC-LAB-2026','Ruang Lingkup Akreditasi KAN (Scope)','Scope','01','01-01-2026','44 parameter','Push Data'],
+ ['IK-LAB-SN-01','Uji Hedonik 5 Skala','WI / Metode','01','20-07-2026','Uji Sensori Rating','Upload'],
+ ['FR-7.2.1-78','Form Uji Sensori Panelis','Formulir','05','01-08-2026','Sensori','Upload'],
+];
+PAGES['doc-control']=()=>crumb(['Internal Document','doc-control'],['Document Control'])+head('Document Control — WI & Scope','Dokumen statis: instruksi kerja (metode) dan ruang lingkup akreditasi. Sumber data untuk Metode Acuan & Status Scope ISO 17025 pada form pengajuan.',
+ `<button class="btn btn-light" data-toast="Sinkronisasi dokumen dari DMS berhasil">${ic('refresh','ico-sm')}Push Data dari DMS</button><button class="btn btn-primary" data-toast="Form upload dokumen dibuka">${ic('upload','ico-sm')}Upload Dokumen</button>`)+
+ card(null,`<div class="filterbar" style="padding-top:1rem"><div class="search">${ic('search','ico-sm')}<input class="input" placeholder="Cari no. / judul dokumen"></div>${sel([['','Semua Jenis'],'WI / Metode','Scope','Formulir'])}</div>`+
+ table([['Aksi',false],'No. Dokumen','Judul','Jenis','Revisi','Berlaku','Parameter Terkait','Sumber','Status'],DOCS.map(d=>`<tr><td class="w1">${act('view','eye','Lihat')}${act('edit','edit','Revisi')}</td><td>${tlink(d[0],'')}</td><td class="strong">${d[1]}</td><td>${d[2]}</td><td><span class="rev-tag">Rev-${d[3]}</span></td><td>${d[4]}</td><td>${d[5]}</td><td><span class="src-tag">${ic(d[6]==='Upload'?'upload':'refresh','ico-xs')}${d[6]}</span></td><td>${badge('Berlaku','b-success','check')}</td></tr>`))+pager(DOCS.length),{flush:true});
+PAGES.kompetensi=()=>crumb(['Internal Document','doc-control'],['Kompetensi Analis'])+head('Master Kompetensi & Matrix Analis','Input sistem (database). Dipakai untuk rekomendasi penunjukan analis saat terbit SPK (Kl. 6.2 & 7.2).',`<button class="btn btn-primary">${ic('plus','ico-sm')}Tambah Analis</button>`)+
+ card(null,`<div class="tbl-wrap"><table class="tbl tbl-sm mx"><thead><tr><th>Aksi</th><th>Analis</th><th>Lab</th><th>Status</th>${COMP_COLS.map(c=>`<th class="ctr" title="${PM[c].n}">${c}</th>`).join('')}</tr></thead><tbody>
+  ${ANALIS.map(a=>`<tr><td class="w1">${act('edit','edit','Edit')}</td><td class="strong nowrap">${a.n}</td><td>${LABS[a.lab]}</td><td>${/Training/.test(a.sert)?badge(a.sert,'b-warning','clock'):badge(a.sert,'b-success','check')}</td>${COMP_COLS.map(c=>{const v=a.k[c];return `<td class="ctr"><span class="mxc ${v||'n'}">${v==='k'?'✓':v==='t'?'T':'–'}</span></td>`}).join('')}</tr>`).join('')}</tbody></table></div>
+  <div class="legend" style="padding:0 1rem 1rem"><span><span class="mxc k">✓</span> Kompeten</span><span><span class="mxc t">T</span> Training / supervisi</span><span><span class="mxc n">–</span> Belum</span></div>`,{flush:true});
+PAGES.reagen=()=>{
+ const st=x=>x.stok<=0?badge('Habis','b-danger','x'):x.stok<=x.min?badge('Menipis','b-warning','alert'):badge('Aman','b-success','check');
+ const master=table([['Aksi',false],'Kode','Nama Reagen / Consumable','Lab','Dipakai untuk','Stok','Min','ED','Status'],REAGEN.map(x=>`<tr><td class="w1">${act('edit','edit','Edit')}</td><td>${tlink(x.c,'')}</td><td class="strong">${x.n}</td><td>${x.lab}</td><td class="small">${x.use}</td><td class="num ${x.stok<=x.min?'bad-t':''}">${x.stok} ${x.u}</td><td class="num">${x.min} ${x.u}</td><td>${x.ed}</td><td>${st(x)}</td></tr>`));
+ const log=table(['Tanggal','Reagen','Qty','Referensi','Oleh',['Sumber',false]],[['18-09-2026 09:12','Heksana p.a.','-0,25 L','SPK/LAB/202609/0031 · Kadar Lemak','Putri Ayuningtyas'],['17-09-2026 14:40','Plate Count Agar (PCA)','-0,05 kg','SPK/LAB/202609/0034 · TPC','Galih Saputra'],['17-09-2026 10:05','Katalis Kjeldahl (tablet)','-4 tab','SPK/LAB/202609/0022 · Protein','Dimas Aditya'],['15-09-2026 08:00','H₂SO₄ pekat 98%','+5 L','PO-4500127710 · penerimaan','Siti Aminah']].map(l=>`<tr><td class="nowrap">${l[0]}</td><td class="strong">${l[1]}</td><td class="num ${l[2][0]==='-'?'bad-t':'ok-t'}">${l[2]}</td><td>${l[3]}</td><td>${l[4]}</td><td>${l[2][0]==='-'?'<span class="src-tag">'+ic('zap','ico-xs')+'Auto-deduct</span>':'<span class="src-tag">Manual</span>'}</td></tr>`),{cls:'tbl-sm'});
+ const so=`<div class="g2"><div>${dz('File Stock Opname',true,{exts:'XLSX, CSV',files:['Stock_Opname_Agustus_2026.xlsx']})}</div><div>${note('Upload atau push data hasil stock opname. Selisih antara stok sistem (auto-deduct) dan hasil hitung fisik ditampilkan untuk di-adjust.','', 'info')}
+  ${table(['Reagen','Sistem','Fisik','Selisih'],[['Heksana p.a.','2,5 L','2,4 L','-0,1'],['DRBC Agar','0,3 kg','0,3 kg','0'],['Cawan porselen','46','44','-2']].map(x=>`<tr><td>${x[0]}</td><td class="num">${x[1]}</td><td class="num">${x[2]}</td><td class="num ${x[3]!=='0'?'bad-t':''}">${x[3]}</td></tr>`),{cls:'tbl-sm'})}</div></div>`;
+ return crumb(['Internal Document','doc-control'],['Reagen & Stok'])+head('Master Inventory Reagen & Consumables','Dinamis — stok dipotong otomatis (auto-deduct) saat analis melakukan Push Data. Menu untuk memeriksa ketersediaan sediaan barang.',`<button class="btn btn-primary">${ic('plus','ico-sm')}Tambah Item</button>`)+
+ `<div class="kpi-grid">${[['Total Item',REAGEN.length,'t-primary','beaker'],['Menipis',REAGEN.filter(x=>x.stok<=x.min).length,'t-warning','alert'],['ED ≤ 60 hari',2,'t-danger','clock'],['Pemakaian minggu ini','27 transaksi','t-info','activity']].map(k=>`<div class="kpi"><div class="k-ico ${k[2]}">${ic(k[3])}</div><div><div class="k-lab">${k[0]}</div><div class="k-val">${k[1]}</div></div></div>`).join('')}</div>`+
+ tabcard('rg',[{id:'rg-m',label:'Master Stok',icon:'beaker',body:master},{id:'rg-l',label:'Log Pemakaian',icon:'list',body:log},{id:'rg-s',label:'Stock Opname',icon:'clipCheck',body:so}],'rg-m');
+};
+PAGES.alat=()=>crumb(['Internal Document','doc-control'],['Status Alat'])+head('Pemantauan & Status Alat','Dinamis — flagging otomatis untuk kalibrasi jatuh tempo / out of service. Alat terintegrasi mengirim data parameter langsung ke sistem.',`<button class="btn btn-primary">${ic('plus','ico-sm')}Tambah Alat</button>`)+
+ card(null,table([['Aksi',false],'Kode Alat','Nama Alat','Lab','Kalibrasi Terakhir','Jatuh Tempo',['Integrasi',false],'Status'],ALAT.map(a=>`<tr><td class="w1">${act('edit','edit','Edit')}${act('view','cal','Riwayat kalibrasi')}</td><td>${tlink(a.k,'')}</td><td class="strong">${a.n}</td><td>${a.lab}</td><td>${a.kal}</td><td class="${a.st!=='ok'?'bad-t':''}">${a.due}</td><td>${a.int?badge('Terhubung','b-info','link'):'<span class="muted xs">Manual</span>'}</td><td>${a.st==='ok'?badge('Siap Pakai','b-success','check'):a.st==='oos'?badge('Out of Service','b-danger','x'):badge('Kalibrasi ≤ 30 hari','b-warning','clock')}</td></tr>`))+pager(ALAT.length),{flush:true})+
+ note('Alat dengan status <b>Out of Service</b> otomatis tidak dapat dipilih saat kaji ulang, sehingga parameter terkait akan masuk review manual.','warn','alert');
+PAGES.logakom=()=>{
+ const env=table([['Aksi',false],'Ruang / Area','Batas Kondisi','Suhu','RH','Sumber','Update Terakhir','Status'],LOGAKOM.map(l=>`<tr><td class="w1">${act('view','activity','Tren')}</td><td class="strong">${l.ruang}</td><td>${l.bt}</td><td class="num">${String(l.t).replace('.',',')} °C</td><td class="num">${l.rh?l.rh+'%':'—'}</td><td>${l.src==='Manual'?'<span class="src-tag">Manual</span>':`<span class="src-tag">${ic('zap','ico-xs')}IoT</span>`}</td><td class="nowrap">${l.at}</td><td>${l.ok?badge('Dalam batas','b-success','check'):badge('Di luar batas','b-danger','alert')}</td></tr>`));
+ const use=table(['Tanggal','Alat','Pengguna','Referensi SPK','Durasi','Kondisi'],[['18-09-2026 08:30','Oven Memmert UN55','Putri Ayuningtyas','SPK/LAB/202609/0031','3 j 10 m','Normal'],['18-09-2026 09:00','Neraca Analitik 4 digit','Putri Ayuningtyas','SPK/LAB/202609/0031','25 m','Normal'],['17-09-2026 13:00','Laminar Air Flow','Galih Saputra','SPK/LAB/202609/0034','1 j 40 m','Normal'],['17-09-2026 08:10','Autoclave HVE-50','Nur Aini','—','—','Error tekanan → OOS']].map(x=>`<tr><td class="nowrap">${x[0]}</td><td class="strong">${x[1]}</td><td>${x[2]}</td><td>${x[3]}</td><td>${x[4]}</td><td>${/OOS/.test(x[5])?badge(x[5],'b-danger','alert'):badge(x[5],'b-success','check')}</td></tr>`),{cls:'tbl-sm'});
+ return crumb(['Internal Document','doc-control'],['Log Akomodasi'])+head('Log Akomodasi & Lingkungan Uji','Dinamis — baseline / IoT. Mencatat kondisi lingkungan pengujian dan pemakaian alat.',`<button class="btn btn-primary" data-toast="Form input log manual dibuka">${ic('plus','ico-sm')}Input Log Manual</button>`)+
+ note('<b>R. Mikrobiologi</b> di luar batas (26,8 °C · RH 63%) sejak 10:10 — notifikasi dikirim ke HOL & CRL. Pengujian yang berjalan di ruangan ini ditandai untuk ditinjau.','danger','alert')+
+ tabcard('la',[{id:'la-e',label:'Lingkungan Uji',icon:'thermo',body:env},{id:'la-u',label:'Pemakaian Alat',icon:'tool',body:use}],'la-e');
+};
+PAGES['m-param']=()=>crumb(['Master Data','m-param'],['Parameter & Metode'])+head('Master Parameter & Metode Uji','Master Scope Lab — sumber pilihan parameter (searchable multi-select) pada form pengajuan.',`<button class="btn btn-primary">${ic('plus','ico-sm')}Tambah Parameter</button>`)+
+ card(null,`<div class="filterbar" style="padding-top:1rem"><div class="search">${ic('search','ico-sm')}<input class="input" placeholder="Cari parameter…" data-mp-q></div>${sel([['','Semua Lab'],...Object.entries(LABS)],'','data-mp-lab')}</div>`+
+ table([['Aksi',false],'Kode','Parameter','Laboratorium','Metode Acuan','Scope ISO 17025','Satuan','Spesifikasi Default','Lead Time'],PARAMS.map(p=>`<tr data-mp="${esc((p.n+' '+p.c).toLowerCase())}" data-mpl="${p.l}"><td class="w1">${act('edit','edit','Edit')}</td><td class="strong">${p.c}</td><td>${esc(p.n)}</td><td>${LABS[p.l]}</td><td class="small">${esc(p.m)}</td><td>${scopeBadge(p)}</td><td>${p.u}</td><td>${p.sp}</td><td class="num">${p.lt} hari</td></tr>`),{cls:'tbl-sm'})+pager(PARAMS.length),{flush:true});
+PAGES['m-lab']=()=>crumb(['Master Data','m-param'],['Laboratorium'])+head('Master Laboratorium','Lab internal (TCL) dan lab eksternal (subkontrak). Lab bersifat umum / company.',`<button class="btn btn-primary">${ic('plus','ico-sm')}Tambah Lab</button>`)+
+ `<div class="g2">${card('Lab Internal (TCL)',table([['Aksi',false],'Kode','Laboratorium','Admin (ADM)','Parameter'],Object.entries(LABS).filter(([k])=>k!=='EXT').map(([k,v])=>`<tr><td class="w1">${act('edit','edit','Edit')}</td><td class="strong">${k}</td><td>${v}</td><td>${ROLE_USERS.ADM[['FK','MB','SEN','ASLT'].indexOf(k)]}</td><td class="num">${PARAMS.filter(p=>p.l===k).length}</td></tr>`),{cls:'tbl-sm'}),{flush:true,icon:'flask'})}
+ ${card('Lab Eksternal (Subkontrak)',table([['Aksi',false],'Nama Lab','Akreditasi','Kontak','Status'],EXT_LABS.map((l,i)=>`<tr><td class="w1">${act('edit','edit','Edit')}</td><td class="strong">${l}</td><td>${i<3?badge('KAN','b-primary','shield'):badge('Non-KAN','b-muted')}</td><td class="small">cs@vendor-${i+1}.co.id</td><td>${badge('Aktif','b-success','check')}</td></tr>`),{cls:'tbl-sm'}),{flush:true,icon:'truck'})}</div>`;
+PAGES['m-ref']=()=>{
+ const list=(arr)=>`<div class="row">${arr.map(x=>`<span class="badge b-muted" style="font-size:12px;padding:5px 12px">${esc(x)}</span>`).join('')}<button class="btn btn-light btn-sm">${ic('plus','ico-xs')}Tambah</button></div>`;
+ const t=[['r1','Kategori Pangan','layers',REF.kat],['r2','Jenis Kemasan','pkg',[...REF.kemasan,...REF.plastik.map(x=>'Plastik: '+x)]],['r3','Atribut Sensori','smile',[...REF.atribut,...REF.ketepatan.map(x=>'Ketepatan: '+x)]],['r4','Tujuan Analisa','flask',REF.tujuan],['r5','Site / Alamat','home',REF.site],['r6','ASLT','hourglass',[...REF.kategoriAslt,...REF.perubahan,...REF.sampelAslt]]];
+ return crumb(['Master Data','m-param'],['Data Referensi'])+head('Data Referensi','Master dropdown yang dipakai form pengajuan (bisa dicari dengan free text).','')+
+  tabcard('rf',t.map(x=>({id:x[0],label:x[1],icon:x[2],n:x[3].length,body:list(x[3])})),'r1');
+};
+const ISO=[['Pengajuan Uji (Test Request)','Bisa Otomatis','7.1','Form elektronik mengunci pilihan parameter & metode acuan yang valid. System log mencatat ID pengaju, tanggal, dan spesifikasi.'],
+ ['Kaji Ulang Permintaan (Contract Review)','Hibrida','7.1','Auto PASS jika parameter di lingkup aktif & kapasitas memadai; dialihkan ke manual review bila sampel khusus/deviasi.'],
+ ['Penerimaan & Registrasi Sampel','Otomatis Sebagian','7.4','Kode/QR sampel unik auto-generate. Pemeriksaan fisik/suhu diinput manual oleh Admin.'],
+ ['Penugasan Analis','Bisa Otomatis','6.2 & 7.2','Rekomendasi analis berdasarkan matriks kompetensi.'],
+ ['Input Hasil Uji','Manual Input','7.5','Sistem memvalidasi format/range & mengunci riwayat input. Raw data wajib diunggah.'],
+ ['Verifikasi Teknis','Semi-Otomatis','7.7','Flag Lulus/Gagal terhadap spesifikasi; Penyelia (CRL) verifikasi akhir & approve.'],
+ ['Otorisasi & Approval Akhir','Kondisional','7.8','TCM memberi otorisasi; digital signature & QR code unik pada PDF LHU/CoA.'],
+ ['Penerbitan & Distribusi Laporan','Bisa Otomatis','7.8 & 7.11','PDF read-only, notifikasi ke pemohon, portal verifikasi keaslian via QR.'],
+ ['Amandemen Laporan','Bisa Otomatis','7.8.8','Versi baru (Rev-01), alasan wajib, watermark SUPERSEDED pada versi lama.']];
+PAGES.authority=()=>crumb(['Master Data','m-param'],['Authority & Alur'])+head('Authority, Alur & Validasi ISO 17025','Referensi peran user (sama seperti modul Halal), rute approval, dan status otomasi per tahapan.','')+
+ tabcard('au',[
+  {id:'au-r',label:'Peran & Kewenangan',icon:'users',body:table(['Kode','Peran','Cakupan','Kewenangan & Tanggung Jawab','User (mock)'],ROLES.map(r=>`<tr><td>${rchip(r.k)}</td><td class="strong nowrap">${r.n}</td><td class="nowrap">Internal & Eksternal</td><td class="small" style="white-space:pre-line">${esc(r.d)}</td><td class="small">${ROLE_USERS[r.k].join(', ')}</td></tr>`),{cls:'tbl-sm'})},
+  {id:'au-f',label:'Rute Approval',icon:'route',body:routeLegend()+`<div class="mt12">${note('Approval cukup oleh <b>salah satu</b> user yang memiliki akses pada peran tersebut (mis. 1 dari 4 approver). Berlaku sama untuk pihak eksternal. Alur dapat langsung melompat ke tahap MD dari langkah sebelumnya.')}</div>`},
+  {id:'au-i',label:'Validasi ISO 17025',icon:'shield',body:table(['No','Tahapan Alur Kerja','Status Otomasi','Klausul','Persyaratan & Bukti Kepatuhan'],ISO.map((x,i)=>`<tr><td>${i+1}</td><td class="strong">${x[0]}</td><td>${badge(x[1],/Manual/.test(x[1])?'b-muted':/Otomatis$/.test(x[1])?'b-success':'b-info')}</td><td>${x[2]}</td><td class="small">${x[3]}</td></tr>`),{cls:'tbl-sm'})}],'au-r');
+
+/* =====================================================================
+   23. EVENT HANDLERS
+   ===================================================================== */
+document.addEventListener('click',e=>{
+ const t=e.target.closest('button,a,[data-go],[data-open],.rad,.dropzone,.attach-upload,.tab');
+ if(e.target===$('#modalBg')){closeModal();return}
+ if(!$('#paramMs')?.contains(e.target))$('#paramMs')?.classList.remove('open');
+ if(!t)return;
+ const d=t.dataset;
+ if(d.close!==undefined){closeModal();return}
+ if(d.secToggle){openSec=openSec===d.secToggle?'':d.secToggle;$$('.rail-sec[data-sec]').forEach(s=>s.classList.toggle('open',s.dataset.sec===openSec));return}
+ if(d.go){e.preventDefault();go(d.go,d.arg);return}
+ if(d.open){e.preventDefault();DTAB='info';go('req-detail',d.open);return}
+ if(t.classList.contains('tab')&&t.closest('.tabs-seg')){const card=t.closest('.pd-tabcard');$$('.tab',card).forEach(x=>x.classList.toggle('on',x===t));$$(':scope>.tabpane',card).forEach(p=>p.classList.toggle('on',p.id==='pane-'+d.tab));if(t.closest('[data-tabgroup="dt"]'))DTAB=d.tab;return}
+ if(d.approve){approve(d.approve);return}
+ if(d.reject){askReject(d.reject);return}
+ if(d.doReject){doReject(d.doReject);return}
+ if(d.bulkApprove!==undefined){const ids=$$('.chk-row:checked').map(x=>x.value);if(!ids.length){toast('Pilih pengajuan terlebih dahulu');return}ids.forEach(id=>advance(reqById(id)));toast(ids.length+' pengajuan disetujui');rerender();return}
+ if(d.inbox){INBOX_ALL=d.inbox==='1';rerender();return}
+ if(d.lfSt){LF.st=d.lfSt;rerender();return}
+ if(d.jenis){resetForm(d.jenis);rerender();return}
+ if(d.unparam){e.preventDefault();FORM.params=FORM.params.filter(c=>c!==d.unparam);refreshForm();return}
+ if(d.addSample!==undefined){FORM.samples.push({n:'',tgl:'',exp:''});$('#sensRows').innerHTML=sensRows();return}
+ if(d.delSample){FORM.samples.splice(+d.delSample,1);$('#sensRows').innerHTML=sensRows();return}
+ if(d.msTog){const [k,v]=d.msTog.split('|');const a=FORM[k];const i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);t.closest('.ms-box').outerHTML=msStatic(k,REF[k],a);return}
+ if(d.formSave!==undefined){saveForm(false);return}
+ if(d.formSubmit!==undefined){saveForm(true);return}
+ if(d.goEdit){FORM.editId=null;go('req-form',d.goEdit);return}
+ if(d.resubmit){resubmit(d.resubmit);return}
+ if(d.printReq){printReq(d.printReq);return}
+ if(d.coa){const r=reqById(d.coa);openModal('LHU / CoA — '+(r.coa||r.id),coaHtml(r,{rev:r.rev,crl:'Rizky Pratama',tcm:'Hana Kusumawati'}),`<button class="btn btn-light" data-close>Tutup</button><button class="btn btn-success" data-toast="PDF CoA diunduh (read-only)">${ic('download','ico-sm')}Unduh PDF</button>`,true);return}
+ if(d.fakeUp){const box=t.closest('.attach');const l=$('.doc-list',box);const n=['Hasil_Scan_'+Math.floor(Math.random()*900+100)+'.pdf','Foto_Sampel_'+Math.floor(Math.random()*90+10)+'.jpg','Data_Mentah.xlsx'][Math.floor(Math.random()*3)];l.insertAdjacentHTML('beforeend',docRow(n));toast(n+' diunggah (simulasi)');return}
+ if(d.rmDoc!==undefined){t.closest('.doc-row').remove();return}
+ if(d.toast){toast(d.toast);return}
+ if(d.kjGo){const r=reqById(d.kjGo),k=KJ[d.kjGo];const cat=$('#kjCat').value.trim();
+  if(k.hasil!=='Diterima Full'&&!cat){$('#kjCat').focus();$('#kjCat').style.borderColor='var(--danger)';toast('Catatan wajib jika Parsial / Ditolak');return}
+  if(k.hasil==='Ditolak'){askReject(r.id);$('#rejReason').value='Kaji ulang ditolak: '+cat;return}
+  r.spk='SPK/LAB/202609/'+String(40+REQUESTS.indexOf(r)).padStart(4,'0');r.analis=$('#kjAnalis').value;advance(r,'Kaji Ulang diterima ('+k.hasil+') & SPK terbit');toast(r.spk+' terbit — label siap dicetak');rerender();return}
+ if(d.printLabel!==undefined){document.body.classList.add('print-label');window.print();setTimeout(()=>document.body.classList.remove('print-label'),500);return}
+ if(d.labelDone){const r=reqById(d.labelDone);advance(r,'Labeling — label dicetak & ditempel');toast('Sampel diserahkan ke analis '+r.analis);go('analisa');return}
+ if(d.importAlat!==undefined){const tr=$$('#xgrid tbody tr').pop();const cells=$$('[data-f="w"]',tr);const empty=cells.filter(c=>!c.textContent.trim());if(empty[0])empty[0].textContent='49,0304';if(empty[1])empty[1].textContent='49,0301';recalc();toast('Data diterima dari Neraca Analitik AL-FK-04 (2 nilai)');return}
+ if(d.push){pushData(d.push);return}
+ if(d.extShip){advance(reqById(d.extShip),'Pengiriman Sampel — terkirim');toast('Pengiriman dikonfirmasi');rerender();return}
+ if(d.extOc){reqById(d.extOc).oc='submitted';toast('Order confirmation disubmit — tekan Close untuk menutup order');rerender();return}
+ if(d.extClose){const r=reqById(d.extClose);r.oc='closed';advance(r,'Order Confirmation — closed');toast('Order ditutup → Draf Report');rerender();return}
+ if(d.inv){showInvoice(d.inv);return}
+ if(d.sensAssign!==undefined){const s=+$('#sensSesi').value;const ids=$$('.sens-chk:checked').map(x=>+x.value);if(!s||!ids.length){toast('Pilih sampel dan sesi');return}ids.forEach(i=>SROWS[i].sesi=s);toast(ids.length+' sampel dijadwalkan ke Sesi '+s);rerender();return}
+ if(d.stepDone){const r=reqById(d.stepDone);const s=cur(r);advance(r);toast(`${r.id}: ${s.n} selesai → ${cur(r).n}`);rerender();return}
+ if(d.pnlMode){PNL.mode=d.pnlMode;rerender();return}
+ if(d.pnlIdx){PNL.idx=Math.max(0,Math.min(1,PNL.idx+ +d.pnlIdx));rerender();return}
+ if(d.rad){const [c,a,i]=d.rad.split('|');PNL.ans[c+a]=+i;$$(`[data-rad^="${c}|${a}|"]`).forEach(x=>x.classList.toggle('on',x===t));return}
+ if(d.tri){PNL.tri=d.tri;rerender();return}
+ if(d.pnlSubmit!==undefined){toast('Jawaban panelis tersimpan (9/12 panelis sesi 1)');PNL.ans={};PNL.idx=0;PNL.rank={};PNL.tri=null;rerender();return}
+ if(d.kan){const [id,v]=d.kan.split('|');KAN[id]=v==='1';rerender();return}
+ if(d.backAnalis){const r=reqById(d.backAnalis);r.hist.push({t:'Draf Report — dikembalikan ke Analis',by:me(),role:ROLE,at:TODAY,k:'no',reason:'Perlu cek ulang duplo'});r.step='Push Data';r.pushed=r.pushed.slice(0,-1);toast('Dikembalikan ke analis');rerender();return}
+ if(d.backCrl){const r=reqById(d.backCrl);r.hist.push({t:'Final Report — dikembalikan ke CRL',by:me(),role:ROLE,at:TODAY,k:'no',reason:'Perbaiki spesifikasi'});r.step='Draf Report';toast('Dikembalikan ke CRL');rerender();return}
+ if(d.publish){const r=reqById(d.publish);advance(r,'Final Report — digital sign-off & publish');r.coa='LHU/TCL/202609/'+String(440+REQUESTS.indexOf(r)).padStart(4,'0');r.pubAt=TODAY;toast(r.coa+' terbit — notifikasi dikirim ke '+r.pemohon);rerender();return}
+ if(d.revSubmit!==undefined){const v=$('#revReason').value.trim();if(!v||!$('#revAgree').checked){toast('Alasan & persetujuan wajib diisi');return}const r=REQUESTS.find(isPub);REVS.unshift({id:r.id,from:r.rev||0,to:(r.rev||0)+1,by:me(),tgl:TODAY,alasan:v,st:'pending'});toast('Revisi diajukan — menunggu approval ADM');rerender();return}
+ if(d.revOk){const v=REVS[+d.revOk];v.st='approved';v.adm=me();const r=reqById(v.id);r.rev=v.to;toast('Rev-0'+v.to+' terbit · versi lama diberi watermark SUPERSEDED');rerender();return}
+});
+document.addEventListener('change',e=>{
+ const t=e.target,d=t.dataset;
+ if(t.id==='f_tipe'){FORM.tipe=t.value;$('#wrapAlasan').hidden=t.value!=='Urgent';refreshForm();$$('#routeBox .vroute li').forEach(li=>li.classList.add('new'));return}
+ if(t.id==='f_tujuan'){FORM.tujuan=t.value;refreshForm();$$('#routeBox .vroute li').forEach(li=>li.classList.add('new'));return}
+ if(d.param){const c=d.param;t.checked?FORM.params.includes(c)||FORM.params.push(c):FORM.params=FORM.params.filter(x=>x!==c);refreshForm();return}
+ if(d.lf){LF[d.lf]=t.value;rerender();return}
+ if(d.kjHasil){KJ[d.kjHasil].hasil=t.value;KJ[d.kjHasil].cat=$('#kjCat').value;rerender();return}
+ if(d.kj){const [id,c,i]=d.kj.split('|');KJ[id].chk[c][+i]=t.checked?1:0;rerender();return}
+ if(d.rank){PNL.rank[d.rank]=t.value;rerender();return}
+ if(d.mpLab!==undefined){mpFilter();return}
+});
+document.addEventListener('input',e=>{
+ const t=e.target,d=t.dataset;
+ if(t.closest&&t.closest('#xgrid')){recalc();return}
+ if(t.id==='paramQ'){const q=t.value.toLowerCase();$('#paramMs').classList.add('open');$$('#paramMs .ms-opt').forEach(o=>o.hidden=q&&!o.dataset.pname.includes(q));return}
+ if(d.lfQ!==undefined){LF.q=t.value;const pos=t.selectionStart;rerender();const n=$('[data-lf-q]');n.focus();n.setSelectionRange(pos,pos);return}
+ if(d.mpQ!==undefined){mpFilter();return}
+ if(d.sidx!==undefined){FORM.samples[+d.sidx].n=t.value;return}
+});
+document.addEventListener('focusin',e=>{if(e.target.id==='paramQ')$('#paramMs').classList.add('open')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();$('#paramMs')?.classList.remove('open')}});
+function mpFilter(){const q=($('[data-mp-q]')?.value||'').toLowerCase(),l=$('[data-mp-lab]')?.value||'';$$('[data-mp]').forEach(tr=>tr.hidden=(q&&!tr.dataset.mp.includes(q))||(l&&tr.dataset.mpl!==l))}
+window.addEventListener('afterprint',()=>document.body.classList.remove('print-label'));
+window.addEventListener('hashchange',route);
+
+/* =====================================================================
+   24. INIT
+   ===================================================================== */
+setRole('BSU');
+route();
+</script>
+</body>
+</html>

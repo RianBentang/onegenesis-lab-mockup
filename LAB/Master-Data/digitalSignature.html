@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Master Tanda Tangan &amp; Barcode / QR | HOLABSYS</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link href="../assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+          <!-- Pageheader -->
+          <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+            <div>
+              <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="#!">Master Data</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Tanda Tangan &amp; QR</li>
+              </ol>
+              <h1 class="page-title fw-medium fs-18 mb-0">Master Tanda Tangan &amp; Barcode / QR</h1>
+            </div>
+          </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-success-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-shield-check-line text-success" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Spesimen TTD Aktif</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiTtdActive">8</h4>
+                    <span class="text-muted fs-12">Digital Signature Valid</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-dashboard-3-line text-primary" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Authority Digital Sign-off</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiAuthorityCount">5 Role</h4>
+                    <span class="text-muted fs-12">TCM, CRL, ADM, MGU, HOL</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-info-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-qr-code-line text-info" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">QR Code Generator</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1">ISO 17025 Compliant</h4>
+                    <span class="text-muted fs-12">Klausul 7.4 &amp; 7.8</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-success-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-checkbox-circle-line text-success" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Total Sertifikat Tervalidasi</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiCertCount">142</h4>
+                    <span class="text-muted fs-12">Keabsahan 100% Terverifikasi</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Nav -->
+        <ul class="nav nav-tabs tab-style-2 mb-3" id="sigTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-specimen-btn" data-bs-toggle="tab" data-bs-target="#tab-specimen" type="button" role="tab">
+              <i class="ri-quill-pen-line me-1"></i> Spesimen Tanda Tangan Digital
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-qrcode-btn" data-bs-toggle="tab" data-bs-target="#tab-qrcode" type="button" role="tab">
+              <i class="ri-qr-code-line me-1"></i> Konfigurasi Barcode &amp; QR Code
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-audit-btn" data-bs-toggle="tab" data-bs-target="#tab-audit" type="button" role="tab">
+              <i class="ri-history-line me-1"></i> Audit Trail &amp; Log Keabsahan
+            </button>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="sigTabContent">
+          <!-- TAB 1: Spesimen TTD -->
+          <div class="tab-pane fade show active" id="tab-specimen" role="tabpanel">
+            <div class="card custom-card">
+              <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="card-title">Daftar Spesimen &amp; Otoritas Penandatangan</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <input type="text" id="searchTtdInput" class="form-control form-control-sm" placeholder="Cari nama / role..." style="width: 220px;" />
+                  <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalAddTtd">
+                    <i class="ri-add-line"></i> Tambah Spesimen TTD
+                  </button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="width: 50px;">No</th>
+                      <th>Pemegang Otoritas</th>
+                      <th>Peran / Role</th>
+                      <th>Departemen</th>
+                      <th style="width: 180px;">Pratinjau Tanda Tangan</th>
+                      <th>Token Hash / Sertifikat</th>
+                      <th>Masa Berlaku</th>
+                      <th>Status</th>
+                      <th style="width: 120px;" class="text-center">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="ttdTableBody">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: Konfigurasi QR Code -->
+          <div class="tab-pane fade" id="tab-qrcode" role="tabpanel">
+            <div class="row g-3">
+              <div class="col-12 col-lg-5">
+                <div class="card custom-card h-100">
+                  <div class="card-header">
+                    <div class="card-title">Generator &amp; Pengaturan Template QR Code</div>
+                  </div>
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold">Tipe Barcode / QR Code</label>
+                      <select id="qrTypeSelect" class="form-select">
+                        <option value="LHU">QR Verifikasi Laporan Hasil Uji (LHU/CoA) - ISO 17025</option>
+                        <option value="LABEL">QR Identifikasi Unik Sampel Lab (Klausul 7.4)</option>
+                        <option value="SPK">QR Tracking Surat Perintah Kerja (SPK)</option>
+                        <option value="REAGEN">Barcode Inventory Reagen &amp; Media</option>
+                      </select>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold">Format URL / Payload Template</label>
+                      <input type="text" id="qrUrlTemplate" class="form-control font-monospace small" value="https://holabsys.garudafood.com/verify/cert/{CERT_ID}?hash={TOKEN}" />
+                      <small class="text-muted">Variabel otomatis: <code>{CERT_ID}</code>, <code>{TOKEN}</code>, <code>{TIMESTAMP}</code></small>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold">Ukuran Render QR (Pixels)</label>
+                      <div class="d-flex align-items-center gap-3">
+                        <input type="range" class="form-range" id="qrSizeRange" min="80" max="220" step="10" value="130">
+                        <span class="badge bg-secondary font-monospace" id="qrSizeVal">130px</span>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label class="form-label small fw-semibold">Watermark Keamanan</label>
+                      <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="qrSecurityLogo" checked>
+                        <label class="form-check-label small" for="qrSecurityLogo">Sematkan Logo Garudafood di Pusat QR</label>
+                      </div>
+                      <div class="form-check form-switch mt-1">
+                        <input class="form-check-input" type="checkbox" id="qrTimestampCheck" checked>
+                        <label class="form-check-label small" for="qrTimestampCheck">Enkripsi Waktu Sign-off (Klausul 7.8.8)</label>
+                      </div>
+                    </div>
+                    <button type="button" id="btnSaveQrConfig" class="btn btn-primary btn-sm w-100">
+                      <i class="ri-save-3-line me-1"></i> Simpan Konfigurasi Template QR
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-7">
+                <div class="card custom-card h-100">
+                  <div class="card-header">
+                    <div class="card-title">Live Preview &amp; Uji Keabsahan QR Code</div>
+                  </div>
+                  <div class="card-body text-center d-flex flex-column align-items-center justify-content-center p-4">
+                    <div class="qr-card-preview shadow-sm mb-3" id="qrPreviewContainer">
+                      <div id="qrLiveSvg"></div>
+                      <div class="mt-2 text-center">
+                        <div class="fw-semibold small" id="qrLabelCode">COA/LAB/202609/0040</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">Garudafood Central Laboratory</div>
+                        <div class="badge bg-success-transparent mt-1" style="font-size: 0.7rem;">
+                          <i class="ri-shield-check-line"></i> DIGITAL SIGNED &bull; ISO 17025
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="w-100 text-start bg-light p-3 rounded border">
+                      <div class="small fw-semibold text-muted mb-1">Payload Terenkripsi Terbaca:</div>
+                      <code class="d-block text-break small p-2 bg-white border rounded" id="qrPayloadDecoded">
+                        https://holabsys.garudafood.com/verify/cert/COA-202609-0040?hash=a8f9c0e21b7d34fe&amp;tcm=Siti+Rahmawati&amp;dt=2026-09-23T10:15:30Z
+                      </code>
+                      <div class="d-flex justify-content-end gap-2 mt-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" id="btnCopyPayload">
+                          <i class="ri-file-copy-line"></i> Copy URL Verifikasi
+                        </button>
+                        <button type="button" class="btn btn-outline-primary btn-sm" id="btnTestVerify">
+                          <i class="ri-external-link-line"></i> Uji Halaman Verifikasi Publik
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: Audit Trail & Log Keabsahan -->
+          <div class="tab-pane fade" id="tab-audit" role="tabpanel">
+            <div class="card custom-card">
+              <div class="card-header">
+                <div class="card-title">Log Riwayat Digital Signature &amp; Akses QR Verifikasi</div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Waktu &amp; Tanggal</th>
+                      <th>No. Dokumen / Laporan</th>
+                      <th>Jenis Aksi</th>
+                      <th>Penandatangan / Pengakses</th>
+                      <th>Role</th>
+                      <th>Status Verifikasi</th>
+                      <th>IP &amp; Hash Bukti</th>
+                    </tr>
+                  </thead>
+                  <tbody id="auditTableBody">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Modal Add/Edit TTD -->
+    <div class="modal fade" id="modalAddTtd" tabindex="-1" aria-labelledby="modalAddTtdLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAddTtdLabel">Tambah Spesimen Tanda Tangan Digital</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formAddTtd">
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Nama Pejabat Penandatangan <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="ttdNama" required placeholder="Contoh: Siti Rahmawati, S.Si." />
+              </div>
+              <div class="row g-2 mb-3">
+                <div class="col-6">
+                  <label class="form-label small fw-semibold">Role Authority <span class="text-danger">*</span></label>
+                  <select class="form-select" id="ttdRole" required>
+                    <option value="TCM">TCM - Technical Manager</option>
+                    <option value="CRL">CRL - Koordinator Lab / Penyelia</option>
+                    <option value="ADM">ADM - Lab Administrator</option>
+                    <option value="HOL">HOL - Head of Laboratory</option>
+                    <option value="HOR">HOR - Head of R&amp;D</option>
+                    <option value="MGU">MGU - Manager User</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label small fw-semibold">NIK / ID Karyawan</label>
+                  <input type="text" class="form-control font-monospace" id="ttdNik" placeholder="GF-10492" />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Upload Berkas Tanda Tangan (PNG Transparan) <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="ttdFileInput" accept="image/png,image/svg+xml,image/jpeg" />
+                <small class="text-muted">Disarankan format PNG latar belakang transparan resolusi minimal 300 DPI.</small>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Pratinjau</label>
+                <div class="sig-preview-box" id="modalSigPreview">
+                  <span class="text-muted small">Belum ada file dipilih</span>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">PIN Otorisasi Tanda Tangan (4-6 Digit)</label>
+                <input type="password" class="form-control font-monospace" id="ttdPin" maxlength="6" placeholder="******" />
+              </div>
+              <div class="modal-footer px-0 pb-0">
+                <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-primary btn-wave">Simpan Spesimen</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/digital-signature.js"></script>
+  </body>
+</html>

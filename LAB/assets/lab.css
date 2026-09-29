@@ -1,0 +1,325 @@
+/*
+ * LAB mockup overrides on top of og-theme/onegenesis.css.
+ *
+ * Keep this file small. Anything here has no equivalent in onegenesis-web yet, so it
+ * will need a new style (or a new Spk component) when the page is ported to React.
+ * Prefer theme classes (card custom-card, btn-*-light, badge bg-*-transparent, ...)
+ * over adding rules here.
+ */
+
+/* Mockup-only role switcher in the header (not part of the real app). */
+#roleSelect {
+  font-size: 0.75rem;
+}
+
+/* Tanda Tangan & QR (Master-Data/digitalSignature.html): signature specimen / QR previews.
+   No Spk equivalent; a React port would need a small preview component. */
+.sig-preview-box {
+  background: var(--custom-white);
+  border: 2px dashed var(--default-border);
+  border-radius: 0.5rem;
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+.sig-preview-img {
+  max-height: 70px;
+  max-width: 100%;
+  object-fit: contain;
+}
+.qr-card-preview {
+  background: #fff; /* QR codes need a white background to scan, also in dark mode */
+  border: 1px solid var(--default-border);
+  border-radius: 0.625rem;
+  padding: 1rem;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---------- Print layouts (not app UI) ----------
+   Label sheet (HOLABSYS/LabelingForm.html) and certificate / LHU (HOLABSYS/reportForm.html)
+   are paper documents, so they keep fixed black-on-white colors in both themes.
+   Moved from the legacy assets/css/app.css. */
+@media print {
+  .app-header, .app-sidebar, .footer, #responsive-overlay,
+  .page-header-breadcrumb, .no-print {
+    display: none !important;
+  }
+  .main-content.app-content {
+    margin-inline-start: 0 !important;
+    padding-block-start: 0 !important;
+  }
+}
+
+.label-sheet {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.lbl-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .6rem;
+  background-color: #fff;
+  color: #212529;
+}
+
+.lbl-card svg {
+  flex: none;
+}
+
+.lbl-card .lh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.lbl-card .lid {
+  font-weight: 700;
+  font-size: .85rem;
+  font-family: var(--bs-font-monospace);
+}
+
+.lbl-card .ln {
+  font-weight: 600;
+  font-size: .85rem;
+  margin-bottom: 4px;
+}
+
+.lbl-card .lm {
+  font-size: .72rem;
+  color: #6c757d;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.lbl-card .lp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.lbl-card .lp span {
+  font-size: .65rem;
+  font-weight: 600;
+  background-color: #f2f4f8;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.printable-doc {
+  background-color: #fff;
+  color: #212529;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .75rem;
+  padding: 2rem;
+}
+
+.cert-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #212529;
+}
+
+.cert-header-brand {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+}
+
+.cert-header-brand img {
+  height: 44px;
+}
+
+.cert-header-brand h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.cert-header-brand p {
+  font-size: .72rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+.cert-kan-box {
+  text-align: center;
+  flex: none;
+}
+
+.cert-kan-box .box {
+  border: 2px solid #212529;
+  border-radius: .25rem;
+  padding: .25rem .5rem;
+  width: 90px;
+}
+
+.cert-kan-box .kan {
+  color: #dc3545;
+  font-weight: 900;
+  font-size: .9rem;
+  line-height: 1;
+}
+
+.cert-kan-box .lp {
+  font-size: .6rem;
+  font-weight: 700;
+}
+
+.cert-kan-box small {
+  font-size: .6rem;
+  color: #6c757d;
+  display: block;
+  margin-top: .25rem;
+}
+
+.cert-title {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.cert-title h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-bottom: .25rem;
+}
+
+.cert-title .cert-no {
+  font-size: .8rem;
+  font-family: var(--bs-font-monospace);
+  color: #495057;
+}
+
+.cert-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .5rem 2rem;
+  font-size: .8rem;
+  margin-bottom: 1.5rem;
+}
+
+.cert-meta-grid .row-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px dotted #dee2e6;
+  padding-bottom: 2px;
+}
+
+.cert-meta-grid .row-item span:first-child {
+  color: #6c757d;
+  flex: none;
+}
+
+.cert-meta-grid .row-item span:last-child {
+  font-weight: 600;
+  text-align: right;
+}
+
+.cert-result-table {
+  width: 100%;
+  font-size: .8rem;
+  margin-bottom: 1.5rem;
+  border-collapse: collapse;
+}
+
+.cert-result-table th,
+.cert-result-table td {
+  border: 1px solid #dee2e6;
+  padding: .5rem .6rem;
+}
+
+.cert-result-table th {
+  background-color: #f8f9fa;
+  text-transform: uppercase;
+  font-size: .68rem;
+}
+
+.cert-sign-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.cert-sign-box {
+  text-align: center;
+  border: 1px dashed #ced4da;
+  border-radius: .5rem;
+  padding: 1rem;
+}
+
+.cert-sign-box .status {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: .5rem;
+}
+
+.cert-sign-box .name {
+  font-weight: 700;
+  font-size: .85rem;
+  margin-top: .5rem;
+}
+
+.cert-sign-box .role {
+  font-size: .72rem;
+  color: #6c757d;
+}
+
+.cert-qr-wrap {
+  display: flex;
+  justify-content: center;
+  margin: .5rem 0;
+}
+
+@media print {
+  .printable-doc {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+}
+
+/* ---------- Excel page (FortuneSheet) ----------
+ * FortuneSheet fills its parent, so the host needs an explicit height; no theme class sets one.
+ * In fullscreen the card itself becomes the viewport and the sheet takes the remaining height.
+ */
+.sheet-host {
+  height: 70vh;
+  min-height: 420px;
+  position: relative;
+}
+
+.sheet-card:fullscreen {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  border-radius: 0;
+  background: var(--custom-white);
+}
+
+.sheet-card:fullscreen .card-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.sheet-card:fullscreen .sheet-host {
+  height: 100%;
+  min-height: 0;
+}

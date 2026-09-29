@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Master Alat &amp; Jadwal Kalibrasi | HOLABSYS</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link href="../assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+          <!-- Pageheader -->
+          <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+            <div>
+              <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="#!">Master Data</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Alat &amp; Kalibrasi</li>
+              </ol>
+              <h1 class="page-title fw-medium fs-18 mb-0">Master Alat &amp; Jadwal Kalibrasi</h1>
+            </div>
+          </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-tools-line text-primary" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Total Instrumen Lab</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiTotalAlat">12 Unit</h4>
+                    <span class="text-muted fs-12">Terinventarisasi Sistem</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-success-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-dashboard-3-line text-success" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Siap Uji / Operasional</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiOperasional">10 Unit</h4>
+                    <span class="text-muted fs-12">Lolos Verifikasi Kaji Ulang SPK</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-danger-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-error-warning-line text-danger" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Out of Service / Maintenance</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiOos">2 Unit</h4>
+                    <span class="text-muted fs-12">Auto-Block Kaji Ulang</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-warning-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-time-line text-warning" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Kalibrasi Jatuh Tempo (&lt; 30 Hari)</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiWarningCal">1 Unit</h4>
+                    <span class="text-muted fs-12">Jadwalkan Vendor Eksternal</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card custom-card">
+          <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <input type="text" id="searchAlatInput" class="form-control form-control-sm" placeholder="Cari alat / merk / no seri..." style="width: 230px;" />
+              <select id="filterLabAlat" class="form-select form-select-sm" style="width: 160px;">
+                <option value="">Semua Lokasi Lab</option>
+                <option value="Fisika Kimia">Fisika Kimia</option>
+                <option value="Mikrobiologi">Mikrobiologi</option>
+                <option value="Sensory & ASLT">Sensory &amp; ASLT</option>
+              </select>
+              <select id="filterStatusAlat" class="form-select form-select-sm" style="width: 170px;">
+                <option value="">Semua Status</option>
+                <option value="Operasional">Operasional</option>
+                <option value="Out of Service">Out of Service</option>
+                <option value="Maintenance">In Maintenance</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalAddAlat">
+              <i class="ri-add-line"></i> Tambah Instrumen Alat
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th>Kode &amp; Nama Alat</th>
+                  <th>Merk / Model &amp; No. Seri</th>
+                  <th>Lokasi Lab / Ruang</th>
+                  <th>Status Operasional</th>
+                  <th>Kalibrasi Terakhir</th>
+                  <th>Jatuh Tempo Kalibrasi</th>
+                  <th>No. Sertifikat / Vendor</th>
+                  <th style="width: 110px;" class="text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="alatTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Modal Add Alat -->
+    <div class="modal fade" id="modalAddAlat" tabindex="-1" aria-labelledby="modalAddAlatLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAddAlatLabel">Tambah Inventaris Instrumen Lab</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formAddAlat">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Nama Alat / Instrumen <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="alatNama" required placeholder="Contoh: Moisture Analyzer Halogen" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Kode Alat / Asset Tag <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control font-monospace" id="alatKode" required placeholder="INST-FK-001" />
+                </div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Merk &amp; Model <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="alatModel" required placeholder="Mettler Toledo HE53" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Nomor Seri (Serial Number)</label>
+                  <input type="text" class="form-control font-monospace" id="alatSerial" placeholder="SN-8829104-X" />
+                </div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Lokasi Lab / Ruang <span class="text-danger">*</span></label>
+                  <select class="form-select" id="alatLab" required>
+                    <option value="Fisika Kimia">Fisika Kimia - Ruang Instrumen</option>
+                    <option value="Mikrobiologi">Mikrobiologi - Ruang Inokulasi/Inkubasi</option>
+                    <option value="Sensory & ASLT">Sensory &amp; ASLT - Chamber Room</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Status Operasional <span class="text-danger">*</span></label>
+                  <select class="form-select" id="alatStatus" required>
+                    <option value="Operasional">Operasional (Ready)</option>
+                    <option value="Out of Service">Out of Service (Rusak/Nonaktif)</option>
+                    <option value="Maintenance">In Maintenance (Perbaikan)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Tanggal Kalibrasi Terakhir</label>
+                  <input type="date" class="form-control" id="alatCalDate" value="2026-06-10" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Jatuh Tempo Kalibrasi Berikutnya</label>
+                  <input type="date" class="form-control" id="alatDueDate" value="2027-06-10" />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Badan Kalibrasi / No. Sertifikat</label>
+                <input type="text" class="form-control" id="alatCert" placeholder="Balai Besar Standarisasi (BBSPJI) · CERT-CAL-2026/889" />
+              </div>
+              <div class="modal-footer px-0 pb-0">
+                <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-primary btn-wave">Simpan Instrumen</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/equipment-calibration.js"></script>
+  </body>
+</html>

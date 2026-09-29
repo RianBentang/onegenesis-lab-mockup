@@ -1,0 +1,18 @@
+# Claude Code: per-machine settings (the skill in .claude/skills/ is committed)
+.claude/settings.local.json
+
+# Local tooling output
+node_modules/
+graphify-out/
+.ux/
+
+# OS / editor noise
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# Office lock / temp files
+~$*
+*.tmp

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Pengajuan Analisa Internal | HOLABSYS</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet" />
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link href="../assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+        <!-- ── SpkForm: Page Header (breadcrumb + title + action buttons) ── -->
+        <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+          <div>
+            <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="#!">HOLABSYS</a></li>
+                <li class="breadcrumb-item"><a href="#!">Internal</a></li>
+                <li class="breadcrumb-item active" aria-current="page" id="breadcrumbDocState">Internal Form</li>
+              </ol>
+            <h1 class="page-title fw-medium fs-18 mb-0">Internal Form</h1>
+          </div>
+          <div id="formActionButtons" class="d-flex flex-wrap gap-2">
+            <a href="internalList.html" class="btn btn-sm bg-white d-inline-flex align-items-center gap-1">
+              <i class="ri-arrow-left-line"></i> Back
+            </a>
+            <button type="button" id="btnSaveDraft" class="btn btn-sm btn-warning btn-wave d-inline-flex align-items-center gap-1 text-white">
+              <i class="ri-save-3-line"></i> Save Draft
+            </button>
+            <button type="button" id="btnSubmit" class="btn btn-sm btn-success btn-wave d-inline-flex align-items-center gap-1">
+              <i class="ri-send-plane-fill"></i> Submit
+            </button>
+          </div>
+        </div>
+
+        <!-- ── SpkForm: Document Info Bar ── -->
+        <div class="card custom-card">
+          <div class="card custom-card d-flex flex-row align-items-center justify-content-between flex-wrap gap-2 p-2 mb-3">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+              <span class="badge bg-secondary-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1">
+                <i class="ri-draft-line"></i> DRAFT
+              </span>
+              <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+              <div class="d-flex flex-column gap-1 lh-1">
+                <span class="text-uppercase text-muted fs-10">No. ID Transaksi</span>
+                <span class="fs-13 text-heading text-nowrap font-monospace" id="docNoValue">REQ-202609-XXXX</span>
+              </div>
+              <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+              <div class="d-flex flex-column gap-1 lh-1">
+                <span class="text-uppercase text-muted fs-10">Tanggal Pengajuan</span>
+                <span class="fs-13 text-heading text-nowrap font-monospace" id="docDateValue">--</span>
+              </div>
+            </div>
+            <div class="d-flex align-items-center gap-2 flex-shrink-0 flex-wrap justify-content-end">
+              <button type="button" class="btn btn-sm btn-link text-start p-1 text-decoration-none" title="Lihat detail approval" data-bs-toggle="offcanvas" data-bs-target="#approvalOffcanvas">
+                <div class="d-flex flex-column gap-1 lh-1">
+                  <span class="text-uppercase text-muted fs-10">Last Approver</span>
+                  <span class="fs-13 text-heading text-nowrap d-flex align-items-center gap-1">
+                    <span id="lastApproverValue">&ndash;</span> <i class="ri-arrow-right-s-line text-muted"></i>
+                  </span>
+                </div>
+              </button>
+              <button type="button" class="btn btn-sm btn-light text-muted fw-semibold d-inline-flex align-items-center gap-1" data-bs-toggle="offcanvas" data-bs-target="#historyOffcanvas">
+                <i class="ri-history-line"></i> Document History
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <form id="internalForm">
+          <div class="row g-3">
+            <div class="col-12">
+
+              <!-- ── Section 1: Informasi Dasar & Routing ── -->
+              <div class="card custom-card">
+                <div class="card-body">
+                  <div class="mb-3">
+                    <h6 class="fw-semibold mb-0">1. Informasi Dasar &amp; Routing Pengujian</h6>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-4 col-md-4">
+                      <label class="form-label">Tipe Pengajuan <span class="text-danger">*</span></label>
+                      <select id="tipePengajuan" class="form-select" required>
+                        <option value="Normal">Normal</option>
+                        <option value="Urgent">Urgent</option>
+                      </select>
+                    </div>
+                    <div class="col-4 col-md-4" id="wrapAlasanUrgent" style="display:none;">
+                      <label class="form-label">Alasan Urgent <span class="text-danger">*</span></label>
+                      <textarea id="alasanUrgent" class="form-control" rows="1" placeholder="Wajib diisi jika pengajuan bersifat Urgent"></textarea>
+                    </div>
+                    <div class="col-4 col-md-4">
+                      <label class="form-label">No. ID GENESIS</label>
+                      <select id="idGenesis" class="form-select">
+                        <option value="">-- Tanpa Link Genesis --</option>
+                        <option value="GEN-2026-NPL-8812">GEN-2026-NPL-8812 (Biskuit Maco Choco)</option>
+                        <option value="GEN-2026-QC-1099">GEN-2026-QC-1099 (WCG Seasoning)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── Section 2: Lokasi & Departemen ── -->
+              <div class="card custom-card">
+                <div class="card-body">
+                  <div class="mb-3">
+                    <h6 class="fw-semibold mb-0">2. Lokasi &amp; Departemen</h6>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Alamat Pelanggan <span class="text-danger">*</span></label>
+                      <select id="alamatPelanggan" class="form-select" required></select>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Alamat Pabrik <span class="text-danger">*</span></label>
+                      <select id="alamatPabrik" class="form-select" required></select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <label class="form-label">Departemen Pemohon <span class="text-danger">*</span></label>
+                      <select id="departemenPemohon" class="form-select" required></select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <label class="form-label">Laboratorium <span class="text-danger">*</span></label>
+                      <select id="laboratorium" class="form-select" required></select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <label class="form-label">Tujuan Analisa <span class="text-danger">*</span></label>
+                      <select id="tujuanAnalisa" class="form-select" required></select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── Section 3: Identitas Sampel & Parameter Uji ── -->
+              <div class="card custom-card">
+                <div class="card-body">
+                  <div class="mb-3">
+                    <h6 class="fw-semibold mb-0">3. Identitas Sampel &amp; Parameter Uji (ISO 17025)</h6>
+                  </div>
+                  <div class="row g-3 mb-3">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Nama Sampel <span class="text-danger">*</span></label>
+                      <input type="text" id="namaSampel" class="form-control" placeholder="e.g., Maco Chocolate Wafer 120g" required />
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Nama SKU <span class="text-danger">*</span></label>
+                      <select id="namaSku" class="form-select" required></select>
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <label class="form-label">Kode Batch <span class="text-danger">*</span></label>
+                      <input type="text" id="kodeBatch" class="form-control font-monospace" placeholder="e.g., B2609-08A" required />
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <label class="form-label">Tanggal Produksi <span class="text-danger">*</span></label>
+                      <div class="input-group">
+                        <input type="text" id="tanggalProduksi" class="form-control" placeholder="Pilih tanggal" required />
+                        <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <label class="form-label">Kategori Pangan <span class="text-danger">*</span></label>
+                      <select id="kategoriPangan" class="form-select" required></select>
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <label class="form-label">Jenis Kemasan <span class="text-danger">*</span></label>
+                      <select id="jenisKemasan" class="form-select" required></select>
+                    </div>
+                  </div>
+
+                  <div class="p-3 border rounded-3" style="background-color: var(--bs-secondary-bg);">
+                    <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                      <label class="form-label fw-bold mb-0">Pilih Parameter Uji <span class="text-danger">*</span></label>
+                      <span class="badge bg-primary-transparent" id="paramCountBadge">0 Parameter Terpilih</span>
+                    </div>
+                    <select id="parameterUji" multiple placeholder="Cari &amp; pilih parameter uji..."></select>
+
+                    <div class="table-responsive bg-white rounded border mt-3" id="paramTableWrap" style="display:none;">
+                      <table class="table table-sm align-middle mb-0">
+                        <thead>
+                          <tr>
+                            <th>Parameter Uji</th>
+                            <th>Metode Acuan Uji</th>
+                            <th>Kategori Lab</th>
+                            <th>Status Scope ISO 17025</th>
+                            <th>Est. Lead Time</th>
+                          </tr>
+                        </thead>
+                        <tbody id="paramTableBody"></tbody>
+                      </table>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                      <div class="col-12 col-md-4">
+                        <label class="form-label">Suhu Penyimpanan <span class="text-danger">*</span></label>
+                        <select id="suhuPenyimpanan" class="form-select" required></select>
+                        <div class="form-text fs-11" id="suhuAutoNote"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ── Section 4: Catatan & Lampiran ── -->
+              <div class="card custom-card">
+                <div class="card-body">
+                  <div class="mb-3">
+                    <h6 class="fw-semibold mb-0">4. Catatan &amp; Lampiran</h6>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label class="form-label">Catatan Tambahan</label>
+                      <textarea id="catatanTambahan" class="form-control" rows="2" placeholder="Instruksi khusus untuk analis/penyelia (opsional)"></textarea>
+                    </div>
+                    <div class="col-12">
+                      <label class="form-label">Lampiran Dokumen</label>
+                      <!-- SpkAttachmentArea -->
+                      <div class="border rounded-1 p-2">
+                        <div class="d-flex align-items-center justify-content-between gap-2 rounded-1" id="fileDropzone" style="cursor: pointer">
+                          <div>
+                            <div class="fw-bold fs-12"><i class="ri-upload-cloud-2-line me-1 text-primary"></i>Klik atau seret file ke sini untuk mengunggah</div>
+                            <div class="text-muted fs-11">PDF, PNG, JPG, DOCX &middot; Maks. 10MB per file</div>
+                          </div>
+                          <span class="btn btn-primary btn-sm fs-10 py-1 flex-shrink-0"><i class="bi bi-plus-lg me-1"></i>Tambah</span>
+                        </div>
+                        <input type="file" id="fileInput" class="d-none" multiple accept=".pdf,.png,.jpg,.jpeg,.docx" />
+                        <div class="d-flex flex-column gap-2 mt-2" id="fileList" style="max-height: 220px; overflow-y: auto"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </form>
+
+      </div>
+      </div>
+    </div>
+
+    <!-- ── Offcanvas: Approval History (Last Approver) ── -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="approvalOffcanvas" style="width: 390px;">
+      <div class="offcanvas-header">
+        <div>
+          <h6 class="mb-0 fw-semibold"><i class="ri-shield-check-line text-primary me-1"></i> Approval History</h6>
+          <span class="fs-11 text-muted" id="docNoValueApproval">REQ-202609-XXXX</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body" id="approvalOffcanvasBody">
+        <div class="text-center text-muted p-4">
+          <i class="ri-shield-check-line"></i>
+          <div class="fw-semibold">Belum Ada Data Approval</div>
+          <p class="fs-12 mb-0">Dokumen ini masih berstatus Draft dan belum diajukan untuk approval.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Offcanvas: Document History ── -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="historyOffcanvas" style="width: 390px;">
+      <div class="offcanvas-header">
+        <div>
+          <h6 class="mb-0 fw-semibold"><i class="ri-history-line text-primary me-1"></i> Document History</h6>
+          <span class="fs-11 text-muted" id="docNoValueHistory">REQ-202609-XXXX</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body" id="historyOffcanvasBody">
+        <div class="text-center text-muted p-4">
+          <i class="ri-file-history-line"></i>
+          <div class="fw-semibold">Belum Ada Riwayat</div>
+          <p class="fs-12 mb-0">Riwayat dokumen akan muncul di sini setelah Draf disimpan atau dikirim.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Modal: Reason (Reject / Return to Edit) ── -->
+    <div class="modal fade" id="reasonModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title fw-semibold" id="reasonModalTitle">Alasan</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label class="form-label" for="reasonModalTextarea">Alasan <span class="text-danger">*</span></label>
+            <textarea id="reasonModalTextarea" class="form-control" rows="3" placeholder="Tuliskan alasan..."></textarea>
+            <div class="text-danger fs-12 mt-1" id="reasonModalError" style="display:none;">Alasan wajib diisi.</div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Batal</button>
+            <button type="button" class="btn btn-sm btn-primary" id="reasonModalConfirm">Konfirmasi</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Toast container (top-center) ── -->
+    <div id="appToastContainer"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/dummy-requests.js"></script>
+    <script src="../assets/internal-form.js"></script>
+  </body>
+</html>

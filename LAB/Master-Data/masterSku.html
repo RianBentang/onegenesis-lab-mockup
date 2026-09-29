@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Master SKU &amp; Produk | HOLABSYS</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link href="../assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+          <!-- Pageheader -->
+          <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+            <div>
+              <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="#!">Master Data</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Master SKU</li>
+              </ol>
+              <h1 class="page-title fw-medium fs-18 mb-0">Master SKU &amp; Produk</h1>
+            </div>
+          </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-barcode-line text-primary" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Total SKU Terdaftar</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiTotalSku">10 SKU</h4>
+                    <span class="text-muted fs-12">Garudafood Product Portfolio</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-info-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-dashboard-3-line text-info" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Brand &amp; Lini Bisnis</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1">6 Brand</h4>
+                    <span class="text-muted fs-12">Chocolatos, Gery, Maco, WCG, Pilus</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-success-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-dashboard-3-line text-success" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Kategori Pangan</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1">5 Kategori</h4>
+                    <span class="text-muted fs-12">Biskuit, Wafer, Minuman Susu, Snack</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-shield-check-line text-primary" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Standar Mutu QC Release</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1">100% Configured</h4>
+                    <span class="text-muted fs-12">Terintegrasi Form Pengujian</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card custom-card">
+          <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <input type="text" id="searchSkuInput" class="form-control form-control-sm" placeholder="Cari nama SKU / kode..." style="width: 230px;" />
+              <select id="filterBrandSku" class="form-select form-select-sm" style="width: 170px;">
+                <option value="">Semua Brand</option>
+                <option value="Chocolatos">Chocolatos</option>
+                <option value="Gery">Gery</option>
+                <option value="MACO">MACO</option>
+                <option value="WCG">WCG</option>
+                <option value="Slai O Lai">Slai O Lai</option>
+                <option value="Garuda Pilus">Garuda Pilus</option>
+              </select>
+              <select id="filterKategoriSku" class="form-select form-select-sm" style="width: 170px;">
+                <option value="">Semua Kategori</option>
+                <option value="Biskuit & Wafer">Biskuit &amp; Wafer</option>
+                <option value="Minuman Susu">Minuman Susu</option>
+                <option value="Makanan Ringan">Makanan Ringan</option>
+                <option value="Kacang & Snack">Kacang &amp; Snack</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalAddSku">
+              <i class="ri-add-line"></i> Tambah SKU Baru
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th>Kode &amp; Nama SKU</th>
+                  <th>Brand</th>
+                  <th>Kategori Pangan</th>
+                  <th>Kemasan Standar</th>
+                  <th>Netto</th>
+                  <th>Spesifikasi Mutu Release Standar</th>
+                  <th>Status</th>
+                  <th style="width: 100px;" class="text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="skuTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Modal Add SKU -->
+    <div class="modal fade" id="modalAddSku" tabindex="-1" aria-labelledby="modalAddSkuLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAddSkuLabel">Tambah SKU Produk Baru</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formAddSku">
+              <div class="row g-3 mb-3">
+                <div class="col-md-8">
+                  <label class="form-label small fw-semibold">Nama Lengkap SKU <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="skuNama" required placeholder="Contoh: Chocolatos Wafer Stick Sweet Cheese 16g" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Kode SKU / Item <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control font-monospace" id="skuKode" required placeholder="SKU-CHOC-008" />
+                </div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Brand / Lini Bisnis <span class="text-danger">*</span></label>
+                  <select class="form-select" id="skuBrand" required>
+                    <option value="Chocolatos">Chocolatos</option>
+                    <option value="Gery">Gery</option>
+                    <option value="MACO">MACO</option>
+                    <option value="WCG">WCG</option>
+                    <option value="Slai O Lai">Slai O Lai</option>
+                    <option value="Garuda Pilus">Garuda Pilus</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Kategori Pangan <span class="text-danger">*</span></label>
+                  <select class="form-select" id="skuKategori" required>
+                    <option value="Biskuit & Wafer">Biskuit &amp; Wafer</option>
+                    <option value="Minuman Susu">Minuman Susu</option>
+                    <option value="Makanan Ringan">Makanan Ringan</option>
+                    <option value="Kacang & Snack">Kacang &amp; Snack</option>
+                    <option value="Cokelat & Kembang Gula">Cokelat &amp; Kembang Gula</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Jenis Kemasan Primer</label>
+                  <select class="form-select" id="skuKemasan">
+                    <option value="Pouch Alufo">Pouch Alufo</option>
+                    <option value="Plastik Pillow Pack">Plastik Pillow Pack</option>
+                    <option value="Cup Plastik">Cup Plastik</option>
+                    <option value="Kaleng">Kaleng</option>
+                    <option value="Karton / Box">Karton / Box</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Berat Bersih / Netto</label>
+                  <input type="text" class="form-control" id="skuNetto" placeholder="16g / 120g / 200ml" />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Spesifikasi Standar Mutu Release</label>
+                <input type="text" class="form-control" id="skuSpec" placeholder="Kadar Air <= 2.5%, Fat 18-22%, Salmonella Negatif" />
+              </div>
+              <div class="modal-footer px-0 pb-0">
+                <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-primary btn-wave">Simpan SKU</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/master-sku.js"></script>
+  </body>
+</html>

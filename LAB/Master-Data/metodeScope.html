@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Master Metode &amp; Scope Uji ISO 17025 | HOLABSYS</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link href="../assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+          <!-- Pageheader -->
+          <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+            <div>
+              <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="#!">Master Data</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Metode &amp; Scope Uji</li>
+              </ol>
+              <h1 class="page-title fw-medium fs-18 mb-0">Master Metode &amp; Scope Uji ISO 17025</h1>
+            </div>
+          </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-book-read-line text-primary" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Total Parameter Terdaftar</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiTotalParam">14</h4>
+                    <span class="text-muted fs-12">Central Lab Scope</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-success-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-dashboard-3-line text-success" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Scope Akreditasi KAN (In-Scope)</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiInScope">9 Parameter</h4>
+                    <span class="text-muted fs-12">Sertifikat KAN LP-1234-IDN</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-dashboard-3-line text-primary" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Non-Scope / Internal Standard</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiNonScope">5 Parameter</h4>
+                    <span class="text-muted fs-12">Review Manual Saat Kaji Ulang</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-success-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-check-double-line text-success" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Standar Acuan Berlaku</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1">SNI &bull; AOAC &bull; IK</h4>
+                    <span class="text-muted fs-12">Document Controlled</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Master Table Card -->
+        <div class="card custom-card">
+          <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <input type="text" id="searchParamInput" class="form-control form-control-sm" placeholder="Cari parameter / metode..." style="width: 220px;" />
+              <select id="filterLabSelect" class="form-select form-select-sm" style="width: 160px;">
+                <option value="">Semua Lab</option>
+                <option value="Fisika Kimia">Fisika Kimia</option>
+                <option value="Mikrobiologi">Mikrobiologi</option>
+                <option value="Sensory">Sensory</option>
+                <option value="ASLT">ASLT</option>
+              </select>
+              <select id="filterScopeSelect" class="form-select form-select-sm" style="width: 160px;">
+                <option value="">Semua Status Scope</option>
+                <option value="In-Scope">In-Scope (KAN)</option>
+                <option value="Non-Scope">Non-Scope</option>
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalAddParam">
+              <i class="ri-add-line"></i> Tambah Parameter &amp; Metode
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th>Kode &amp; Parameter Uji</th>
+                  <th>Laboratorium</th>
+                  <th>Metode Acuan Resmi</th>
+                  <th>Status Scope ISO 17025</th>
+                  <th>Lead Time</th>
+                  <th>Suhu Simpan Standar</th>
+                  <th>Satuan &amp; Limit Baku Mutu</th>
+                  <th style="width: 100px;" class="text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="paramTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Modal Tambah Parameter -->
+    <div class="modal fade" id="modalAddParam" tabindex="-1" aria-labelledby="modalAddParamLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAddParamLabel">Tambah Parameter Uji &amp; Metode Acuan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formAddParam">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Nama Parameter Uji <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="paramName" required placeholder="Contoh: Kadar Lemak (Fat)" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Laboratorium Penguji <span class="text-danger">*</span></label>
+                  <select class="form-select" id="paramLab" required>
+                    <option value="Fisika Kimia">Fisika Kimia</option>
+                    <option value="Mikrobiologi">Mikrobiologi</option>
+                    <option value="Sensory">Sensory</option>
+                    <option value="ASLT">ASLT</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Metode Acuan Resmi (SNI/AOAC/IK) <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control font-monospace" id="paramMethod" required placeholder="Contoh: SNI 2897:2008 / IK-LAB-02" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Status Scope ISO/IEC 17025 <span class="text-danger">*</span></label>
+                  <select class="form-select" id="paramScope" required>
+                    <option value="true">In-Scope (Terakreditasi KAN LP-1234-IDN)</option>
+                    <option value="false">Non-Scope (Metode Internal / Non-Akreditasi)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Lead Time Pengerjaan (Hari) <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="paramLeadTime" min="1" max="60" value="2" required />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Suhu Penyimpanan Sampel</label>
+                  <select class="form-select" id="paramSuhu">
+                    <option value="Ambient Temp">Ambient Temp (Suhu Ruang)</option>
+                    <option value="Cool (2-8°C)">Cool (2-8°C)</option>
+                    <option value="Frozen (-18°C)">Frozen (-18°C)</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Satuan Hasil Uji</label>
+                  <input type="text" class="form-control" id="paramUnit" placeholder="% b/b, CFU/g, mg/kg" />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Batas Mutu Standar / Spesifikasi Referensi</label>
+                <input type="text" class="form-control" id="paramSpec" placeholder="Contoh: Maks. 3.0 % atau Negatif / 25g" />
+              </div>
+              <div class="modal-footer px-0 pb-0">
+                <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="submit" class="btn btn-sm btn-primary btn-wave">Simpan Parameter Master</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/metode-scope.js"></script>
+  </body>
+</html>
