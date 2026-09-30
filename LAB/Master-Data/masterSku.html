@@ -106,22 +106,26 @@
           <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <input type="text" id="searchSkuInput" class="form-control form-control-sm" placeholder="Cari nama SKU / kode..." style="width: 230px;" />
-              <select id="filterBrandSku" class="form-select form-select-sm" style="width: 170px;">
-                <option value="">Semua Brand</option>
-                <option value="Chocolatos">Chocolatos</option>
-                <option value="Gery">Gery</option>
-                <option value="MACO">MACO</option>
-                <option value="WCG">WCG</option>
-                <option value="Slai O Lai">Slai O Lai</option>
-                <option value="Garuda Pilus">Garuda Pilus</option>
-              </select>
-              <select id="filterKategoriSku" class="form-select form-select-sm" style="width: 170px;">
-                <option value="">Semua Kategori</option>
-                <option value="Biskuit & Wafer">Biskuit &amp; Wafer</option>
-                <option value="Minuman Susu">Minuman Susu</option>
-                <option value="Makanan Ringan">Makanan Ringan</option>
-                <option value="Kacang & Snack">Kacang &amp; Snack</option>
-              </select>
+              <div style="width: 170px;">
+                <select id="filterBrandSku" class="form-select form-select-sm">
+                  <option value="">Semua Brand</option>
+                  <option value="Chocolatos">Chocolatos</option>
+                  <option value="Gery">Gery</option>
+                  <option value="MACO">MACO</option>
+                  <option value="WCG">WCG</option>
+                  <option value="Slai O Lai">Slai O Lai</option>
+                  <option value="Garuda Pilus">Garuda Pilus</option>
+                </select>
+              </div>
+              <div style="width: 170px;">
+                <select id="filterKategoriSku" class="form-select form-select-sm">
+                  <option value="">Semua Kategori</option>
+                  <option value="Biskuit & Wafer">Biskuit &amp; Wafer</option>
+                  <option value="Minuman Susu">Minuman Susu</option>
+                  <option value="Makanan Ringan">Makanan Ringan</option>
+                  <option value="Kacang & Snack">Kacang &amp; Snack</option>
+                </select>
+              </div>
             </div>
             <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalAddSku">
               <i class="ri-add-line"></i> Tambah SKU Baru
@@ -228,6 +232,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/og-shell.js"></script>
     <script src="../assets/master-sku.js"></script>

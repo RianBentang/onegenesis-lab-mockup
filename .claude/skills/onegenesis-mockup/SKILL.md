@@ -14,6 +14,7 @@ Spk components render, so each block can be ported to its Spk component without 
 |---|---|
 | `LAB/assets/og-theme/onegenesis.css` | The real app theme (Bootstrap 5.3 + Xintra + Spk styles), compiled from onegenesis-web. Read-only. |
 | `LAB/assets/og-shell.js` | Injects header, sidebar, footer; sets the `<html>` theme attributes; dark mode; mockup role switcher (`ROLES`, `findRole`, `applyRole`, event `holabsys:rolechange`, `localStorage.holabsysRole`). Edit its `MENU` array to add pages. |
+| `LAB/assets/spk-select2.js` | `SpkSelect2` for the mockups: auto-initialises every single `<select>` as select2 and keeps it in sync with page code. Loaded on every page after jQuery + select2. |
 | `LAB/assets/lab.css` | Mockup-only overrides. Last resort. |
 | `reference/markup.md` (this skill) | Canonical HTML for each Spk component and pattern. |
 | `reference/class-map.md` (this skill) | Legacy `app.css` class → theme class, for migrating old pages. |
@@ -67,8 +68,15 @@ repo too). Use this when an old mockup from another folder is brought in. A lega
 
 ## Rules
 
-- select2: initialise like `SpkSelect2` — `$(el).select2({ width: '100%', placeholder, allowClear })`,
-  no `theme` option (the app styles the default select2 theme; `bootstrap-5` is unstyled here).
+- **Dropdowns: every single-value dropdown is `SpkSelect2`, no exceptions** (form fields, list
+  filters, modal fields, table-cell selects, selects built in JS). Write a plain
+  `<select class="form-select">`; `assets/spk-select2.js` (on every page, after jQuery + select2)
+  initialises it. A native-looking dropdown in a screenshot is a bug. Multi-selects
+  (`<select multiple>`) are the exception: they stay on TomSelect. See `reference/markup.md` §9
+  "Dropdown — SpkSelect2".
+- select2 options follow `SpkSelect2` — `{ width: '100%', placeholder, allowClear }`, no `theme`
+  option (the app styles the default select2 theme; `bootstrap-5` is unstyled here). Use
+  `spkSelect2(el, { … })` only when a select needs non-default options.
 - Theme classes first. The React app uses: `card custom-card`, `card-header` + `card-title`,
   `btn btn-{variant} btn-sm btn-wave`, light buttons `btn-{variant}-light`, icon buttons
   `btn btn-icon btn-sm btn-{variant}-light`, badges `badge bg-{variant}-transparent`,

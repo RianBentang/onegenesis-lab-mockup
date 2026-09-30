@@ -17,7 +17,7 @@ The comment above each snippet is the React component it maps to when ported.
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> <!-- only if select2 is used -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> <!-- always: every dropdown is SpkSelect2 -->
     <link href="../assets/og-theme/onegenesis.css" rel="stylesheet" />
     <link href="../assets/lab.css" rel="stylesheet" />
   </head>
@@ -30,8 +30,9 @@ The comment above each snippet is the React component it maps to when ported.
       </div>
     </div>
     <!-- modals / offcanvas here, outside .page -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>          <!-- only if select2 -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> <!-- only if select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>   <!-- SpkSelect2: auto-inits every single <select> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/og-shell.js"></script>
     <script src="../assets/<page>.js"></script>
@@ -278,9 +279,10 @@ Simple section heading used inside a plain card (real pages): `<h6 class="fw-sem
   <input type="text" class="form-control" id="sampleName" />
 </div>
 
+<!-- SpkSelect2 — single dropdown. Plain <select>; assets/spk-select2.js turns it into select2. -->
 <div class="col-md-6">
   <label class="form-label" for="type">Type</label>
-  <select class="form-select" id="type"><option>Normal</option><option>Urgent</option></select>
+  <select class="form-select" id="type"><option value="">-- Pilih --</option><option>Normal</option><option>Urgent</option></select>
 </div>
 
 <!-- validation (after submit) -->
@@ -302,6 +304,26 @@ Simple section heading used inside a plain card (real pages): `<h6 class="fw-sem
 ```
 
 Compact variant (filters, table cells): `form-control-sm` / `form-select-sm`.
+
+### Dropdown — `SpkSelect2`
+
+**Every single-value dropdown is SpkSelect2** — form fields, filters, modal fields, selects
+inside table cells, selects built in JS strings. Never leave a native `<select>` dropdown.
+
+- Markup is a plain `<select class="form-select">` (or `form-select-sm`). `assets/spk-select2.js`
+  (loaded on every page after jQuery + select2) initialises all of them, including selects added
+  to the DOM later, with the SpkSelect2 options: width 100%,
+  placeholder = first `<option value="">`, `allowClear` when not `required`, `dropdownParent` =
+  the enclosing modal/offcanvas.
+- The theme forces `.select2-container { width: 100% !important }`, so size a dropdown with a
+  wrapper, never on the `<select>`: `<div style="width: 160px;"><select class="form-select form-select-sm">…</select></div>`
+  (list filters).
+- Page scripts need no init code. Only call `spkSelect2(el, { … })` for non-default options.
+- Page scripts can keep using `el.value = …`, `addEventListener('change', …)`, replacing
+  `<option>`s, `form.reset()` and `el.disabled` — the helper keeps select2 in sync.
+- **Multi-selects (`<select multiple>`) are not SpkSelect2**: they stay on TomSelect
+  (`plugins: ['remove_button']`), as in `internal-form.js` "Pilih Parameter Uji".
+- `data-native` opts a select out. Don't use it for app UI.
 
 ### Date — `SpkDatepicker`
 

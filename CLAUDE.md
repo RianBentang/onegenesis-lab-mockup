@@ -24,6 +24,10 @@ map for migrating legacy pages.
   legacy `assets/css/bootstrap.css` / `assets/css/app.css` to a page.
 - **Layout comes from `LAB/assets/og-shell.js`** (header, sidebar, footer, dark mode, mockup role
   switcher). Pages contain only their content. Add new pages to the `MENU` array in that file.
+- **Every single-value dropdown is `SpkSelect2`** (select2), never a native `<select>` dropdown —
+  form fields, filters, modals, table cells, selects built in JS. Write a plain
+  `<select class="form-select">` and load `LAB/assets/spk-select2.js` (after jQuery + select2);
+  it initialises them. Multi-selects (`<select multiple>`) stay on TomSelect.
 - Mockup-only page overrides go in `LAB/assets/lab.css`, and only when no theme class fits.
 - Dummy data lives in `LAB/assets/dummy-*.js`; there is no backend.
 
@@ -40,6 +44,7 @@ LAB/
 │   └── assets/
 │       ├── og-theme/         ← vendored onegenesis-web theme + fonts (do not edit)
 │       ├── og-shell.js       ← app shell + MENU + dummy roles
+│       ├── spk-select2.js    ← SpkSelect2: every single <select> becomes select2
 │       ├── lab.css           ← small mockup-only overrides
 │       ├── *-list.js, *-form.js, dummy-*.js   ← page scripts / dummy data
 │       └── img/              ← Garudafood logo used by the printable certificate

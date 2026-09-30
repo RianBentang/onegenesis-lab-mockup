@@ -104,9 +104,9 @@ document.addEventListener('DOMContentLoaded', function () {
     '<p class="text-muted fs-12 mb-0">Ukuran label 50 &times; 30 mm &middot; QR berisi ID sampel unik (Kl. 7.4)</p>' +
     '</div>' +
     '<div class="d-flex align-items-center gap-2">' +
-    '<select id="printFormat" class="form-select form-select-sm" style="width:auto;">' +
+    '<div style="width:190px;"><select id="printFormat" class="form-select form-select-sm">' +
     '<option>Zebra ZD230 (50&times;30)</option><option>A4 &mdash; 3&times;7 label</option><option>PDF</option>' +
-    '</select>' +
+    '</select></div>' +
     '<button type="button" id="btnPrintLabel" class="btn btn-sm bg-white border d-inline-flex align-items-center gap-1"><i class="ri-printer-line"></i> Cetak Label</button>' +
     (canFinish ? '<button type="button" id="btnLabelDone" class="btn btn-sm btn-primary btn-wave d-inline-flex align-items-center gap-1"><i class="ri-check-line"></i> Label Ditempel &mdash; Serahkan ke Analis</button>' : '') +
     '</div>' +

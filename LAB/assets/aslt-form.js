@@ -37,8 +37,7 @@ function fillSelectAslt(selectEl, options, placeholder) {
 
 function initSelect2Aslt(id, placeholder) {
   var el = document.getElementById(id);
-  if (!el || !window.jQuery || !window.jQuery.fn.select2) return;
-  window.jQuery(el).select2({ width: '100%', placeholder: placeholder || '-- Pilih --', allowClear: true });
+  if (el && window.spkSelect2) window.spkSelect2(el, placeholder ? { placeholder: placeholder } : {});
 }
 
 function generateAsltDocNo() {

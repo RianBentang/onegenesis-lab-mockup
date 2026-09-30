@@ -71,13 +71,15 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                   <div class="d-flex align-items-center gap-2 flex-wrap">
                     <input type="text" id="searchSensory" class="form-control form-control-sm" placeholder="Cari No. Dokumen / Sampel..." style="width: 240px;" />
-                    <select id="filterJenisSensory" class="form-select form-select-sm" style="width: 220px;">
-                      <option value="">Semua Jenis Pengujian</option>
-                      <option value="Uji Sensori Internal - Afektif Rating">Internal - Afektif Rating</option>
-                      <option value="Uji Sensori Internal - Afektif Ranking">Internal - Afektif Ranking</option>
-                      <option value="Uji Triangle">Uji Triangle (Pembeda)</option>
-                      <option value="Quality Monitoring">Quality Monitoring (LAB-QM)</option>
-                    </select>
+                    <div style="width: 240px;">
+                      <select id="filterJenisSensory" class="form-select form-select-sm">
+                        <option value="">Semua Jenis Pengujian</option>
+                        <option value="Uji Sensori Internal - Afektif Rating">Internal - Afektif Rating</option>
+                        <option value="Uji Sensori Internal - Afektif Ranking">Internal - Afektif Ranking</option>
+                        <option value="Uji Triangle">Uji Triangle (Pembeda)</option>
+                        <option value="Quality Monitoring">Quality Monitoring (LAB-QM)</option>
+                      </select>
+                    </div>
                   </div>
                   <div class="d-flex gap-2">
                     <a href="sensoryForm.html" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
@@ -111,12 +113,14 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                   <div class="d-flex align-items-center gap-2 flex-wrap">
                     <input type="text" id="searchAslt" class="form-control form-control-sm" placeholder="Cari batch / sampel ASLT..." style="width: 240px;" />
-                    <select id="filterKategoriAslt" class="form-select form-select-sm" style="width: 170px;">
-                      <option value="">Semua Kategori</option>
-                      <option value="NPL">NPL (New Product)</option>
-                      <option value="Existing">Existing Monitoring</option>
-                      <option value="Trial">Trial Kemasan/Formula</option>
-                    </select>
+                    <div style="width: 190px;">
+                      <select id="filterKategoriAslt" class="form-select form-select-sm">
+                        <option value="">Semua Kategori</option>
+                        <option value="NPL">NPL (New Product)</option>
+                        <option value="Existing">Existing Monitoring</option>
+                        <option value="Trial">Trial Kemasan/Formula</option>
+                      </select>
+                    </div>
                   </div>
                   <div class="d-flex gap-2">
                     <a href="asltForm.html" class="btn btn-success btn-sm d-flex align-items-center gap-1">
@@ -335,6 +339,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/og-shell.js"></script>
     <script src="../assets/dummy-aslt-sensory-requests.js"></script>

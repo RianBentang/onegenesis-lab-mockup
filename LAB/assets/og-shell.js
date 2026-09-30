@@ -195,7 +195,7 @@
     '<ul class="header-content-right">' +
     // Mockup-only: switch the dummy role to preview role-based states. Not in the real app.
     '<li class="header-element d-flex align-items-center me-2" title="Mockup role (not in the real app)">' +
-    '<select id="roleSelect" class="form-select form-select-sm" style="width:220px"></select></li>' +
+    '<div style="width:260px"><select id="roleSelect" class="form-select form-select-sm"></select></div></li>' +
     '<li class="header-element header-theme-mode"><a href="#!" class="header-link layout-setting" id="themeToggle">' +
     '<span class="light-layout">' + ICON_THEME_LIGHT + '</span><span class="dark-layout">' + ICON_THEME_DARK + '</span></a></li>' +
     '<li class="header-element header-fullscreen"><a href="#!" class="header-link" id="fullscreenToggle">' + ICON_FULLSCREEN + '</a></li>' +
