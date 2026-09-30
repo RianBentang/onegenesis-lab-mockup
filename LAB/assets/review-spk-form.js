@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
         : '<span class="badge bg-secondary-transparent">Non-Scope</span>';
       return '<tr>' +
         '<td class="fw-semibold">' + p.text + '</td>' +
-        '<td class="font-monospace text-muted">' + p.method + '</td>' +
+        '<td class="font-monospace text-muted">' + ((record.paramMethods && record.paramMethods[p.value]) || p.method) + '</td>' +
         '<td>' + p.category + '</td>' +
         '<td>' + scopeBadge + '</td>' +
         '<td>' + p.leadTime + ' hari</td>' +

@@ -32,6 +32,18 @@ var MASTER_PARAMETER = [
   { value: 'pb', text: 'Cemaran Logam (Pb)', method: 'AOAC 999.11', category: 'Fisika Kimia', scope: false, leadTime: 4, suhu: 'Frozen (-18°C)' }
 ];
 
+/* Alternative reference methods per parameter — Lab Administrator (ADM) can override the default
+   `method` per request. First entry is the default. */
+var MASTER_METODE_ACUAN = {
+  moisture: ['SNI 2897:2008', 'SNI 01-2891-1992', 'AOAC 925.10', 'IK-LAB-01'],
+  fat: ['IK-LAB-02', 'SNI 01-2891-1992', 'AOAC 920.39'],
+  ffa: ['AOAC 940.28', 'SNI 01-3555-1998', 'IK-LAB-03'],
+  protein: ['IK-LAB-05', 'SNI 01-2891-1992', 'AOAC 2001.11'],
+  salmonella: ['SNI ISO 6579', 'ISO 6579-1:2017', 'BAM Chapter 5'],
+  alt: ['SNI 2897:2008', 'ISO 4833-1:2013', 'BAM Chapter 3'],
+  pb: ['AOAC 999.11', 'SNI 01-2896-1998', 'IK-LAB-07']
+};
+
 function toOptions(list) {
   return list.map(function (v) { return { value: v, text: v }; });
 }
@@ -164,7 +176,34 @@ document.addEventListener('DOMContentLoaded', function () {
   var paramTableBody = document.getElementById('paramTableBody');
   var suhuAutoNote = document.getElementById('suhuAutoNote');
 
+  /* Per-request method overrides { paramValue: method }, set by ADM */
+  var paramMethods = Object.assign({}, existingRecord && existingRecord.paramMethods);
+  var lastParamValues = [];
+
+  function isAdminRole() {
+    var r = findRole(localStorage.getItem('holabsysRole'));
+    return !!r && r.code === 'ADM';
+  }
+
+  function renderMethodCell(p, canEdit) {
+    var current = paramMethods[p.value] || p.method;
+    var changed = current !== p.method;
+    if (!canEdit) {
+      return '<td class="font-monospace text-muted">' + current +
+        (changed ? ' <span class="badge bg-info-transparent ms-1">Diubah Admin</span>' : '') + '</td>';
+    }
+    var options = MASTER_METODE_ACUAN[p.value] || [p.method];
+    if (options.indexOf(current) === -1) options = options.concat(current);
+    return '<td><select class="form-select form-select-sm font-monospace" data-param-method="' + p.value + '">' +
+      options.map(function (m) {
+        return '<option value="' + m + '"' + (m === current ? ' selected' : '') + '>' + m + (m === p.method ? ' (default)' : '') + '</option>';
+      }).join('') +
+      '</select></td>';
+  }
+
   function renderParamTable(selectedValues) {
+    lastParamValues = selectedValues;
+    var canEditMethod = isAdminRole();
     var rows = MASTER_PARAMETER.filter(function (p) { return selectedValues.indexOf(p.value) !== -1; });
 
     paramCountBadge.textContent = rows.length + ' Parameter Terpilih';
@@ -176,7 +215,7 @@ document.addEventListener('DOMContentLoaded', function () {
         : '<span class="badge bg-secondary-transparent">Non-Scope</span>';
       return '<tr>' +
         '<td class="fw-semibold">' + p.text + '</td>' +
-        '<td class="font-monospace text-muted">' + p.method + '</td>' +
+        renderMethodCell(p, canEditMethod) +
         '<td>' + p.category + '</td>' +
         '<td>' + scopeBadge + '</td>' +
         '<td>' + p.leadTime + ' hari</td>' +
@@ -192,6 +231,19 @@ document.addEventListener('DOMContentLoaded', function () {
       suhuAutoNote.textContent = '';
     }
   }
+
+  /* ADM changes a Metode Acuan Uji dropdown — saved straight to the request when it exists */
+  paramTableBody.addEventListener('change', function (e) {
+    var sel = e.target.closest('[data-param-method]');
+    if (!sel) return;
+    var p = MASTER_PARAMETER.filter(function (x) { return x.value === sel.dataset.paramMethod; })[0];
+    if (p && sel.value === p.method) delete paramMethods[p.value];
+    else paramMethods[sel.dataset.paramMethod] = sel.value;
+    if (existingRecord) {
+      updateRequest(existingRecord.id, { paramMethods: Object.assign({}, paramMethods) });
+      showToast('Metode acuan ' + (p ? p.text : sel.dataset.paramMethod) + ' diubah ke ' + sel.value + '.');
+    }
+  });
 
   if (paramEl && window.TomSelect) {
     var ts = new window.TomSelect(paramEl, {
@@ -437,6 +489,7 @@ document.addEventListener('DOMContentLoaded', function () {
       kategoriPangan: val('kategoriPangan'),
       kemasan: val('jenisKemasan'),
       params: (typeof ts !== 'undefined' && ts) ? ts.getValue() : [],
+      paramMethods: Object.assign({}, paramMethods),
       suhu: val('suhuPenyimpanan'),
       pemohon: findRole(localStorage.getItem('holabsysRole')).name,
       departemen: val('departemenPemohon'),
@@ -502,6 +555,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var isAuthorized = !isBSU && idx > -1;
 
     setFormLocked(!isBSU);
+    /* Re-render after locking so the ADM method dropdowns stay enabled */
+    renderParamTable(lastParamValues);
     renderActionButtons(isBSU ? 'bsu' : (isAuthorized ? 'approver' : 'back-only'));
 
     /* BSU and off-chain roles see the whole chain as not-yet-started (0 approved);

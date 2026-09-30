@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<td>' + (i + 1) + '</td>' +
         '<td>' + (p ? p.text : code) + '</td>' +
         '<td>' + r.unit + '</td>' +
-        '<td class="font-monospace">' + (p ? p.method : '-') + '</td>' +
+        '<td class="font-monospace">' + ((record.paramMethods && record.paramMethods[code]) || (p ? p.method : '-')) + '</td>' +
         '<td>' + r.spec + '</td>' +
         '<td class="font-monospace fw-semibold">' + r.result + '</td>' +
         '<td><span class="badge bg-success-transparent">PASS</span></td>' +
