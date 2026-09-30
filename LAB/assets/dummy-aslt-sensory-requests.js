@@ -34,7 +34,9 @@ var SEED_ASLT_REQUESTS = [
     param: 'Kadar Air & Nilai Peroksida (PV)',
     timepoint: 'H-90 (Selesai Pengamatan)',
     rejection: 'PV > 10 meq/kg',
-    status: 'Cek Fiskim Final'
+    status: 'Cek Fiskim Final',
+    reportStatus: 'Final', reportNo: 'LHU/LAB/202609/0031', analisHasil: 'Galih Saputra',
+    results: { 'kadar-air': { values: [2.61, 2.58, 2.64], result: '2.61' }, 'nilai-peroksida-pv': { values: [4.2, 4.4, 4.3], result: '4.3' } }
   },
   {
     id: 'ASLT-202609-004', tanggal: '10-09-2026', tipe: 'Urgent', alasanUrgent: 'Susulan NPL Q4, deadline launch percepatan.',
@@ -100,7 +102,9 @@ var SEED_SENSORY_REQUESTS = [
     blindCodes: ['112', '449'],
     sesi: 'Sesi Rutin QA (8 Panelis)',
     suhuWadah: 'Ambient · Cawan Plastik',
-    status: 'Selesai'
+    status: 'Selesai',
+    reportStatus: 'Draft', reportNo: null, analisHasil: 'Dewi Lestari',
+    results: { 'kode-112': { values: [7.1, 6.9, 7.3], result: '7.1' }, 'kode-449': { values: [6.4, 6.6, 6.5], result: '6.5' } }
   },
   {
     id: 'SN-202609-0009', tanggal: '18-09-2026', tipe: 'Normal', alasanUrgent: '',
