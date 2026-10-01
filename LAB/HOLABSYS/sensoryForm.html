@@ -124,11 +124,17 @@
                   <div class="row g-3">
                     <div class="col-12 col-md-6">
                       <label class="form-label">Alamat Pelanggan <span class="text-danger">*</span></label>
-                      <select id="alamatPelanggan" class="form-select" required></select>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="flex-grow-1" style="min-width: 0;"><select id="alamatPelanggan" class="form-select" required></select></div>
+                        <button type="button" class="btn btn-icon btn-primary-light btn-wave flex-shrink-0" data-address-for="alamatPelanggan" title="Lihat detail alamat"><i class="ri-eye-line"></i></button>
+                      </div>
                     </div>
                     <div class="col-12 col-md-6">
                       <label class="form-label">Alamat Pabrik <span class="text-danger">*</span></label>
-                      <select id="alamatPabrik" class="form-select" required></select>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="flex-grow-1" style="min-width: 0;"><select id="alamatPabrik" class="form-select" required></select></div>
+                        <button type="button" class="btn btn-icon btn-primary-light btn-wave flex-shrink-0" data-address-for="alamatPabrik" title="Lihat detail alamat"><i class="ri-eye-line"></i></button>
+                      </div>
                     </div>
                     <div class="col-12 col-md-6">
                       <label class="form-label">Departemen Pemohon <span class="text-danger">*</span></label>
@@ -323,6 +329,8 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/og-shell.js"></script>
+    <script src="../assets/dummy-sites.js"></script>
+    <script src="../assets/address-detail.js"></script>
     <script src="../assets/dummy-aslt-sensory-requests.js"></script>
     <script src="../assets/sensory-form.js"></script>
   </body>
