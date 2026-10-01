@@ -352,3 +352,16 @@
   font-size: .8125rem;
   padding: 4px 8px;
 }
+
+/* The button attached to a SpkSelect2 (eye button) takes the select2 field's border and fill, so
+   the pair reads as one field; no left border so it doesn't double up with the select2 edge. */
+.input-group > .select2-container + .btn {
+  border: 1px solid var(--input-border);
+  border-inline-start: 0;
+  background-color: var(--form-control-bg);
+  color: var(--default-text-color);
+}
+.input-group > .select2-container + .btn:hover,
+.input-group > .select2-container + .btn:focus-visible {
+  color: rgb(var(--primary-rgb));
+}
