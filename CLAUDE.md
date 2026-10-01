@@ -16,9 +16,11 @@ map for migrating legacy pages.
 - **Never use Python** for anything here: not `python -m http.server`, not `python -c` to edit
   files. Edit files with the Edit/Write tools.
 - **Preview:** open the file directly in a browser, or when the browser tool refuses `file://`
-  URLs, serve the folder with Node (no cache, so edits show up on reload):
-  `npx --yes http-server C:/Users/Bentang/Projects/experiment/LAB/LAB -p 8765 -c-1 -s`
-  and open `http://localhost:8765/<path>`. Stop the server when done.
+  URLs, serve the repo root with Node (no cache, so edits show up on reload; the root, not
+  `LAB/LAB`, so LAB and PANELIS share one origin and therefore one localStorage):
+  `npx --yes http-server C:/Users/Bentang/Projects/experiment/LAB -p 8765 -c-1 -s`
+  and open `http://localhost:8765/LAB/<path>` or `http://localhost:8765/PANELIS/`. Stop the
+  server when done.
 - **Styling comes from the real app theme** in `LAB/assets/og-theme/onegenesis.css` (compiled
   from onegenesis-web). Don't edit that folder, don't add another Bootstrap copy, don't re-add the
   legacy `assets/css/bootstrap.css` / `assets/css/app.css` to a page.
@@ -30,6 +32,10 @@ map for migrating legacy pages.
   it initialises them. Multi-selects (`<select multiple>`) stay on TomSelect.
 - Mockup-only page overrides go in `LAB/assets/lab.css`, and only when no theme class fits.
 - Dummy data lives in `LAB/assets/dummy-*.js`; there is no backend.
+- **`PANELIS/`** is the separate panelist app (login → sensory booth). Panelists are not LAB users:
+  its pages don't load `og-shell.js` (no sidebar/menu) but use the same theme, `lab.css`,
+  `spk-select2.js` and dummy data from `../LAB/assets/`. Panel data (panelis, sessions, scores,
+  statistics) lives in `LAB/assets/dummy-panel.js`, shared by both apps.
 
 ## Layout
 
@@ -48,6 +54,8 @@ LAB/
 │       ├── lab.css           ← small mockup-only overrides
 │       ├── *-list.js, *-form.js, dummy-*.js   ← page scripts / dummy data
 │       └── img/              ← Garudafood logo used by the printable certificate
+├── PANELIS/                  ← panelist app: index.html (login) → booth.html (scoring)
+│   └── assets/               ← panelis.js (theme + login helpers), login.js, booth.js
 └── docs/legacy-mockup/       ← original single-file design mockups; reference only, never link to them
 ```
 

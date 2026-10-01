@@ -12,7 +12,8 @@ var SEED_ASLT_REQUESTS = [
     param: 'Kadar Air & Organoleptik Rasa',
     timepoint: 'H-28 (Sedang Berjalan)',
     rejection: 'Kadar Air > 3.0% / Skor < 6.0',
-    status: 'In Chamber'
+    status: 'In Chamber',
+    panel: { open: true, codes: ['415', '287', '603'], oddCode: null, openedAt: '2026-09-24T08:00:00' }
   },
   {
     id: 'ASLT-202609-002', tanggal: '06-09-2026', tipe: 'Normal', alasanUrgent: '',
@@ -82,7 +83,8 @@ var SEED_SENSORY_REQUESTS = [
     blindCodes: ['842', '319', '571'],
     sesi: 'Sesi 1 (15 Panelis)',
     suhuWadah: 'Ambient · Cawan Plastik',
-    status: 'Sesi Aktif'
+    status: 'Sesi Aktif',
+    panel: { open: true, codes: ['842', '319', '571'], oddCode: null, openedAt: '2026-09-23T08:00:00' }
   },
   {
     id: 'SN-202609-0011', tanggal: '22-09-2026', tipe: 'Normal', alasanUrgent: '',
@@ -92,7 +94,8 @@ var SEED_SENSORY_REQUESTS = [
     blindCodes: ['204', '791', '204'],
     sesi: 'Sesi 2 (12 Panelis)',
     suhuWadah: 'Ambient · Piring Kaca',
-    status: 'Selesai (Poin 3 Valid)'
+    status: 'Selesai (Poin 3 Valid)',
+    panel: { open: true, codes: ['204', '791', '538'], oddCode: '791', openedAt: '2026-09-22T08:00:00' }
   },
   {
     id: 'SN-202609-0010', tanggal: '20-09-2026', tipe: 'Normal', alasanUrgent: '',

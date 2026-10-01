@@ -16,6 +16,7 @@ Spk components render, so each block can be ported to its Spk component without 
 | `LAB/assets/og-shell.js` | Injects header, sidebar, footer; sets the `<html>` theme attributes; dark mode; mockup role switcher (`ROLES`, `findRole`, `applyRole`, event `holabsys:rolechange`, `localStorage.holabsysRole`). Edit its `MENU` array to add pages. |
 | `LAB/assets/spk-select2.js` | `SpkSelect2` for the mockups: auto-initialises every single `<select>` as select2 and keeps it in sync with page code. Loaded on every page after jQuery + select2. |
 | `LAB/assets/lab.css` | Mockup-only overrides. Last resort. |
+| `PANELIS/` + `LAB/assets/dummy-panel.js` | Panelist app (login → booth, no LAB shell; `PANELIS/assets/panelis.js` sets the theme attributes) and the shared panel data: panelists, sessions per Sensory/ASLT transaction, scores, statistics, report rows. LAB shows them in ASLT & Sensory → Data Panelis & Statistik. |
 | `reference/markup.md` (this skill) | Canonical HTML for each Spk component and pattern. |
 | `reference/class-map.md` (this skill) | Legacy `app.css` class → theme class, for migrating old pages. |
 | `templates/list.html`, `templates/form.html` (this skill) | Starting points for a new list page and a new document/form page. |
@@ -99,13 +100,15 @@ repo too). Use this when an old mockup from another folder is brought in. A lega
 ## Preview
 
 Plain files, no Python. Open directly (`file:///C:/Users/Bentang/Projects/experiment/LAB/LAB/...`)
-or, when the browser tool rejects `file://`:
+or, when the browser tool rejects `file://`, serve the repo root (LAB and PANELIS must share one
+origin, so the panel scores written in the booth show up in LAB):
 
 ```
-npx --yes http-server C:/Users/Bentang/Projects/experiment/LAB/LAB -p 8765 -c-1 -s
+npx --yes http-server C:/Users/Bentang/Projects/experiment/LAB -p 8765 -c-1 -s
 ```
 
-(run in the background, open `http://localhost:8765/HOLABSYS/<page>.html`, stop it afterwards).
+(run in the background, open `http://localhost:8765/LAB/HOLABSYS/<page>.html` or
+`http://localhost:8765/PANELIS/`, stop it afterwards).
 Check: sidebar hover expands, menu item active, dark mode toggle, no console errors, icons render
 (no empty squares = fonts loaded).
 

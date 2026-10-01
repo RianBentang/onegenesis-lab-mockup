@@ -371,3 +371,38 @@
 .input-group > .select2-container + .btn:focus-visible {
   color: rgb(var(--primary-rgb));
 }
+
+/* ---------- PANELIS app (login + booth) ----------
+   Panelists use a standalone booth screen without the LAB shell; these rules cover what the theme
+   has no class for: the top bar, the big blind-code badge, the 9-point hedonic scale grid and
+   the triangle cups. */
+.panelis-logo { height: 3rem; }
+.panelis-logo-sm { height: 2.25rem; }
+.booth-topbar {
+  background-color: var(--custom-white);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.booth-code {
+  display: inline-block;
+  padding: .35rem 1.5rem;
+  border-radius: .5rem;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  background-color: rgba(var(--primary-rgb), .1);
+  color: rgb(var(--primary-rgb));
+}
+.booth-code-sm { font-size: 1.25rem; padding: .2rem .9rem; }
+.booth-scale {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: .4rem;
+}
+.booth-scale .btn { padding: .5rem .25rem; line-height: 1.15; }
+.booth-scale-label { display: block; font-size: .625rem; white-space: normal; opacity: .85; }
+@media (max-width: 767.98px) {
+  .booth-scale { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.booth-cup { min-height: 8rem; }

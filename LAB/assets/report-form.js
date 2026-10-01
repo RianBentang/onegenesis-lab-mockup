@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
       : ((jenis === 'internal' ? record.lab : WORKSHEET_SOURCES[jenis].label) + ' — Laboratorium Internal');
     var results = record.results || {};
 
-    function resultRow(i, text, unit, method, spec, result) {
+    function resultRow(i, text, unit, method, spec, result, pass) {
       return '<tr>' +
         '<td>' + (i + 1) + '</td>' +
         '<td>' + text + '</td>' +
@@ -119,15 +119,23 @@ document.addEventListener('DOMContentLoaded', function () {
         '<td class="font-monospace">' + method + '</td>' +
         '<td>' + spec + '</td>' +
         '<td class="font-monospace fw-semibold">' + result + '</td>' +
-        '<td><span class="badge bg-success-transparent">PASS</span></td>' +
+        '<td>' + (pass === false ? '<span class="badge bg-danger-transparent">FAIL</span>' : '<span class="badge bg-success-transparent">PASS</span>') + '</td>' +
         '</tr>';
     }
 
     var rows;
     if (jenis === 'sensory' || jenis === 'aslt') {
-      /* Rows = the worksheet parameters; values come from Push Data in Excel */
-      rows = worksheetParamsFor(jenis, record).map(function (p, i) {
-        return resultRow(i, p.text, p.unit, REPORT_METHOD_BY_SOURCE[jenis], p.spec, results[p.key] ? results[p.key].result : '-');
+      /* Rows = worksheet parameters (values from Push Data in Excel) and/or panel statistics
+         (sent from ASLT & Sensory → Data Panelis & Statistik) */
+      var list = [];
+      if (record.results || !record.panelStats) {
+        worksheetParamsFor(jenis, record).forEach(function (p) {
+          list.push({ text: p.text, unit: p.unit, spec: p.spec, result: results[p.key] ? results[p.key].result : '-' });
+        });
+      }
+      if (record.panelStats && typeof panelReportRows === 'function') list = list.concat(panelReportRows(record));
+      rows = list.map(function (r, i) {
+        return resultRow(i, r.text, r.unit, REPORT_METHOD_BY_SOURCE[jenis], r.spec, r.result, r.pass);
       }).join('');
     } else {
       rows = (record.params || []).map(function (code, i) {
