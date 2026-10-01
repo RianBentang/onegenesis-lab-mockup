@@ -100,6 +100,10 @@
                       <textarea id="alasanUrgent" class="form-control" rows="1" placeholder="Wajib diisi jika pengajuan bersifat Urgent"></textarea>
                     </div>
                     <div class="col-4 col-md-4">
+                      <label class="form-label">Laboratorium <span class="text-danger">*</span></label>
+                      <select id="laboratorium" class="form-select" required></select>
+                    </div>
+                    <div class="col-4 col-md-4">
                       <label class="form-label">No. ID GENESIS</label>
                       <select id="idGenesis" class="form-select">
                         <option value="">-- Tanpa Link Genesis --</option>
@@ -165,28 +169,20 @@
                       <select id="kategoriPangan" class="form-select" required></select>
                     </div>
                     <div class="col-12 col-md-4">
-                      <label class="form-label">Jenis Kemasan <span class="text-danger">*</span></label>
-                      <select id="jenisKemasan" class="form-select" required></select>
-                    </div>
-                    <div class="col-12 col-md-6">
                       <label class="form-label">Suhu Penyajian <span class="text-danger">*</span></label>
                       <select id="suhuPenyajian" class="form-select" required></select>
                     </div>
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                       <label class="form-label">Kondisi Penyajian <span class="text-danger">*</span></label>
                       <input type="text" id="kondisiPenyajian" class="form-control" placeholder="e.g., Cawan Plastik Kode Blind" required />
                     </div>
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
+                      <label class="form-label">Jenis Kemasan <span class="text-danger">*</span></label>
+                      <select id="jenisKemasan" class="form-select" required></select>
+                    </div>
+                    <div class="col-12 col-md-4">
                       <label class="form-label">Jenis Sampel <span class="text-danger">*</span></label>
                       <input type="text" id="jenisSampel" class="form-control" required />
-                    </div>
-                    <div class="col-12 col-md-3">
-                      <label class="form-label">Atribut <span class="text-danger">*</span></label>
-                      <select id="atribut" class="form-select" required></select>
-                    </div>
-                    <div class="col-12 col-md-3">
-                      <label class="form-label">Ketepatan <span class="text-danger">*</span></label>
-                      <input type="text" id="ketepatan" class="form-control" placeholder="e.g., rasa manis, asam" required />
                     </div>
                   </div>
                 </div>
@@ -204,6 +200,20 @@
                       <span class="badge bg-primary-transparent" id="paramCountBadge">0 Parameter Terpilih</span>
                     </div>
                     <select id="parameterUji" multiple placeholder="Cari &amp; pilih parameter uji..."></select>
+
+                    <!-- Atribut & Ketepatan per parameter: options depend on the parameter; both multi (TomSelect) -->
+                    <div class="table-responsive bg-white rounded border mt-3" id="atributTableWrap" style="display:none;">
+                      <table class="table table-sm align-middle mb-0">
+                        <thead>
+                          <tr>
+                            <th style="width: 22%">Parameter Uji</th>
+                            <th style="width: 34%">Atribut <span class="text-danger">*</span></th>
+                            <th>Ketepatan <span class="text-danger">*</span></th>
+                          </tr>
+                        </thead>
+                        <tbody id="atributTableBody"></tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>

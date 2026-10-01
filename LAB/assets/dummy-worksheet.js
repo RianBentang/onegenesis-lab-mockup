@@ -15,6 +15,13 @@ var WORKSHEET_PARAM_INTERNAL = {
   pb: { text: 'Cemaran Logam (Pb)', unit: 'mg/kg', spec: 'Maks. 0.5' }
 };
 
+var WORKSHEET_SENSORY_PARAM_LABEL = {
+  'internal-rating': 'Internal Rating',
+  'ranking': 'Ranking',
+  'triangle': 'Triangle (Pembeda)',
+  'quality-monitoring': 'Quality Monitoring'
+};
+
 var WORKSHEET_SOURCES = {
   internal: { label: 'Internal', badge: 'bg-primary-transparent' },
   sensory: { label: 'Sensory', badge: 'bg-warning-transparent' },
@@ -41,6 +48,18 @@ function worksheetParamsFor(source, record) {
     });
   }
   if (source === 'sensory') {
+    /* From the form: one row per parameter × ketepatan (atribut/ketepatan depend on the parameter) */
+    if (record.atributMap && Object.keys(record.atributMap).length) {
+      var rows = [];
+      Object.keys(record.atributMap).forEach(function (param) {
+        var label = WORKSHEET_SENSORY_PARAM_LABEL[param] || param;
+        (record.atributMap[param].ketepatan || []).forEach(function (k) {
+          rows.push({ key: param + '-' + worksheetSlug(k), text: label + ' — ' + k, unit: 'Skala 1-9', spec: 'Min. 6.0' });
+        });
+      });
+      return rows;
+    }
+    /* Older seed records: one row per blind code */
     var seen = {};
     return (record.blindCodes || []).filter(function (c) { return seen[c] ? false : (seen[c] = true); }).map(function (code) {
       return { key: 'kode-' + code, text: 'Skor Sampel Kode ' + code, unit: 'Skala 1-9', spec: 'Min. 6.0' };

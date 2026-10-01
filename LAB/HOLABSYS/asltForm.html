@@ -100,6 +100,10 @@
                       <textarea id="alasanUrgent" class="form-control" rows="1" placeholder="Wajib diisi jika pengajuan bersifat Urgent"></textarea>
                     </div>
                     <div class="col-4 col-md-4">
+                      <label class="form-label">Laboratorium <span class="text-danger">*</span></label>
+                      <select id="laboratorium" class="form-select" required></select>
+                    </div>
+                    <div class="col-4 col-md-4">
                       <label class="form-label">No. ID GENESIS</label>
                       <select id="idGenesis" class="form-select">
                         <option value="">-- Tanpa Link Genesis --</option>
@@ -153,20 +157,16 @@
                       <label class="form-label">Nama SKU</label>
                       <input type="text" id="namaSku" class="form-control" placeholder="Opsional" />
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-6">
                       <label class="form-label">Kode Batch <span class="text-danger">*</span></label>
                       <input type="text" id="kodeBatch" class="form-control font-monospace" placeholder="e.g., B2609-08A" required />
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-6">
                       <label class="form-label">Tanggal Produksi <span class="text-danger">*</span></label>
                       <div class="input-group">
                         <input type="text" id="tanggalProduksi" class="form-control" placeholder="Pilih tanggal" required />
                         <span class="input-group-text"><i class="ri-calendar-line"></i></span>
                       </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                      <label class="form-label">Kategori Pangan <span class="text-danger">*</span></label>
-                      <select id="kategoriPangan" class="form-select" required></select>
                     </div>
                     <div class="col-12 col-md-6">
                       <label class="form-label">Nilai Standar Release Produksi Fiskim <span class="text-danger">*</span></label>
@@ -176,25 +176,33 @@
                       <label class="form-label">Nilai Standar Release Produksi Organoleptik <span class="text-danger">*</span></label>
                       <select id="standarOrganoleptik" class="form-select" required></select>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-3">
+                      <label class="form-label">Kategori Pangan <span class="text-danger">*</span></label>
+                      <select id="kategoriPangan" class="form-select" required></select>
+                    </div>
+                    <div class="col-12 col-md-3">
                       <label class="form-label">Kategori ASLT <span class="text-danger">*</span></label>
                       <select id="kategoriAslt" class="form-select" required></select>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-3">
                       <label class="form-label">Kategori Perubahan <span class="text-danger">*</span></label>
                       <select id="kategoriPerubahan" class="form-select" required></select>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-3">
                       <label class="form-label">Kategori Sampel ASLT <span class="text-danger">*</span></label>
                       <select id="kategoriSampelAslt" class="form-select" required></select>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-6">
                       <label class="form-label">Penambahan Pengawet <span class="text-danger">*</span></label>
                       <input type="text" id="penambahanPengawet" class="form-control" required />
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-6">
                       <label class="form-label">Perkiraan Rejection Point <span class="text-danger">*</span></label>
                       <input type="text" id="perkiraanRejection" class="form-control" required />
+                    </div>
+                    <div class="col-12 col-md-8">
+                      <label class="form-label">Komposisi Mayor Produk <span class="text-danger">*</span></label>
+                      <textarea id="komposisiMayor" class="form-control" rows="1" required></textarea>
                     </div>
                     <div class="col-12 col-md-4">
                       <label class="form-label">Netto Product <span class="text-danger">*</span></label>
@@ -202,10 +210,6 @@
                         <input type="text" id="nettoProduct" class="form-control" required />
                         <span class="input-group-text">gram</span>
                       </div>
-                    </div>
-                    <div class="col-12">
-                      <label class="form-label">Komposisi Mayor Produk <span class="text-danger">*</span></label>
-                      <textarea id="komposisiMayor" class="form-control" rows="2" required></textarea>
                     </div>
                   </div>
                 </div>
@@ -227,32 +231,32 @@
                       <select id="jenisPlastik" class="form-select" required></select>
                     </div>
                     <div class="col-12 col-md-4">
-                      <label class="form-label">Kategori Kemasan <span class="text-danger">*</span></label>
-                      <select id="kategoriKemasan" class="form-select" required></select>
-                    </div>
-                    <div class="col-12 col-md-6">
                       <label class="form-label">Spesifikasi Kemasan <span class="text-danger">*</span></label>
                       <input type="text" id="spesifikasiKemasan" class="form-control" required />
                     </div>
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
+                      <label class="form-label">Kategori Kemasan <span class="text-danger">*</span></label>
+                      <select id="kategoriKemasan" class="form-select" required></select>
+                    </div>
+                    <div class="col-12 col-md-4">
                       <label class="form-label">Jumlah Layer <span class="text-danger">*</span></label>
                       <select id="jumlahLayer" class="form-select" required></select>
                     </div>
-                    <div class="col-12 col-md-3">
-                      <label class="form-label">Ukuran Kemasan <span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-4">
+                      <label class="form-label">Ukuran Kemasan (dimensi) <span class="text-danger">*</span></label>
                       <div class="input-group">
                         <input type="text" id="ukuranKemasan" class="form-control" required />
                         <span class="input-group-text">mm</span>
                       </div>
                     </div>
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                       <label class="form-label">Nilai O2TR <span class="text-danger">*</span></label>
                       <div class="input-group">
                         <input type="text" id="nilaiO2tr" class="form-control" required />
                         <span class="input-group-text">ml/m².hari</span>
                       </div>
                     </div>
-                    <div class="col-12 col-md-3">
+                    <div class="col-12 col-md-4">
                       <label class="form-label">Nilai WVTR <span class="text-danger">*</span></label>
                       <div class="input-group">
                         <input type="text" id="nilaiWvtr" class="form-control" required />
@@ -263,7 +267,7 @@
                       <label class="form-label">Metode Pengemasan <span class="text-danger">*</span></label>
                       <select id="metodePengemasan" class="form-select" required></select>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-6">
                       <label class="form-label">Uji Kebocoran Sealing <span class="text-danger">*</span></label>
                       <select id="ujiSealing" class="form-select" required>
                         <option value="">-- Pilih --</option>
@@ -271,7 +275,7 @@
                         <option value="NOT PASS">NOT PASS</option>
                       </select>
                     </div>
-                    <div class="col-12 col-md-4">
+                    <div class="col-12 col-md-6">
                       <label class="form-label">Uji Kebocoran Vacuum <span class="text-danger">*</span></label>
                       <select id="ujiVacuum" class="form-select" required>
                         <option value="">-- Pilih --</option>
