@@ -323,3 +323,32 @@
   height: 100%;
   min-height: 0;
 }
+
+/* SpkSelect2 inside an .input-group (dropdown + attached button, e.g. the Alamat eye button).
+   No theme class fits: the theme forces .select2-container to width:100% and has no input-group
+   rule, so the select2 box would push the button to the next line and keep its right radius. */
+.input-group > .select2-container {
+  flex: 1 1 auto;
+  width: 1% !important;
+  min-width: 0;
+}
+.input-group > .select2-container:not(:last-child) .select2-selection {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+/* Compact SpkSelect2 for table cells (opt-in: class spk-select2-sm on the <select>, passed on by
+   spk-select2.js). The theme pins select2 to 2.37rem with !important and has no small variant. */
+.select2-container .select2-selection--single.spk-select2-sm,
+.select2-container--default .select2-selection--single.spk-select2-sm .select2-selection__arrow {
+  height: 1.94rem !important;
+}
+.select2-container--default .select2-selection--single.spk-select2-sm .select2-selection__rendered {
+  line-height: 1.82rem !important;
+  font-size: .8125rem;
+  padding-inline-start: 8px !important;
+}
+.select2-dropdown.spk-select2-sm .select2-results__option {
+  font-size: .8125rem;
+  padding: 4px 8px;
+}

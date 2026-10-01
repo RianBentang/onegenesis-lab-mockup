@@ -64,12 +64,18 @@
     var first = el.options[0];
     var placeholder = (first && first.value === '') ? first.textContent : undefined;
     var parent = el.closest('.modal, .offcanvas');
-    return {
+    var opts = {
       width: '100%',
       placeholder: placeholder,
       allowClear: !!placeholder && !el.required,
       dropdownParent: parent ? $(parent) : undefined
     };
+    /* Compact size (table cells): <select class="form-select form-select-sm spk-select2-sm"> */
+    if (el.classList.contains('spk-select2-sm')) {
+      opts.selectionCssClass = 'spk-select2-sm';
+      opts.dropdownCssClass = 'spk-select2-sm';
+    }
+    return opts;
   }
 
   /* spkSelect2(el, options?) — (re)initialise one select like <SpkSelect2 />. Page scripts only

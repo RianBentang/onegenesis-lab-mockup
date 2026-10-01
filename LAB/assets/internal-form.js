@@ -32,7 +32,7 @@ var MASTER_PARAMETER = [
   { value: 'pb', text: 'Cemaran Logam (Pb)', method: 'AOAC 999.11', category: 'Fisika Kimia', scope: false, leadTime: 4, suhu: 'Frozen (-18°C)' }
 ];
 
-/* Alternative reference methods per parameter — Lab Administrator (ADM) can override the default
+/* Alternative reference methods per parameter — the requester (BSU) and Lab Administrator (ADM) can override the default
    `method` per request. First entry is the default. */
 var MASTER_METODE_ACUAN = {
   moisture: ['SNI 2897:2008', 'SNI 01-2891-1992', 'AOAC 925.10', 'IK-LAB-01'],
@@ -171,13 +171,13 @@ document.addEventListener('DOMContentLoaded', function () {
   var paramTableBody = document.getElementById('paramTableBody');
   var suhuAutoNote = document.getElementById('suhuAutoNote');
 
-  /* Per-request method overrides { paramValue: method }, set by ADM */
+  /* Per-request method overrides { paramValue: method }, set by BSU or ADM */
   var paramMethods = Object.assign({}, existingRecord && existingRecord.paramMethods);
   var lastParamValues = [];
 
-  function isAdminRole() {
+  function canEditMethodRole() {
     var r = findRole(localStorage.getItem('holabsysRole'));
-    return !!r && r.code === 'ADM';
+    return !!r && (r.code === 'BSU' || r.code === 'ADM');
   }
 
   function renderMethodCell(p, canEdit) {
@@ -185,11 +185,11 @@ document.addEventListener('DOMContentLoaded', function () {
     var changed = current !== p.method;
     if (!canEdit) {
       return '<td class="font-monospace text-muted">' + current +
-        (changed ? ' <span class="badge bg-info-transparent ms-1">Diubah Admin</span>' : '') + '</td>';
+        (changed ? ' <span class="badge bg-info-transparent ms-1">Bukan Default</span>' : '') + '</td>';
     }
     var options = MASTER_METODE_ACUAN[p.value] || [p.method];
     if (options.indexOf(current) === -1) options = options.concat(current);
-    return '<td><select class="form-select form-select-sm font-monospace" data-param-method="' + p.value + '">' +
+    return '<td><select class="form-select form-select-sm spk-select2-sm" data-param-method="' + p.value + '">' +
       options.map(function (m) {
         return '<option value="' + m + '"' + (m === current ? ' selected' : '') + '>' + m + (m === p.method ? ' (default)' : '') + '</option>';
       }).join('') +
@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderParamTable(selectedValues) {
     lastParamValues = selectedValues;
-    var canEditMethod = isAdminRole();
+    var canEditMethod = canEditMethodRole();
     var rows = MASTER_PARAMETER.filter(function (p) { return selectedValues.indexOf(p.value) !== -1; });
 
     paramCountBadge.textContent = rows.length + ' Parameter Terpilih';
@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  /* ADM changes a Metode Acuan Uji dropdown — saved straight to the request when it exists */
+  /* BSU / ADM changes a Metode Acuan Uji dropdown — saved straight to the request when it exists */
   paramTableBody.addEventListener('change', function (e) {
     var sel = e.target.closest('[data-param-method]');
     if (!sel) return;

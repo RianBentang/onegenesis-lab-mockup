@@ -325,16 +325,21 @@ inside table cells, selects built in JS strings. Never leave a native `<select>`
   (`plugins: ['remove_button']`), as in `internal-form.js` "Pilih Parameter Uji".
 - `data-native` opts a select out. Don't use it for app UI.
 
-Dropdown with a "view detail" eye button (e.g. Alamat Pelanggan / Alamat Pabrik → address modal
-from `assets/address-detail.js` + `dummy-sites.js`; stays clickable when the form is locked):
+Dropdown with an attached "view detail" eye button — one joined field, like the app's password
+input (e.g. Alamat Pelanggan / Alamat Pabrik → address modal from `assets/address-detail.js` +
+`dummy-sites.js`; stays clickable when the form is locked). `lab.css` makes select2 fit the
+`input-group`:
 
 ```html
 <label class="form-label">Alamat Pelanggan <span class="text-danger">*</span></label>
-<div class="d-flex align-items-center gap-2">
-  <div class="flex-grow-1" style="min-width: 0;"><select id="alamatPelanggan" class="form-select" required></select></div>
-  <button type="button" class="btn btn-icon btn-primary-light btn-wave flex-shrink-0" data-address-for="alamatPelanggan" title="Lihat detail alamat"><i class="ri-eye-line"></i></button>
+<div class="input-group flex-nowrap">
+  <select id="alamatPelanggan" class="form-select" required></select>
+  <button type="button" class="btn btn-light" data-address-for="alamatPelanggan" title="Lihat detail alamat"><i class="ri-eye-line align-middle"></i></button>
 </div>
 ```
+
+Compact SpkSelect2 (table cells, e.g. Metode Acuan Uji): add `spk-select2-sm` →
+`<select class="form-select form-select-sm spk-select2-sm">` (31px, same as `form-select-sm`).
 
 ### Date — `SpkDatepicker`
 
