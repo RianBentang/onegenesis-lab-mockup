@@ -33,7 +33,7 @@
     },
     {
       title: 'HOLABSYS', icon: 'ri-flask-line', children: [
-        { title: 'Internal', path: 'HOLABSYS/internalList.html', also: ['HOLABSYS/internalForm.html', 'HOLABSYS/reviewAndSpkForm.html', 'HOLABSYS/LabelingForm.html'] },
+        { title: 'Internal', path: 'HOLABSYS/internalList.html', also: ['HOLABSYS/internalForm.html'] },
         { title: 'External', path: 'HOLABSYS/externalList.html', also: ['HOLABSYS/externalForm.html'] },
         { title: 'Report', path: 'HOLABSYS/reportList.html', also: ['HOLABSYS/reportForm.html'] },
         { title: 'ASLT and Sensory', path: 'HOLABSYS/asltAndSensory.html', also: ['HOLABSYS/asltForm.html', 'HOLABSYS/sensoryForm.html'] },

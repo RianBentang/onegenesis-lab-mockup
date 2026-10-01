@@ -40,7 +40,7 @@
 }
 
 /* ---------- Print layouts (not app UI) ----------
-   Label sheet (HOLABSYS/LabelingForm.html) and certificate / LHU (HOLABSYS/reportForm.html)
+   Label sheet (Labeling tab of HOLABSYS/internalForm.html) and certificate / LHU (HOLABSYS/reportForm.html)
    are paper documents, so they keep fixed black-on-white colors in both themes.
    Moved from the legacy assets/css/app.css. */
 @media print {

@@ -31,117 +31,47 @@
             </div>
           </div>
 
-          <!-- Nav tabs (react-bootstrap Nav, nav-tabs tab-style-2) -->
-          <div class="card custom-card mb-3 overflow-hidden">
-            <div class="card-body p-0">
-              <div class="border-bottom">
-                <ul class="nav nav-tabs tab-style-2 mb-0 d-flex flex-nowrap" role="tablist" id="internalTabs">
-                  <li class="nav-item" role="presentation">
-                    <a class="nav-link active" href="#!" role="tab" data-tab="request">
-                      <i class="ri-file-list-3-line me-1 align-middle"></i>Request List
-                      <span class="badge bg-primary-transparent rounded-pill ms-1" id="countRequest">0</span>
-                    </a>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <a class="nav-link" href="#!" role="tab" data-tab="review">
-                      <i class="ri-shield-check-line me-1 align-middle"></i>Review &amp; SPK List
-                      <span class="badge bg-primary-transparent rounded-pill ms-1" id="countReview">0</span>
-                    </a>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <a class="nav-link" href="#!" role="tab" data-tab="labeling">
-                      <i class="ri-price-tag-3-line me-1 align-middle"></i>Labeling List
-                      <span class="badge bg-primary-transparent rounded-pill ms-1" id="countLabeling">0</span>
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
           <!-- SpkTablePagination -->
           <div class="card custom-card">
             <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
-              <div class="card-title" id="listTitle">Request List</div>
-              <div class="position-relative w-100" style="max-width: 400px">
-                <input type="text" class="form-control form-control-sm w-100" id="tableSearch" placeholder="Cari..." />
+              <div class="card-title">Request List <span class="badge bg-primary-transparent rounded-pill ms-1" id="countRequest">0</span></div>
+              <div class="d-flex align-items-center flex-wrap gap-2">
+                <!-- SpkSelect2 -->
+                <div style="width: 190px;">
+                  <select id="filterStatus" class="form-select form-select-sm">
+                    <option value="">Semua Status</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Approval">Menunggu Approval</option>
+                    <option value="Review & SPK">Kaji Ulang &amp; SPK</option>
+                    <option value="Labeling">Labeling</option>
+                    <option value="Selesai">Diuji Analis</option>
+                    <option value="Draft Report">Report</option>
+                  </select>
+                </div>
+                <input type="text" class="form-control form-control-sm" id="tableSearch" placeholder="Cari No. ID Transaksi, sampel, tujuan, No. SPK..." style="width: 300px;" />
               </div>
             </div>
             <div class="card-body pt-0">
-
-              <div class="table-responsive" data-pane="request">
+              <div class="table-responsive">
                 <table class="table table-hover text-nowrap border mt-3 mb-0">
                   <thead>
                     <tr>
                       <th style="width: 1%">Aksi</th>
-                      <th>No. Pengajuan</th>
+                      <th>No. ID Transaksi</th>
                       <th>Tanggal</th>
                       <th>Sampel</th>
                       <th>Tipe</th>
                       <th>Tujuan Analisa</th>
+                      <th>No. SPK</th>
                       <th>Status</th>
                     </tr>
                   </thead>
                   <tbody id="requestListBody"></tbody>
                 </table>
               </div>
-
-              <div class="table-responsive d-none" data-pane="review">
-                <table class="table table-hover text-nowrap border mt-3 mb-0">
-                  <thead>
-                    <tr>
-                      <th style="width: 1%">Aksi</th>
-                      <th>No. Pengajuan</th>
-                      <th>Sampel</th>
-                      <th>Tipe</th>
-                      <th>Tujuan Analisa</th>
-                      <th>Departemen Pemohon</th>
-                    </tr>
-                  </thead>
-                  <tbody id="reviewListBody"></tbody>
-                </table>
-              </div>
-
-              <div class="table-responsive d-none" data-pane="labeling">
-                <table class="table table-hover text-nowrap border mt-3 mb-0">
-                  <thead>
-                    <tr>
-                      <th style="width: 1%">Aksi</th>
-                      <th>No. Pengajuan</th>
-                      <th>No. SPK</th>
-                      <th>Sampel</th>
-                      <th>Analis</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody id="labelingListBody"></tbody>
-                </table>
-              </div>
-
             </div>
           </div>
 
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal: Pick a No. ID Pengajuan to open Review & SPK / Labeling -->
-    <div class="modal fade" id="pickDocModal" tabindex="-1" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h6 class="modal-title fw-semibold" id="pickDocModalTitle">Pilih No. ID Pengajuan</h6>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <label class="form-label" for="pickDocSelect">No. ID Pengajuan <span class="text-danger">*</span></label>
-            <select id="pickDocSelect" class="form-select"></select>
-            <div class="text-danger fs-12 mt-1" id="pickDocError" style="display:none;">Pilih salah satu No. ID Pengajuan.</div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Batal</button>
-            <button type="button" class="btn btn-sm btn-primary" id="pickDocConfirm">Lanjutkan</button>
-          </div>
         </div>
       </div>
     </div>

@@ -44,10 +44,10 @@
         </div>
 
         <!-- ── SpkForm: Document Info Bar ── -->
-        <div class="card custom-card">
+        <div class="card custom-card no-print">
           <div class="card custom-card d-flex flex-row align-items-center justify-content-between flex-wrap gap-2 p-2 mb-3">
             <div class="d-flex align-items-center flex-wrap gap-2">
-              <span class="badge bg-secondary-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1">
+              <span class="badge bg-secondary-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1" id="docStatusBadge">
                 <i class="ri-draft-line"></i> DRAFT
               </span>
               <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
@@ -59,6 +59,11 @@
               <div class="d-flex flex-column gap-1 lh-1">
                 <span class="text-uppercase text-muted fs-10">Tanggal Pengajuan</span>
                 <span class="fs-13 text-heading text-nowrap font-monospace" id="docDateValue">--</span>
+              </div>
+              <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+              <div class="d-flex flex-column gap-1 lh-1">
+                <span class="text-uppercase text-muted fs-10">No. SPK</span>
+                <span class="fs-13 text-heading text-nowrap font-monospace" id="spkNoValue">Belum Terbit</span>
               </div>
             </div>
             <div class="d-flex align-items-center gap-2 flex-shrink-0 flex-wrap justify-content-end">
@@ -77,6 +82,32 @@
           </div>
         </div>
 
+        <!-- Tabs (react-bootstrap Nav, nav-tabs tab-style-2) — Lab Administrator only; other roles see the form alone -->
+        <div class="card custom-card mb-3 overflow-hidden d-none no-print" id="internalTabsCard">
+          <div class="card-body p-0">
+            <div class="border-bottom">
+              <ul class="nav nav-tabs tab-style-2 mb-0 d-flex flex-nowrap" role="tablist" id="internalTabs">
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link active" href="#!" role="tab" data-tab="form">
+                    <i class="ri-file-list-3-line me-1 align-middle"></i>Form Internal
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" href="#!" role="tab" data-tab="review">
+                    <i class="ri-shield-check-line me-1 align-middle"></i>Kaji Ulang &amp; SPK
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" href="#!" role="tab" data-tab="labeling">
+                    <i class="ri-price-tag-3-line me-1 align-middle"></i>Labeling
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div data-pane="form">
         <form id="internalForm">
           <div class="row g-3">
             <div class="col-12">
@@ -250,6 +281,13 @@
             </div>
           </div>
         </form>
+        </div>
+
+        <!-- Tab: Kaji Ulang & SPK (rendered by internal-review-tab.js) -->
+        <div data-pane="review" class="d-none" id="paneReview"></div>
+
+        <!-- Tab: Labeling (rendered by internal-labeling-tab.js) -->
+        <div data-pane="labeling" class="d-none" id="paneLabeling"></div>
 
       </div>
       </div>
@@ -325,6 +363,8 @@
     <script src="../assets/dummy-sites.js"></script>
     <script src="../assets/address-detail.js"></script>
     <script src="../assets/dummy-requests.js"></script>
+    <script src="../assets/internal-review-tab.js"></script>
+    <script src="../assets/internal-labeling-tab.js"></script>
     <script src="../assets/internal-form.js"></script>
   </body>
 </html>

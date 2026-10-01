@@ -20,8 +20,8 @@ Spk components render, so each block can be ported to its Spk component without 
 | `reference/markup.md` (this skill) | Canonical HTML for each Spk component and pattern. |
 | `reference/class-map.md` (this skill) | Legacy `app.css` class → theme class, for migrating old pages. |
 | `templates/list.html`, `templates/form.html` (this skill) | Starting points for a new list page and a new document/form page. |
-| `LAB/LAB/HOLABSYS/internalList.html` + `assets/internal-list.js` | Reference list page (tabs + list + modal). |
-| `LAB/LAB/HOLABSYS/internalForm.html` + `assets/internal-form.js` | Reference document form (SpkForm status card, sections, select2, attachment area, approval offcanvas). |
+| `LAB/LAB/HOLABSYS/internalList.html` + `assets/internal-list.js` | Reference list page (one SpkTablePagination list + status filter + search). |
+| `LAB/LAB/HOLABSYS/internalForm.html` + `assets/internal-form.js` | Reference document form (SpkForm status card, sections, select2, attachment area, approval offcanvas; Lab Administrator tabs Kaji Ulang & SPK + Labeling via `internal-review-tab.js` / `internal-labeling-tab.js`). |
 | `LAB/LAB/Master-Data/equipmentCalibration.html` | Reference master-data page (page header, SpkCountercard row, filter + table card, modal). |
 
 All pages in `LAB/LAB` already use this setup. Page groups: `HOLABSYS/` (module transactions),
@@ -64,7 +64,7 @@ repo too). Use this when an old mockup from another folder is brought in. A lega
    script attaches its listener.
 6. Keep ids, `data-*` hooks, page logic and dummy data unchanged. When a JS selector depended on
    a legacy class (e.g. `.tabs-seg .tab.on`), switch it to the new markup (`.nav-link.active`,
-   `d-none`) as `internal-list.js` does.
+   `d-none`) as `internal-form.js` does for its tabs.
 7. Preview and compare against `HOLABSYS/internalList.html`.
 
 ## Rules

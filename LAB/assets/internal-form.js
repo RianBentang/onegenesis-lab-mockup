@@ -177,7 +177,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function canEditMethodRole() {
     var r = findRole(localStorage.getItem('holabsysRole'));
-    return !!r && (r.code === 'BSU' || r.code === 'ADM');
+    /* BSU while the request is still editable; ADM also during Kaji Ulang */
+    return !!r && ((r.code === 'BSU' && !isPastApproval()) || r.code === 'ADM');
   }
 
   function renderMethodCell(p, canEdit) {
@@ -547,16 +548,18 @@ document.addEventListener('DOMContentLoaded', function () {
     var isBSU = role.code === 'BSU';
     var chain = getApprovalChain(tipe, tujuan);
     var idx = chain.indexOf(role.code);
-    var isAuthorized = !isBSU && idx > -1;
+    var past = isPastApproval();
+    var isAuthorized = !isBSU && idx > -1 && !past;
 
-    setFormLocked(!isBSU);
-    /* Re-render after locking so the ADM method dropdowns stay enabled */
+    /* Past approval (Kaji Ulang / Labeling / analysis / report) the request is read-only */
+    setFormLocked(!isBSU || past);
+    /* Re-render after locking so the method dropdowns stay enabled for who may edit them */
     renderParamTable(lastParamValues);
-    renderActionButtons(isBSU ? 'bsu' : (isAuthorized ? 'approver' : 'back-only'));
+    renderActionButtons(past ? 'back-only' : (isBSU ? 'bsu' : (isAuthorized ? 'approver' : 'back-only')));
 
     /* BSU and off-chain roles see the whole chain as not-yet-started (0 approved);
-       an authorized approver sees everyone before them as Approved. */
-    var approvedCount = isAuthorized ? idx : 0;
+       an authorized approver sees everyone before them as Approved; past approval all approved. */
+    var approvedCount = past ? chain.length : (isAuthorized ? idx : 0);
 
     var lastApproverEl = document.getElementById('lastApproverValue');
     if (lastApproverEl) {
@@ -567,7 +570,98 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderApprovalList('approvalOffcanvasBody', chain, approvedCount);
     renderApprovalList('historyOffcanvasBody', chain, approvedCount);
+
+    updateDocInfo();
+    refreshTabs();
   }
+
+  /* ---------- Tabs: Form Internal | Kaji Ulang & SPK | Labeling (Lab Administrator only) ----------
+     Other roles, and new (unsaved) requests, see only the form without a tab bar. */
+  var tabsCard = document.getElementById('internalTabsCard');
+  var tabsNav = document.getElementById('internalTabs');
+  var activeTab = 'form';
+  var tabChosen = false;
+
+  function currentRecord() { return existingRecord ? getRequestById(existingRecord.id) : null; }
+  function isPastApproval() {
+    var r = currentRecord();
+    return !!r && r.step !== 'Draft' && r.step !== 'Approval';
+  }
+
+  var STEP_BADGE = {
+    'Draft': ['bg-secondary-transparent', 'ri-draft-line', 'DRAFT'],
+    'Approval': ['bg-warning-transparent', 'ri-time-line', 'APPROVAL'],
+    'Review & SPK': ['bg-info-transparent', 'ri-shield-check-line', 'KAJI ULANG & SPK'],
+    'Labeling': ['bg-primary-transparent', 'ri-price-tag-3-line', 'LABELING'],
+    'Selesai': ['bg-purple-transparent', 'ri-flask-line', 'DIUJI ANALIS'],
+    'Draft Report': ['bg-success-transparent', 'ri-file-chart-line', 'REPORT']
+  };
+  function updateDocInfo() {
+    var r = currentRecord();
+    var b = STEP_BADGE[(r && r.step) || 'Draft'] || STEP_BADGE.Draft;
+    var badge = document.getElementById('docStatusBadge');
+    if (badge) {
+      badge.className = 'badge ' + b[0] + ' d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1';
+      badge.innerHTML = '<i class="' + b[1] + '"></i> ' + b[2];
+    }
+    var spkEl = document.getElementById('spkNoValue');
+    if (spkEl) spkEl.textContent = (r && r.spk) || 'Belum Terbit';
+  }
+
+  function renderTabPane(tab) {
+    var r = currentRecord();
+    if (tab === 'review') {
+      InternalReviewTab.render(document.getElementById('paneReview'), r, {
+        toast: showToast,
+        onIssued: function () { updateDocInfo(); showTab('labeling'); }
+      });
+    } else if (tab === 'labeling') {
+      InternalLabelingTab.render(document.getElementById('paneLabeling'), r, {
+        toast: showToast,
+        onLabeled: function () { updateDocInfo(); renderTabPane('labeling'); }
+      });
+    }
+  }
+
+  /* Header actions (Save / Submit / Approve…) belong to the form; other tabs keep only Back */
+  function applyHeaderForTab() {
+    if (!formActionButtons) return;
+    Array.prototype.forEach.call(formActionButtons.children, function (el, i) {
+      if (i > 0) el.classList.toggle('d-none', activeTab !== 'form');
+    });
+  }
+
+  function showTab(tab) {
+    activeTab = tab;
+    tabsNav.querySelectorAll('.nav-link').forEach(function (a) { a.classList.toggle('active', a.dataset.tab === tab); });
+    document.querySelectorAll('[data-pane]').forEach(function (p) { p.classList.toggle('d-none', p.dataset.pane !== tab); });
+    if (tab !== 'form') renderTabPane(tab);
+    applyHeaderForTab();
+  }
+
+  function refreshTabs() {
+    var role = findRole(localStorage.getItem('holabsysRole'));
+    var showTabs = role.code === 'ADM' && !!existingRecord;
+    tabsCard.classList.toggle('d-none', !showTabs);
+    if (!showTabs) { if (activeTab !== 'form') showTab('form'); return; }
+    /* First time the ADM opens a request: land on the tab of its current step (or ?tab=) */
+    if (!tabChosen) {
+      tabChosen = true;
+      var step = currentRecord().step;
+      var wanted = urlParams.get('tab') || (step === 'Review & SPK' ? 'review' : (step === 'Labeling' ? 'labeling' : 'form'));
+      showTab(['form', 'review', 'labeling'].indexOf(wanted) !== -1 ? wanted : 'form');
+    } else if (activeTab !== 'form') {
+      renderTabPane(activeTab);
+    }
+    applyHeaderForTab();
+  }
+
+  tabsNav.addEventListener('click', function (e) {
+    var a = e.target.closest('.nav-link');
+    if (!a) return;
+    e.preventDefault();
+    showTab(a.dataset.tab);
+  });
 
   document.addEventListener('holabsys:rolechange', refreshFormState);
   if (tipeSelect) window.jQuery ? window.jQuery(tipeSelect).on('change', refreshFormState) : tipeSelect.addEventListener('change', refreshFormState);

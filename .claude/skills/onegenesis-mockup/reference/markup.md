@@ -161,7 +161,8 @@ Icon buttons, one per action, in a `d-flex gap-1` wrapper:
 ```
 
 Switch panes by toggling `active` on `.nav-link` and `d-none` on the pane element
-(see `assets/internal-list.js`).
+(see `assets/internal-form.js`: Form Internal / Kaji Ulang & SPK / Labeling tabs, shown to the Lab
+Administrator only — other roles get the form without a tab bar).
 
 ## 6. Buttons — `SpkButton` (`btn-wave` + variant)
 
