@@ -332,9 +332,15 @@
   width: 1% !important;
   min-width: 0;
 }
-.input-group > .select2-container:not(:last-child) .select2-selection {
+.input-group > .select2-container:not(:last-child) .select2-selection,
+.input-group > .select2-container:not(:last-child) .select2-selection__rendered {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
+}
+/* The theme's select2 border box (line-height 2.33rem + 2px border) overhangs its 2.37rem box by
+   ~1.4px; fit it exactly so its bottom edge lines up with the attached button. */
+.input-group > .select2-container .select2-selection__rendered {
+  line-height: calc(2.37rem - 2px) !important;
 }
 
 /* Compact SpkSelect2 for table cells (opt-in: class spk-select2-sm on the <select>, passed on by
@@ -354,10 +360,10 @@
 }
 
 /* The button attached to a SpkSelect2 (eye button) takes the select2 field's border and fill, so
-   the pair reads as one field; no left border so it doesn't double up with the select2 edge. */
+   the pair reads as one field. Its left border overlaps the select2 right edge (input-group -1px
+   margin), leaving a single divider line between them. */
 .input-group > .select2-container + .btn {
   border: 1px solid var(--input-border);
-  border-inline-start: 0;
   background-color: var(--form-control-bg);
   color: var(--default-text-color);
 }
