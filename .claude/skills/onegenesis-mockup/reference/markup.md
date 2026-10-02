@@ -161,7 +161,8 @@ Icon buttons, one per action, in a `d-flex gap-1` wrapper:
 ```
 
 Switch panes by toggling `active` on `.nav-link` and `d-none` on the pane element
-(see `assets/internal-form.js`: Form Internal / Kaji Ulang & SPK / Labeling tabs, shown to the Lab
+(see `assets/internal-form.js`: Form Internal / Kaji Ulang & SPK tabs — sample labels live under Kaji
+Ulang & SPK once the SPK is issued — shown to the Lab
 Administrator only — other roles get the form without a tab bar).
 
 ## 6. Buttons — `SpkButton` (`btn-wave` + variant)
@@ -197,6 +198,13 @@ Always `badge bg-{color}-transparent`. Document statuses used across ONE-Genesis
 
 Icons used next to the status in the document status card: Draft `ri-draft-line`,
 Confirm to Approve `ri-time-line`. For other statuses pick a matching `ri-*-line` icon.
+
+Doc status flow: New → (Draft) → Confirm to Approve → Partially Approved (approval chain of 2+
+levels, not all approved) → Fully Approved → Confirmed; an approver can send it to Return to Edit
+or Rejected. When a doc is Fully Approved but a workflow step is still pending (e.g. Kaji Ulang &
+SPK), show an extra **workflow badge** next to the status: `badge bg-warning-transparent` with
+`ri-time-line`. Helpers: `getDocStatus` / `docStatusBadgesHtml` / `docStatusCardHtml` in
+`assets/dummy-requests.js`.
 
 In lists: `<span class="badge bg-warning-transparent">Menunggu Head of Laboratory</span>`.
 Pill counter: add `rounded-pill`.

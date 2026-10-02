@@ -1,36 +1,3 @@
-/* ---------- Approval chain (duplicated from internal-form.js — kept tiny, no cross-page coupling) ---------- */
-function isMdOrP5(tujuan) {
-  return tujuan === 'Pendaftaran MD (BPOM)' || tujuan === 'Pengujian P5';
-}
-
-function getApprovalChain(tipe, tujuan) {
-  var mdP5 = isMdOrP5(tujuan);
-  if (tipe === 'Urgent') {
-    return mdP5 ? ['MGU', 'HOL', 'HOR', 'FRA', 'ADM'] : ['MGU', 'HOL', 'HOR', 'ADM'];
-  }
-  return mdP5 ? ['FRA', 'ADM'] : ['ADM'];
-}
-
-/* Status badge per step. Kaji Ulang & SPK and Labeling happen inside internalForm.html (ADM tabs). */
-function requestStatusLabel(r) {
-  if (r.step === 'Draft') return '<span class="badge bg-secondary-transparent">Draft</span>';
-  if (r.step === 'Approval') {
-    var chain = getApprovalChain(r.tipe, r.tujuan);
-    var pendingRole = chain[r.approvalIdx] || chain[chain.length - 1];
-    var role = (typeof findRole === 'function') ? findRole(pendingRole) : { label: pendingRole };
-    return '<span class="badge bg-warning-transparent">Menunggu ' + role.label + '</span>';
-  }
-  if (r.step === 'Review & SPK') return '<span class="badge bg-info-transparent">Kaji Ulang &amp; SPK</span>';
-  if (r.step === 'Labeling') return '<span class="badge bg-primary-transparent">Labeling</span>';
-  if (r.step === 'Selesai') return '<span class="badge bg-purple-transparent">Diuji Analis</span>';
-  if (r.step === 'Draft Report') {
-    return r.reportStatus === 'Final'
-      ? '<span class="badge bg-success-transparent">LHU Final</span>'
-      : '<span class="badge bg-success-transparent">Draft Report</span>';
-  }
-  return '<span class="badge bg-light text-default">' + (r.step || '-') + '</span>';
-}
-
 function rowMatchesQuery(fields, query) {
   var q = query.trim().toLowerCase();
   if (!q) return true;
@@ -41,12 +8,12 @@ document.addEventListener('DOMContentLoaded', function () {
   var tableSearch = document.getElementById('tableSearch');
   var filterStatus = document.getElementById('filterStatus');
 
-  /* Request List — every internal request, any step; opens internalForm.html */
+  /* Request List — every internal request with its doc status (+ workflow badge); opens internalForm.html */
   function renderRequestList() {
     var query = tableSearch.value, status = filterStatus.value;
     var all = getRequests();
     var rows = all.filter(function (r) {
-      return (!status || r.step === status) && rowMatchesQuery([r.id, r.sampel, r.tipe, r.tujuan, r.spk], query);
+      return (!status || getDocStatus(r).status === status) && rowMatchesQuery([r.id, r.sampel, r.tipe, r.tujuan, r.spk], query);
     });
     document.getElementById('countRequest').textContent = all.length;
     document.getElementById('requestListBody').innerHTML = rows.map(function (r) {
@@ -59,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<td>' + r.tipe + '</td>' +
         '<td>' + r.tujuan + '</td>' +
         '<td class="font-monospace">' + (r.spk || '<span class="text-muted">-</span>') + '</td>' +
-        '<td>' + requestStatusLabel(r) + '</td>' +
+        '<td>' + docStatusBadgesHtml(r) + '</td>' +
         '</tr>';
     }).join('') || '<tr><td colspan="8" class="text-center text-muted p-4">' + (query || status ? 'Tidak ada hasil yang cocok.' : 'Belum ada pengajuan.') + '</td></tr>';
   }
@@ -72,6 +39,6 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('listActionButtons').innerHTML =
     '<a href="internalForm.html" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center"><i class="ri-add-line me-1 align-middle"></i>Buat Pengajuan Baru</a>';
 
-  /* Status labels name the pending approver role */
+  /* Re-render on role switch (mockup role switcher) */
   document.addEventListener('holabsys:rolechange', renderRequestList);
 });

@@ -21,7 +21,7 @@ Spk components render, so each block can be ported to its Spk component without 
 | `reference/class-map.md` (this skill) | Legacy `app.css` class → theme class, for migrating old pages. |
 | `templates/list.html`, `templates/form.html` (this skill) | Starting points for a new list page and a new document/form page. |
 | `LAB/LAB/HOLABSYS/internalList.html` + `assets/internal-list.js` | Reference list page (one SpkTablePagination list + status filter + search). |
-| `LAB/LAB/HOLABSYS/internalForm.html` + `assets/internal-form.js` | Reference document form (SpkForm status card, sections, select2, attachment area, approval offcanvas; Lab Administrator tabs Kaji Ulang & SPK + Labeling via `internal-review-tab.js` / `internal-labeling-tab.js`). |
+| `LAB/LAB/HOLABSYS/internalForm.html` + `assets/internal-form.js` | Reference document form (SpkForm status card, sections, select2, attachment area, approval offcanvas; Lab Administrator tab Kaji Ulang & SPK with the sample labels via `internal-review-tab.js` + `sample-label.js`). |
 | `LAB/LAB/Master-Data/equipmentCalibration.html` | Reference master-data page (page header, SpkCountercard row, filter + table card, modal). |
 
 All pages in `LAB/LAB` already use this setup. Page groups: `HOLABSYS/` (module transactions),

@@ -47,8 +47,11 @@
         <div class="card custom-card no-print">
           <div class="card custom-card d-flex flex-row align-items-center justify-content-between flex-wrap gap-2 p-2 mb-3">
             <div class="d-flex align-items-center flex-wrap gap-2">
-              <span class="badge bg-secondary-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1" id="docStatusBadge">
-                <i class="ri-draft-line"></i> DRAFT
+              <!-- Doc status + workflow badge — rendered by docStatusCardHtml() -->
+              <span id="docStatusBadges" class="d-inline-flex align-items-center flex-wrap gap-2">
+                <span class="badge bg-secondary-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1">
+                  <i class="ri-file-add-line"></i> New
+                </span>
               </span>
               <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
               <div class="d-flex flex-column gap-1 lh-1">
@@ -95,11 +98,6 @@
                 <li class="nav-item" role="presentation">
                   <a class="nav-link" href="#!" role="tab" data-tab="review">
                     <i class="ri-shield-check-line me-1 align-middle"></i>Kaji Ulang &amp; SPK
-                  </a>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <a class="nav-link" href="#!" role="tab" data-tab="labeling">
-                    <i class="ri-price-tag-3-line me-1 align-middle"></i>Labeling
                   </a>
                 </li>
               </ul>
@@ -283,11 +281,8 @@
         </form>
         </div>
 
-        <!-- Tab: Kaji Ulang & SPK (rendered by internal-review-tab.js) -->
+        <!-- Tab: Kaji Ulang & SPK + Label Sampel (rendered by internal-review-tab.js) -->
         <div data-pane="review" class="d-none" id="paneReview"></div>
-
-        <!-- Tab: Labeling (rendered by internal-labeling-tab.js) -->
-        <div data-pane="labeling" class="d-none" id="paneLabeling"></div>
 
       </div>
       </div>
@@ -363,8 +358,8 @@
     <script src="../assets/dummy-sites.js"></script>
     <script src="../assets/address-detail.js"></script>
     <script src="../assets/dummy-requests.js"></script>
+    <script src="../assets/sample-label.js"></script>
     <script src="../assets/internal-review-tab.js"></script>
-    <script src="../assets/internal-labeling-tab.js"></script>
     <script src="../assets/internal-form.js"></script>
   </body>
 </html>

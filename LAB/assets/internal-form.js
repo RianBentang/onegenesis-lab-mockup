@@ -177,8 +177,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function canEditMethodRole() {
     var r = findRole(localStorage.getItem('holabsysRole'));
-    /* BSU while the request is still editable; ADM also during Kaji Ulang */
-    return !!r && ((r.code === 'BSU' && !isPastApproval()) || r.code === 'ADM');
+    /* BSU while the request is still editable (New / Draft / Return to Edit); ADM also during approval
+       and Kaji Ulang, not on a Rejected request */
+    var doc = currentRecord();
+    return !!r && (isBsuEditable() || (r.code === 'ADM' && !(doc && doc.step === 'Rejected')));
   }
 
   function renderMethodCell(p, canEdit) {
@@ -417,7 +419,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       var actionLabel = pendingReasonAction === 'reject' ? 'Ditolak' : 'Dikembalikan untuk Edit';
       var docNo = docNoEl ? docNoEl.textContent : '';
-      updateRequest(docNo, { step: 'Draft', approvalIdx: 0 });
+      updateRequest(docNo, pendingReasonAction === 'reject'
+        ? { step: 'Rejected', reason: reason }
+        : { step: 'Draft', approvalIdx: 0, returned: true, reason: reason });
       if (reasonModal) reasonModal.hide();
       showToast('Dokumen ' + actionLabel + ': "' + reason + '"');
       setTimeout(function () { window.location.href = 'internalList.html'; }, 1200);
@@ -506,12 +510,14 @@ document.addEventListener('DOMContentLoaded', function () {
       if (action === 'save-draft') {
         updateRequest(docNo, collectFormValues());
         showToast('Draf pengajuan "' + docNo + '" disimpan.');
+        refreshFormState();
       } else if (action === 'submit') {
         var form = document.getElementById('internalForm');
         if (form.checkValidity() === false) { form.reportValidity(); return; }
         var record = collectFormValues();
         record.step = 'Approval';
         record.approvalIdx = 0;
+        record.returned = false;
         updateRequest(docNo, record);
         showToast('Pengajuan "' + docNo + '" berhasil dikirim untuk approval.');
         setTimeout(function () { window.location.href = 'internalList.html'; }, 1200);
@@ -533,6 +539,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           updateRequest(docNo, { approvalIdx: idx + 1 });
           showToast('Disetujui oleh ' + role.name + ' (' + role.label + ').');
+          refreshFormState();
         }
       }
     });
@@ -545,21 +552,25 @@ document.addEventListener('DOMContentLoaded', function () {
     var tujuanEl = document.getElementById('tujuanAnalisa');
     var tujuan = tujuanEl ? tujuanEl.value : '';
 
+    var record = currentRecord();
+    var step = record ? record.step : null;
+
     var isBSU = role.code === 'BSU';
     var chain = getApprovalChain(tipe, tujuan);
     var idx = chain.indexOf(role.code);
-    var past = isPastApproval();
-    var isAuthorized = !isBSU && idx > -1 && !past;
 
-    /* Past approval (Kaji Ulang / Labeling / analysis / report) the request is read-only */
-    setFormLocked(!isBSU || past);
+    /* Approved levels so far: none before submit, all once past approval */
+    var approvedCount = step === 'Approval' ? (record.approvalIdx || 0)
+      : (step && step !== 'Draft' && step !== 'Rejected') ? chain.length : 0;
+
+    /* BSU edits only New / Draft / Return to Edit; an approver acts only on a pending level */
+    var canEdit = isBsuEditable();
+    var canApprove = !isBSU && step === 'Approval' && idx >= approvedCount;
+
+    setFormLocked(!canEdit);
     /* Re-render after locking so the method dropdowns stay enabled for who may edit them */
     renderParamTable(lastParamValues);
-    renderActionButtons(past ? 'back-only' : (isBSU ? 'bsu' : (isAuthorized ? 'approver' : 'back-only')));
-
-    /* BSU and off-chain roles see the whole chain as not-yet-started (0 approved);
-       an authorized approver sees everyone before them as Approved; past approval all approved. */
-    var approvedCount = past ? chain.length : (isAuthorized ? idx : 0);
+    renderActionButtons(canEdit && isBSU ? 'bsu' : (canApprove ? 'approver' : 'back-only'));
 
     var lastApproverEl = document.getElementById('lastApproverValue');
     if (lastApproverEl) {
@@ -575,52 +586,43 @@ document.addEventListener('DOMContentLoaded', function () {
     refreshTabs();
   }
 
-  /* ---------- Tabs: Form Internal | Kaji Ulang & SPK | Labeling (Lab Administrator only) ----------
-     Other roles, and new (unsaved) requests, see only the form without a tab bar. */
+  /* ---------- Tabs: Form Internal | Kaji Ulang & SPK (Lab Administrator only) ----------
+     Other roles, and new (unsaved) requests, see only the form without a tab bar. The sample
+     labels live under Kaji Ulang & SPK and appear once the SPK is issued. */
   var tabsCard = document.getElementById('internalTabsCard');
   var tabsNav = document.getElementById('internalTabs');
   var activeTab = 'form';
   var tabChosen = false;
 
-  function currentRecord() { return existingRecord ? getRequestById(existingRecord.id) : null; }
-  function isPastApproval() {
+  function currentRecord() { return getRequestById(docNoEl ? docNoEl.textContent : '') || null; }
+  /* The requester can still change the request: New / Draft / Return to Edit */
+  function isBsuEditable() {
+    var role = findRole(localStorage.getItem('holabsysRole'));
     var r = currentRecord();
-    return !!r && r.step !== 'Draft' && r.step !== 'Approval';
+    return role.code === 'BSU' && (!r || r.step === 'Draft');
   }
 
-  var STEP_BADGE = {
-    'Draft': ['bg-secondary-transparent', 'ri-draft-line', 'DRAFT'],
-    'Approval': ['bg-warning-transparent', 'ri-time-line', 'APPROVAL'],
-    'Review & SPK': ['bg-info-transparent', 'ri-shield-check-line', 'KAJI ULANG & SPK'],
-    'Labeling': ['bg-primary-transparent', 'ri-price-tag-3-line', 'LABELING'],
-    'Selesai': ['bg-purple-transparent', 'ri-flask-line', 'DIUJI ANALIS'],
-    'Draft Report': ['bg-success-transparent', 'ri-file-chart-line', 'REPORT']
-  };
+  /* Info bar: doc status + workflow badge (docStatusCardHtml) and No. SPK */
   function updateDocInfo() {
     var r = currentRecord();
-    var b = STEP_BADGE[(r && r.step) || 'Draft'] || STEP_BADGE.Draft;
-    var badge = document.getElementById('docStatusBadge');
-    if (badge) {
-      badge.className = 'badge ' + b[0] + ' d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1';
-      badge.innerHTML = '<i class="' + b[1] + '"></i> ' + b[2];
-    }
+    var statusEl = document.getElementById('docStatusBadges');
+    if (statusEl) statusEl.innerHTML = docStatusCardHtml(r);
     var spkEl = document.getElementById('spkNoValue');
     if (spkEl) spkEl.textContent = (r && r.spk) || 'Belum Terbit';
   }
 
   function renderTabPane(tab) {
-    var r = currentRecord();
-    if (tab === 'review') {
-      InternalReviewTab.render(document.getElementById('paneReview'), r, {
-        toast: showToast,
-        onIssued: function () { updateDocInfo(); showTab('labeling'); }
-      });
-    } else if (tab === 'labeling') {
-      InternalLabelingTab.render(document.getElementById('paneLabeling'), r, {
-        toast: showToast,
-        onLabeled: function () { updateDocInfo(); renderTabPane('labeling'); }
-      });
-    }
+    if (tab !== 'review') return;
+    InternalReviewTab.render(document.getElementById('paneReview'), currentRecord(), {
+      toast: showToast,
+      onIssued: function () {
+        updateDocInfo();
+        renderTabPane('review');
+        var labels = document.getElementById('labelSection');
+        if (labels) labels.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      onLabeled: function () { updateDocInfo(); renderTabPane('review'); }
+    });
   }
 
   /* Header actions (Save / Submit / Approve…) belong to the form; other tabs keep only Back */
@@ -644,12 +646,13 @@ document.addEventListener('DOMContentLoaded', function () {
     var showTabs = role.code === 'ADM' && !!existingRecord;
     tabsCard.classList.toggle('d-none', !showTabs);
     if (!showTabs) { if (activeTab !== 'form') showTab('form'); return; }
-    /* First time the ADM opens a request: land on the tab of its current step (or ?tab=) */
+    /* First time the ADM opens a request: land on Kaji Ulang & SPK while it is pending there
+       (review or label hand-over), else on the form; ?tab=form|review overrides */
     if (!tabChosen) {
       tabChosen = true;
       var step = currentRecord().step;
-      var wanted = urlParams.get('tab') || (step === 'Review & SPK' ? 'review' : (step === 'Labeling' ? 'labeling' : 'form'));
-      showTab(['form', 'review', 'labeling'].indexOf(wanted) !== -1 ? wanted : 'form');
+      var wanted = urlParams.get('tab') || (step === 'Review & SPK' || step === 'Labeling' ? 'review' : 'form');
+      showTab(['form', 'review'].indexOf(wanted) !== -1 ? wanted : 'form');
     } else if (activeTab !== 'form') {
       renderTabPane(activeTab);
     }
