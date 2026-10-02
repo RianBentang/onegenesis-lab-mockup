@@ -92,3 +92,47 @@ function addRequest(record) {
   saveRequests(list);
   return record;
 }
+
+/* ---------- Document status (SpkForm getBadgeClass) ----------
+   New → (Draft) → Confirm to Approve → Partially Approved (chain ≥ 2, some approved)
+   → Fully Approved → Confirmed. Return to Edit and Rejected come from an approver.
+   A Fully Approved doc still waiting for Kaji Ulang carries a workflow badge. */
+var DOC_STATUS = {
+  'New': { cls: 'bg-secondary-transparent', icon: 'ri-file-add-line' },
+  'Draft': { cls: 'bg-secondary-transparent', icon: 'ri-draft-line' },
+  'Confirm to Approve': { cls: 'bg-info-transparent', icon: 'ri-time-line' },
+  'Partially Approved': { cls: 'bg-primary2-transparent', icon: 'ri-checkbox-circle-line' },
+  'Fully Approved': { cls: 'bg-primary1-transparent', icon: 'ri-checkbox-circle-line' },
+  'Confirmed': { cls: 'bg-success-transparent', icon: 'ri-shield-check-line' },
+  'Return to Edit': { cls: 'bg-warning-transparent', icon: 'ri-arrow-go-back-line' },
+  'Rejected': { cls: 'bg-danger-transparent', icon: 'ri-close-circle-line' }
+};
+
+/* Returns { status, workflow } — workflow is null or the pending workflow step label */
+function getDocStatus(r) {
+  if (!r || !r.step) return { status: 'New', workflow: null };
+  if (r.step === 'Rejected') return { status: 'Rejected', workflow: null };
+  if (r.step === 'Draft') return { status: r.returned ? 'Return to Edit' : 'Draft', workflow: null };
+  if (r.step === 'Approval') return { status: r.approvalIdx > 0 ? 'Partially Approved' : 'Confirm to Approve', workflow: null };
+  if (r.step === 'Review & SPK') return { status: 'Fully Approved', workflow: 'Kaji Ulang & SPK' };
+  return { status: 'Confirmed', workflow: null };
+}
+
+/* Compact badges for list tables */
+function docStatusBadgesHtml(r) {
+  var s = getDocStatus(r);
+  var html = '<span class="badge ' + DOC_STATUS[s.status].cls + '">' + s.status + '</span>';
+  if (s.workflow) html += ' <span class="badge bg-warning-transparent"><i class="ri-time-line me-1"></i>' + s.workflow + '</span>';
+  return html;
+}
+
+/* Large badges for the SpkForm document info bar */
+function docStatusCardHtml(r) {
+  var s = getDocStatus(r);
+  var meta = DOC_STATUS[s.status];
+  var big = 'd-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1';
+  var sep = '<span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>';
+  var html = '<span class="badge ' + meta.cls + ' ' + big + '"><i class="' + meta.icon + '"></i> ' + s.status + '</span>';
+  if (s.workflow) html += sep + '<span class="badge bg-warning-transparent ' + big + '"><i class="ri-time-line"></i> ' + s.workflow + '</span>';
+  return html;
+}

@@ -47,8 +47,11 @@
         <div class="card custom-card">
           <div class="card custom-card d-flex flex-row align-items-center justify-content-between flex-wrap gap-2 p-2 mb-3">
             <div class="d-flex align-items-center flex-wrap gap-2">
-              <span class="badge bg-secondary-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1">
-                <i class="ri-draft-line"></i> DRAFT
+              <!-- Doc status + workflow badge — rendered by docStatusCardHtml() -->
+              <span id="docStatusBadges" class="d-inline-flex align-items-center flex-wrap gap-2">
+                <span class="badge bg-secondary-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1">
+                  <i class="ri-file-add-line"></i> New
+                </span>
               </span>
               <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
               <div class="d-flex flex-column gap-1 lh-1">

@@ -19,6 +19,7 @@
       <div class="main-content app-content">
         <div class="container-fluid">
 
+        <!-- ── SpkForm: Page Header (breadcrumb + title + action buttons) ── -->
         <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
           <div>
             <ol class="breadcrumb mb-1">
@@ -38,9 +39,13 @@
           </div>
         </div>
 
-        <div class="card custom-card">
+        <!-- ── SpkForm: Document Info Bar ── -->
+        <div class="card custom-card no-print">
           <div class="card custom-card d-flex flex-row align-items-center justify-content-between flex-wrap gap-2 p-2 mb-3">
             <div class="d-flex align-items-center flex-wrap gap-2">
+              <!-- Doc status + workflow badge — rendered by docStatusCardHtml() -->
+              <span id="docStatusBadges" class="d-inline-flex align-items-center flex-wrap gap-2"></span>
+              <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
               <div class="d-flex flex-column gap-1 lh-1">
                 <span class="text-uppercase text-muted fs-10">No. ID Pengajuan</span>
                 <span class="fs-13 text-heading text-nowrap font-monospace" id="docNoValue">REQ-202609-XXXX</span>
@@ -59,7 +64,8 @@
           </div>
         </div>
 
-        <div class="card custom-card">
+        <!-- SpkFormSection: Ringkasan Pengajuan -->
+        <div class="card custom-card no-print">
           <div class="card-body">
             <div class="mb-3">
               <h6 class="fw-semibold mb-0">Ringkasan Pengajuan</h6>
@@ -95,7 +101,8 @@
           </div>
         </div>
 
-        <form id="reviewSpkForm">
+        <!-- SpkFormSection: Kaji Ulang Teknis & Penerbitan SPK -->
+        <form id="reviewSpkForm" class="no-print">
           <div class="card custom-card">
             <div class="card-body">
               <div class="mb-3">
@@ -131,11 +138,38 @@
           </div>
         </form>
 
+        <!-- SpkFormSection: Label Sampel — appears as soon as the SPK is issued; printable -->
+        <div class="card custom-card" id="labelSection">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 no-print">
+              <div>
+                <h6 class="fw-semibold mb-0">Label Sampel <span class="text-muted fw-normal" id="labelCount"></span></h6>
+                <p class="text-muted fs-12 mb-0">Ukuran label 50 &times; 30 mm &middot; QR berisi ID sampel unik (Kl. 7.4)</p>
+              </div>
+              <div class="d-flex align-items-center gap-2 d-none" id="labelActions">
+                <select id="printFormat" class="form-select form-select-sm w-auto">
+                  <option>Zebra ZD230 (50&times;30)</option>
+                  <option>A4 &mdash; 3&times;7 label</option>
+                  <option>PDF</option>
+                </select>
+                <button type="button" id="btnPrintLabel" class="btn btn-sm btn-light btn-wave d-inline-flex align-items-center gap-1"><i class="ri-printer-line"></i> Cetak Label</button>
+                <button type="button" id="btnLabelDone" class="btn btn-sm btn-primary btn-wave d-inline-flex align-items-center gap-1 d-none"><i class="ri-check-line"></i> Label Ditempel &mdash; Serahkan ke Analis</button>
+              </div>
+            </div>
+            <div class="label-sheet" id="labelSheet"></div>
+            <div class="text-center py-4 no-print" id="labelLocked">
+              <i class="ri-lock-line fs-24 text-muted"></i>
+              <div class="fw-semibold mt-2">Label Belum Bisa Dicetak</div>
+              <p class="text-muted fs-13 mb-0">Label muncul otomatis setelah kaji ulang selesai &amp; SPK terbit.</p>
+            </div>
+          </div>
+        </div>
+
       </div>
       </div>
     </div>
 
-    <div id="appToastContainer"></div>
+    <div id="appToastContainer" class="no-print"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -143,6 +177,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/og-shell.js"></script>
     <script src="../assets/dummy-requests.js"></script>
+    <script src="../assets/sample-label.js"></script>
     <script src="../assets/review-spk-form.js"></script>
   </body>
 </html>
