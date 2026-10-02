@@ -200,11 +200,19 @@ Icons used next to the status in the document status card: Draft `ri-draft-line`
 Confirm to Approve `ri-time-line`. For other statuses pick a matching `ri-*-line` icon.
 
 Doc status flow: New → (Draft) → Confirm to Approve → Partially Approved (approval chain of 2+
-levels, not all approved) → Fully Approved → Confirmed; an approver can send it to Return to Edit
-or Rejected. When a doc is Fully Approved but a workflow step is still pending (e.g. Kaji Ulang &
-SPK), show an extra **workflow badge** next to the status: `badge bg-warning-transparent` with
-`ri-time-line`. Helpers: `getDocStatus` / `docStatusBadgesHtml` / `docStatusCardHtml` in
-`assets/dummy-requests.js`.
+levels, not all approved) → Fully Approved; an approver can send it to Return to Edit or Rejected.
+After approval the status **stays Fully Approved** (no extra status such as Confirmed). While a
+workflow step is still pending, show a **workflow badge** after a `|` separator next to the status:
+`badge bg-warning-transparent` + `ri-time-line`, text "Waiting for …" (e.g. "Waiting for Kaji Ulang
+& SPK", then "Waiting for Label Sampel"). When nothing is pending, the status badge stands alone.
+
+```html
+<span class="badge bg-primary1-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1"><i class="ri-checkbox-circle-line"></i> Fully Approved</span>
+<span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+<span class="badge bg-warning-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1"><i class="ri-time-line"></i> Waiting for Kaji Ulang &amp; SPK</span>
+```
+
+Helpers: `getDocStatus` / `docStatusBadgesHtml` / `docStatusCardHtml` in `assets/dummy-requests.js`.
 
 In lists: `<span class="badge bg-warning-transparent">Menunggu Head of Laboratory</span>`.
 Pill counter: add `rounded-pill`.

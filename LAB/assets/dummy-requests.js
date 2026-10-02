@@ -95,17 +95,24 @@ function addRequest(record) {
 
 /* ---------- Document status (SpkForm getBadgeClass) ----------
    New → (Draft) → Confirm to Approve → Partially Approved (chain ≥ 2, some approved)
-   → Fully Approved → Confirmed. Return to Edit and Rejected come from an approver.
-   A Fully Approved doc still waiting for Kaji Ulang carries a workflow badge. */
+   → Fully Approved. Return to Edit and Rejected come from an approver.
+   After approval the status stays Fully Approved; while a workflow step is still pending it
+   carries an extra workflow badge ("Waiting for …"): Kaji Ulang & SPK, then the sample label
+   hand-over. Once nothing is pending it is plain Fully Approved. */
 var DOC_STATUS = {
   'New': { cls: 'bg-secondary-transparent', icon: 'ri-file-add-line' },
   'Draft': { cls: 'bg-secondary-transparent', icon: 'ri-draft-line' },
   'Confirm to Approve': { cls: 'bg-info-transparent', icon: 'ri-time-line' },
   'Partially Approved': { cls: 'bg-primary2-transparent', icon: 'ri-checkbox-circle-line' },
   'Fully Approved': { cls: 'bg-primary1-transparent', icon: 'ri-checkbox-circle-line' },
-  'Confirmed': { cls: 'bg-success-transparent', icon: 'ri-shield-check-line' },
   'Return to Edit': { cls: 'bg-warning-transparent', icon: 'ri-arrow-go-back-line' },
   'Rejected': { cls: 'bg-danger-transparent', icon: 'ri-close-circle-line' }
+};
+
+/* Pending workflow step after approval, per request step */
+var DOC_WORKFLOW = {
+  'Review & SPK': 'Waiting for Kaji Ulang & SPK',
+  'Labeling': 'Waiting for Label Sampel'
 };
 
 /* Returns { status, workflow } — workflow is null or the pending workflow step label */
@@ -114,8 +121,7 @@ function getDocStatus(r) {
   if (r.step === 'Rejected') return { status: 'Rejected', workflow: null };
   if (r.step === 'Draft') return { status: r.returned ? 'Return to Edit' : 'Draft', workflow: null };
   if (r.step === 'Approval') return { status: r.approvalIdx > 0 ? 'Partially Approved' : 'Confirm to Approve', workflow: null };
-  if (r.step === 'Review & SPK') return { status: 'Fully Approved', workflow: 'Kaji Ulang & SPK' };
-  return { status: 'Confirmed', workflow: null };
+  return { status: 'Fully Approved', workflow: DOC_WORKFLOW[r.step] || null };
 }
 
 /* Compact badges for list tables */
