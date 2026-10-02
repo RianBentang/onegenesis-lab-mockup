@@ -51,6 +51,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (record.hasilKajiUlang && window.jQuery) window.jQuery('#hasilKajiUlang').val(record.hasilKajiUlang).trigger('change');
     if (record.catatanKajiUlang) document.getElementById('catatanKajiUlang').value = record.catatanKajiUlang;
   } else {
+    document.getElementById('labelSection').classList.add('d-none');
     document.getElementById('reviewSpkForm').innerHTML = '<div class="card custom-card"><div class="card-body text-center text-muted py-5">Dokumen tidak ditemukan.</div></div>';
   }
 
@@ -113,10 +114,34 @@ document.addEventListener('DOMContentLoaded', function () {
   var formActionButtons = document.getElementById('formActionButtons');
   var BACK_BTN_HTML = '<a href="internalList.html" class="btn btn-sm bg-white d-inline-flex align-items-center gap-1"><i class="ri-arrow-left-line"></i> Back</a>';
 
+  /* Doc status badges + Label Sampel section (labels appear as soon as the SPK is issued) */
+  function renderStatusAndLabels() {
+    document.getElementById('docStatusBadges').innerHTML = docStatusCardHtml(record);
+
+    var issued = !!record.spk;
+    var labels = issued ? sampleLabelsHtml(record) : [];
+    document.getElementById('labelSheet').innerHTML = labels.join('');
+    document.getElementById('labelCount').textContent = issued ? '(' + labels.length + ')' : '';
+    document.getElementById('labelActions').classList.toggle('d-none', !issued);
+    document.getElementById('labelLocked').classList.toggle('d-none', issued);
+
+    var role = findRole(localStorage.getItem('holabsysRole'));
+    document.getElementById('btnLabelDone').classList.toggle('d-none', !(issued && role.code === 'ADM' && record.step === 'Labeling'));
+  }
+
+  document.getElementById('btnPrintLabel').addEventListener('click', function () { window.print(); });
+  document.getElementById('btnLabelDone').addEventListener('click', function () {
+    updateRequest(record.id, { step: 'Selesai', labeled: true });
+    showToast('Label untuk ' + record.id + ' telah ditempel dan diserahkan ke analis.');
+    setTimeout(function () { window.location.href = 'internalList.html'; }, 1200);
+  });
+
   function refreshRoleState() {
     var role = findRole(localStorage.getItem('holabsysRole'));
     var canAct = role.code === 'ADM' || role.code === 'CRL';
     var alreadyIssued = record && !!record.spk;
+
+    renderStatusAndLabels();
 
     setLocked(!canAct || alreadyIssued);
 
@@ -134,7 +159,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (form.checkValidity() === false) { form.reportValidity(); return; }
 
     var spkNo = generateSpkNo();
-    updateRequest(record.id, {
+    record = updateRequest(record.id, {
       spk: spkNo,
       hasilKajiUlang: hasilSelect.value,
       catatanKajiUlang: catatanEl.value,
@@ -142,8 +167,12 @@ document.addEventListener('DOMContentLoaded', function () {
       estSelesai: document.getElementById('estSelesai').value,
       step: 'Labeling'
     });
-    showToast('SPK "' + spkNo + '" berhasil diterbitkan untuk ' + record.id + '.');
-    setTimeout(function () { window.location.href = 'internalList.html'; }, 1200);
+    showToast('SPK "' + spkNo + '" berhasil diterbitkan untuk ' + record.id + '. Label sampel siap dicetak.');
+
+    /* Stay on the page: the label sheet shows up right below */
+    spkNoEl.textContent = spkNo;
+    refreshRoleState();
+    document.getElementById('labelSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   /* ---------- Toast (top-center) — small local copy so this page has no dependency on internal-form.js ---------- */

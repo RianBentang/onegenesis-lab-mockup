@@ -196,6 +196,13 @@ Always `badge bg-{color}-transparent`. Document statuses used across ONE-Genesis
 Icons used next to the status in the document status card: Draft `ri-draft-line`,
 Confirm to Approve `ri-time-line`. For other statuses pick a matching `ri-*-line` icon.
 
+Doc status flow: New → (Draft) → Confirm to Approve → Partially Approved (approval chain of 2+
+levels, not all approved) → Fully Approved → Confirmed; an approver can send it to Return to Edit
+or Rejected. When a doc is Fully Approved but a workflow step is still pending (e.g. Kaji Ulang &
+SPK), show an extra **workflow badge** next to the status: `badge bg-warning-transparent` with
+`ri-time-line`. Helpers: `getDocStatus` / `docStatusBadgesHtml` / `docStatusCardHtml` in
+`assets/dummy-requests.js`.
+
 In lists: `<span class="badge bg-warning-transparent">Menunggu Head of Laboratory</span>`.
 Pill counter: add `rounded-pill`.
 

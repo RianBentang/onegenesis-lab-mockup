@@ -48,12 +48,6 @@
                       <span class="badge bg-primary-transparent rounded-pill ms-1" id="countReview">0</span>
                     </a>
                   </li>
-                  <li class="nav-item" role="presentation">
-                    <a class="nav-link" href="#!" role="tab" data-tab="labeling">
-                      <i class="ri-price-tag-3-line me-1 align-middle"></i>Labeling List
-                      <span class="badge bg-primary-transparent rounded-pill ms-1" id="countLabeling">0</span>
-                    </a>
-                  </li>
                 </ul>
               </div>
             </div>
@@ -96,25 +90,10 @@
                       <th>Tipe</th>
                       <th>Tujuan Analisa</th>
                       <th>Departemen Pemohon</th>
-                    </tr>
-                  </thead>
-                  <tbody id="reviewListBody"></tbody>
-                </table>
-              </div>
-
-              <div class="table-responsive d-none" data-pane="labeling">
-                <table class="table table-hover text-nowrap border mt-3 mb-0">
-                  <thead>
-                    <tr>
-                      <th style="width: 1%">Aksi</th>
-                      <th>No. Pengajuan</th>
-                      <th>No. SPK</th>
-                      <th>Sampel</th>
-                      <th>Analis</th>
                       <th>Status</th>
                     </tr>
                   </thead>
-                  <tbody id="labelingListBody"></tbody>
+                  <tbody id="reviewListBody"></tbody>
                 </table>
               </div>
 
@@ -125,7 +104,7 @@
       </div>
     </div>
 
-    <!-- Modal: Pick a No. ID Pengajuan to open Review & SPK / Labeling -->
+    <!-- Modal: Pick a No. ID Pengajuan to open Review & SPK -->
     <div class="modal fade" id="pickDocModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">

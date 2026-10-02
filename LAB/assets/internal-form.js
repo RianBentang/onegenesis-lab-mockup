@@ -369,7 +369,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       var actionLabel = pendingReasonAction === 'reject' ? 'Ditolak' : 'Dikembalikan untuk Edit';
       var docNo = docNoEl ? docNoEl.textContent : '';
-      updateRequest(docNo, { step: 'Draft', approvalIdx: 0 });
+      updateRequest(docNo, pendingReasonAction === 'reject'
+        ? { step: 'Rejected', reason: reason }
+        : { step: 'Draft', approvalIdx: 0, returned: true, reason: reason });
       if (reasonModal) reasonModal.hide();
       showToast('Dokumen ' + actionLabel + ': "' + reason + '"');
       setTimeout(function () { window.location.href = 'internalList.html'; }, 1200);
@@ -457,12 +459,14 @@ document.addEventListener('DOMContentLoaded', function () {
       if (action === 'save-draft') {
         updateRequest(docNo, collectFormValues());
         showToast('Draf pengajuan "' + docNo + '" disimpan.');
+        refreshFormState();
       } else if (action === 'submit') {
         var form = document.getElementById('internalForm');
         if (form.checkValidity() === false) { form.reportValidity(); return; }
         var record = collectFormValues();
         record.step = 'Approval';
         record.approvalIdx = 0;
+        record.returned = false;
         updateRequest(docNo, record);
         showToast('Pengajuan "' + docNo + '" berhasil dikirim untuk approval.');
         setTimeout(function () { window.location.href = 'internalList.html'; }, 1200);
@@ -484,6 +488,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           updateRequest(docNo, { approvalIdx: idx + 1 });
           showToast('Disetujui oleh ' + role.name + ' (' + role.label + ').');
+          refreshFormState();
         }
       }
     });
@@ -496,17 +501,26 @@ document.addEventListener('DOMContentLoaded', function () {
     var tujuanEl = document.getElementById('tujuanAnalisa');
     var tujuan = tujuanEl ? tujuanEl.value : '';
 
+    var record = getRequestById(docNoEl ? docNoEl.textContent : '');
+    var step = record ? record.step : null;
+
     var isBSU = role.code === 'BSU';
     var chain = getApprovalChain(tipe, tujuan);
     var idx = chain.indexOf(role.code);
-    var isAuthorized = !isBSU && idx > -1;
 
-    setFormLocked(!isBSU);
-    renderActionButtons(isBSU ? 'bsu' : (isAuthorized ? 'approver' : 'back-only'));
+    /* Approved levels so far: none before submit, all once past approval */
+    var approvedCount = step === 'Approval' ? (record.approvalIdx || 0)
+      : (step && step !== 'Draft' && step !== 'Rejected') ? chain.length : 0;
 
-    /* BSU and off-chain roles see the whole chain as not-yet-started (0 approved);
-       an authorized approver sees everyone before them as Approved. */
-    var approvedCount = isAuthorized ? idx : 0;
+    /* BSU edits only New / Draft / Return to Edit; an approver acts only on a pending level */
+    var canEdit = isBSU && (!step || step === 'Draft');
+    var canApprove = !isBSU && step === 'Approval' && idx >= approvedCount;
+
+    setFormLocked(!canEdit);
+    renderActionButtons(canEdit ? 'bsu' : (canApprove ? 'approver' : 'back-only'));
+
+    var statusEl = document.getElementById('docStatusBadges');
+    if (statusEl) statusEl.innerHTML = docStatusCardHtml(record);
 
     var lastApproverEl = document.getElementById('lastApproverValue');
     if (lastApproverEl) {
