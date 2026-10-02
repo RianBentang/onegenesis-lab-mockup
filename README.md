@@ -23,7 +23,7 @@ Lalu buka <http://localhost:8765/>.
 | Menu | File |
 |---|---|
 | Home | `LAB/index.html`, `LAB/profile.html` |
-| HOLABSYS — Internal | `LAB/HOLABSYS/internalList.html`, `internalForm.html`, `reviewAndSpkForm.html` |
+| HOLABSYS — Internal | `LAB/HOLABSYS/internalList.html`, `internalForm.html` (Kaji Ulang & SPK, incl. label sampel, is an ADM tab inside the form) |
 | HOLABSYS — External | `LAB/HOLABSYS/externalList.html`, `externalForm.html` |
 | HOLABSYS — Report | `LAB/HOLABSYS/reportList.html`, `reportForm.html` |
 | HOLABSYS — ASLT and Sensory | `LAB/HOLABSYS/asltAndSensory.html`, `asltForm.html`, `sensoryForm.html` |

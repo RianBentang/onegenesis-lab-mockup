@@ -32,6 +32,18 @@ var MASTER_PARAMETER = [
   { value: 'pb', text: 'Cemaran Logam (Pb)', method: 'AOAC 999.11', category: 'Fisika Kimia', scope: false, leadTime: 4, suhu: 'Frozen (-18°C)' }
 ];
 
+/* Alternative reference methods per parameter — the requester (BSU) and Lab Administrator (ADM) can override the default
+   `method` per request. First entry is the default. */
+var MASTER_METODE_ACUAN = {
+  moisture: ['SNI 2897:2008', 'SNI 01-2891-1992', 'AOAC 925.10', 'IK-LAB-01'],
+  fat: ['IK-LAB-02', 'SNI 01-2891-1992', 'AOAC 920.39'],
+  ffa: ['AOAC 940.28', 'SNI 01-3555-1998', 'IK-LAB-03'],
+  protein: ['IK-LAB-05', 'SNI 01-2891-1992', 'AOAC 2001.11'],
+  salmonella: ['SNI ISO 6579', 'ISO 6579-1:2017', 'BAM Chapter 5'],
+  alt: ['SNI 2897:2008', 'ISO 4833-1:2013', 'BAM Chapter 3'],
+  pb: ['AOAC 999.11', 'SNI 01-2896-1998', 'IK-LAB-07']
+};
+
 function toOptions(list) {
   return list.map(function (v) { return { value: v, text: v }; });
 }
@@ -51,12 +63,7 @@ function fillSelect(selectEl, options, placeholder) {
 
 function initSelect2(id, placeholder) {
   var el = document.getElementById(id);
-  if (!el || !window.jQuery || !window.jQuery.fn.select2) return;
-  window.jQuery(el).select2({
-    width: '100%',
-    placeholder: placeholder || '-- Pilih --',
-    allowClear: true
-  });
+  if (el && window.spkSelect2) window.spkSelect2(el, placeholder ? { placeholder: placeholder } : {});
 }
 
 function generateDocNo() {
@@ -164,7 +171,37 @@ document.addEventListener('DOMContentLoaded', function () {
   var paramTableBody = document.getElementById('paramTableBody');
   var suhuAutoNote = document.getElementById('suhuAutoNote');
 
+  /* Per-request method overrides { paramValue: method }, set by BSU or ADM */
+  var paramMethods = Object.assign({}, existingRecord && existingRecord.paramMethods);
+  var lastParamValues = [];
+
+  function canEditMethodRole() {
+    var r = findRole(localStorage.getItem('holabsysRole'));
+    /* BSU while the request is still editable (New / Draft / Return to Edit); ADM also during approval
+       and Kaji Ulang, not on a Rejected request */
+    var doc = currentRecord();
+    return !!r && (isBsuEditable() || (r.code === 'ADM' && !(doc && doc.step === 'Rejected')));
+  }
+
+  function renderMethodCell(p, canEdit) {
+    var current = paramMethods[p.value] || p.method;
+    var changed = current !== p.method;
+    if (!canEdit) {
+      return '<td class="font-monospace text-muted">' + current +
+        (changed ? ' <span class="badge bg-info-transparent ms-1">Bukan Default</span>' : '') + '</td>';
+    }
+    var options = MASTER_METODE_ACUAN[p.value] || [p.method];
+    if (options.indexOf(current) === -1) options = options.concat(current);
+    return '<td><select class="form-select form-select-sm spk-select2-sm" data-param-method="' + p.value + '">' +
+      options.map(function (m) {
+        return '<option value="' + m + '"' + (m === current ? ' selected' : '') + '>' + m + (m === p.method ? ' (default)' : '') + '</option>';
+      }).join('') +
+      '</select></td>';
+  }
+
   function renderParamTable(selectedValues) {
+    lastParamValues = selectedValues;
+    var canEditMethod = canEditMethodRole();
     var rows = MASTER_PARAMETER.filter(function (p) { return selectedValues.indexOf(p.value) !== -1; });
 
     paramCountBadge.textContent = rows.length + ' Parameter Terpilih';
@@ -176,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function () {
         : '<span class="badge bg-secondary-transparent">Non-Scope</span>';
       return '<tr>' +
         '<td class="fw-semibold">' + p.text + '</td>' +
-        '<td class="font-monospace text-muted">' + p.method + '</td>' +
+        renderMethodCell(p, canEditMethod) +
         '<td>' + p.category + '</td>' +
         '<td>' + scopeBadge + '</td>' +
         '<td>' + p.leadTime + ' hari</td>' +
@@ -192,6 +229,19 @@ document.addEventListener('DOMContentLoaded', function () {
       suhuAutoNote.textContent = '';
     }
   }
+
+  /* BSU / ADM changes a Metode Acuan Uji dropdown — saved straight to the request when it exists */
+  paramTableBody.addEventListener('change', function (e) {
+    var sel = e.target.closest('[data-param-method]');
+    if (!sel) return;
+    var p = MASTER_PARAMETER.filter(function (x) { return x.value === sel.dataset.paramMethod; })[0];
+    if (p && sel.value === p.method) delete paramMethods[p.value];
+    else paramMethods[sel.dataset.paramMethod] = sel.value;
+    if (existingRecord) {
+      updateRequest(existingRecord.id, { paramMethods: Object.assign({}, paramMethods) });
+      showToast('Metode acuan ' + (p ? p.text : sel.dataset.paramMethod) + ' diubah ke ' + sel.value + '.');
+    }
+  });
 
   if (paramEl && window.TomSelect) {
     var ts = new window.TomSelect(paramEl, {
@@ -439,6 +489,7 @@ document.addEventListener('DOMContentLoaded', function () {
       kategoriPangan: val('kategoriPangan'),
       kemasan: val('jenisKemasan'),
       params: (typeof ts !== 'undefined' && ts) ? ts.getValue() : [],
+      paramMethods: Object.assign({}, paramMethods),
       suhu: val('suhuPenyimpanan'),
       pemohon: findRole(localStorage.getItem('holabsysRole')).name,
       departemen: val('departemenPemohon'),
@@ -480,6 +531,12 @@ document.addEventListener('DOMContentLoaded', function () {
         var tujuanVal = document.getElementById('tujuanAnalisa').value;
         var chain = getApprovalChain(tipe, tujuanVal);
         var idx = chain.indexOf(role.code);
+        var pending = (getRequestById(docNo) || {}).approvalIdx || 0;
+        if (idx !== pending) {
+          showToast('Belum giliran ' + role.label + '. Menunggu approval ' + findRole(chain[pending]).label + '.');
+          refreshFormState();
+          return;
+        }
         var isLast = idx === chain.length - 1;
         if (isLast) {
           updateRequest(docNo, { step: 'Review & SPK', approvalIdx: chain.length });
@@ -501,7 +558,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var tujuanEl = document.getElementById('tujuanAnalisa');
     var tujuan = tujuanEl ? tujuanEl.value : '';
 
-    var record = getRequestById(docNoEl ? docNoEl.textContent : '');
+    var record = currentRecord();
     var step = record ? record.step : null;
 
     var isBSU = role.code === 'BSU';
@@ -513,14 +570,14 @@ document.addEventListener('DOMContentLoaded', function () {
       : (step && step !== 'Draft' && step !== 'Rejected') ? chain.length : 0;
 
     /* BSU edits only New / Draft / Return to Edit; an approver acts only on a pending level */
-    var canEdit = isBSU && (!step || step === 'Draft');
-    var canApprove = !isBSU && step === 'Approval' && idx >= approvedCount;
+    var canEdit = isBsuEditable();
+    /* Only the role at the pending level may approve — no skipping earlier levels */
+    var canApprove = !isBSU && step === 'Approval' && idx === approvedCount;
 
     setFormLocked(!canEdit);
-    renderActionButtons(canEdit ? 'bsu' : (canApprove ? 'approver' : 'back-only'));
-
-    var statusEl = document.getElementById('docStatusBadges');
-    if (statusEl) statusEl.innerHTML = docStatusCardHtml(record);
+    /* Re-render after locking so the method dropdowns stay enabled for who may edit them */
+    renderParamTable(lastParamValues);
+    renderActionButtons(canEdit && isBSU ? 'bsu' : (canApprove ? 'approver' : 'back-only'));
 
     var lastApproverEl = document.getElementById('lastApproverValue');
     if (lastApproverEl) {
@@ -531,7 +588,90 @@ document.addEventListener('DOMContentLoaded', function () {
 
     renderApprovalList('approvalOffcanvasBody', chain, approvedCount);
     renderApprovalList('historyOffcanvasBody', chain, approvedCount);
+
+    updateDocInfo();
+    refreshTabs();
   }
+
+  /* ---------- Tabs: Form Internal | Kaji Ulang & SPK (Lab Administrator only) ----------
+     Other roles, and new (unsaved) requests, see only the form without a tab bar. The sample
+     labels live under Kaji Ulang & SPK and appear once the SPK is issued. */
+  var tabsCard = document.getElementById('internalTabsCard');
+  var tabsNav = document.getElementById('internalTabs');
+  var activeTab = 'form';
+  var tabChosen = false;
+
+  function currentRecord() { return getRequestById(docNoEl ? docNoEl.textContent : '') || null; }
+  /* The requester can still change the request: New / Draft / Return to Edit */
+  function isBsuEditable() {
+    var role = findRole(localStorage.getItem('holabsysRole'));
+    var r = currentRecord();
+    return role.code === 'BSU' && (!r || r.step === 'Draft');
+  }
+
+  /* Info bar: doc status + workflow badge (docStatusCardHtml) and No. SPK */
+  function updateDocInfo() {
+    var r = currentRecord();
+    var statusEl = document.getElementById('docStatusBadges');
+    if (statusEl) statusEl.innerHTML = docStatusCardHtml(r);
+    var spkEl = document.getElementById('spkNoValue');
+    if (spkEl) spkEl.textContent = (r && r.spk) || 'Belum Terbit';
+  }
+
+  function renderTabPane(tab) {
+    if (tab !== 'review') return;
+    InternalReviewTab.render(document.getElementById('paneReview'), currentRecord(), {
+      toast: showToast,
+      onIssued: function () {
+        updateDocInfo();
+        renderTabPane('review');
+        var labels = document.getElementById('labelSection');
+        if (labels) labels.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      },
+      onLabeled: function () { updateDocInfo(); renderTabPane('review'); }
+    });
+  }
+
+  /* Header actions (Save / Submit / Approve…) belong to the form; other tabs keep only Back */
+  function applyHeaderForTab() {
+    if (!formActionButtons) return;
+    Array.prototype.forEach.call(formActionButtons.children, function (el, i) {
+      if (i > 0) el.classList.toggle('d-none', activeTab !== 'form');
+    });
+  }
+
+  function showTab(tab) {
+    activeTab = tab;
+    tabsNav.querySelectorAll('.nav-link').forEach(function (a) { a.classList.toggle('active', a.dataset.tab === tab); });
+    document.querySelectorAll('[data-pane]').forEach(function (p) { p.classList.toggle('d-none', p.dataset.pane !== tab); });
+    if (tab !== 'form') renderTabPane(tab);
+    applyHeaderForTab();
+  }
+
+  function refreshTabs() {
+    var role = findRole(localStorage.getItem('holabsysRole'));
+    var showTabs = role.code === 'ADM' && !!existingRecord;
+    tabsCard.classList.toggle('d-none', !showTabs);
+    if (!showTabs) { if (activeTab !== 'form') showTab('form'); return; }
+    /* First time the ADM opens a request: land on Kaji Ulang & SPK while it is pending there
+       (review or label hand-over), else on the form; ?tab=form|review overrides */
+    if (!tabChosen) {
+      tabChosen = true;
+      var step = currentRecord().step;
+      var wanted = urlParams.get('tab') || (step === 'Review & SPK' || step === 'Labeling' ? 'review' : 'form');
+      showTab(['form', 'review'].indexOf(wanted) !== -1 ? wanted : 'form');
+    } else if (activeTab !== 'form') {
+      renderTabPane(activeTab);
+    }
+    applyHeaderForTab();
+  }
+
+  tabsNav.addEventListener('click', function (e) {
+    var a = e.target.closest('.nav-link');
+    if (!a) return;
+    e.preventDefault();
+    showTab(a.dataset.tab);
+  });
 
   document.addEventListener('holabsys:rolechange', refreshFormState);
   if (tipeSelect) window.jQuery ? window.jQuery(tipeSelect).on('change', refreshFormState) : tipeSelect.addEventListener('change', refreshFormState);

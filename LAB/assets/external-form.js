@@ -17,12 +17,7 @@ function extFillSelect(selectEl, options, placeholder) {
 
 function extInitSelect2(id, placeholder) {
   var el = document.getElementById(id);
-  if (!el || !window.jQuery || !window.jQuery.fn.select2) return;
-  window.jQuery(el).select2({
-    width: '100%',
-    placeholder: placeholder || '-- Pilih --',
-    allowClear: true
-  });
+  if (el && window.spkSelect2) window.spkSelect2(el, placeholder ? { placeholder: placeholder } : {});
 }
 
 function extGenerateDocNo() {
@@ -400,6 +395,12 @@ document.addEventListener('DOMContentLoaded', function () {
         var tujuanVal = document.getElementById('tujuanAnalisa').value;
         var chain = getExternalApprovalChain(tipe, tujuanVal);
         var idx = chain.indexOf(role.code);
+        var pending = (getExternalRequestById(docNoVal) || {}).approvalIdx || 0;
+        if (idx !== pending) {
+          showToast('Belum giliran ' + role.label + '. Menunggu approval ' + findRole(chain[pending]).label + '.');
+          refreshFormState();
+          return;
+        }
         var isLast = idx === chain.length - 1;
         if (isLast) {
           updateExternalRequest(docNoVal, { step: 'Pengiriman Sampel', approvalIdx: chain.length });
@@ -408,6 +409,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
           updateExternalRequest(docNoVal, { approvalIdx: idx + 1 });
           showToast('Disetujui oleh ' + role.name + ' (' + role.label + ').');
+          refreshFormState();
         }
       }
     });
@@ -423,12 +425,17 @@ document.addEventListener('DOMContentLoaded', function () {
     var isBSU = role.code === 'BSU';
     var chain = getExternalApprovalChain(tipe, tujuan);
     var idx = chain.indexOf(role.code);
-    var isAuthorized = !isBSU && idx > -1;
+
+    var record = getExternalRequestById(docNoEl ? docNoEl.textContent : '');
+    var step = record ? record.step : null;
+    /* Approved levels so far: none before submit, all once past approval */
+    var approvedCount = step === 'Approval' ? (record.approvalIdx || 0)
+      : (step && step !== 'Draft') ? chain.length : 0;
+    /* Only the role at the pending level may approve — no skipping earlier levels */
+    var isAuthorized = !isBSU && step === 'Approval' && idx === approvedCount;
 
     setFormLocked(!isBSU);
     renderActionButtons(isBSU ? 'bsu' : (isAuthorized ? 'approver' : 'back-only'));
-
-    var approvedCount = isAuthorized ? idx : 0;
 
     var lastApproverEl = document.getElementById('lastApproverValue');
     if (lastApproverEl) {

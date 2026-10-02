@@ -95,8 +95,11 @@ function addRequest(record) {
 
 /* ---------- Document status (SpkForm getBadgeClass) ----------
    New → (Draft) → Confirm to Approve → Partially Approved (chain ≥ 2, some approved)
-   → Fully Approved → Confirmed. Return to Edit and Rejected come from an approver.
-   A Fully Approved doc still waiting for Kaji Ulang carries a workflow badge. */
+   → Fully Approved → Confirmed. Partially Approved only appears with a chain of 2+ levels.
+   Return to Edit and Rejected come from an approver.
+   Between Fully Approved and Confirmed the doc runs its workflow; the pending step is shown
+   as an extra workflow badge ("Waiting for …"): Kaji Ulang & SPK, then Labeling. When the
+   label is handed to the analyst the doc is Confirmed. */
 var DOC_STATUS = {
   'New': { cls: 'bg-secondary-transparent', icon: 'ri-file-add-line' },
   'Draft': { cls: 'bg-secondary-transparent', icon: 'ri-draft-line' },
@@ -108,13 +111,19 @@ var DOC_STATUS = {
   'Rejected': { cls: 'bg-danger-transparent', icon: 'ri-close-circle-line' }
 };
 
+/* Pending workflow step after approval, per request step */
+var DOC_WORKFLOW = {
+  'Review & SPK': 'Waiting for Kaji Ulang & SPK',
+  'Labeling': 'Waiting for Labeling'
+};
+
 /* Returns { status, workflow } — workflow is null or the pending workflow step label */
 function getDocStatus(r) {
   if (!r || !r.step) return { status: 'New', workflow: null };
   if (r.step === 'Rejected') return { status: 'Rejected', workflow: null };
   if (r.step === 'Draft') return { status: r.returned ? 'Return to Edit' : 'Draft', workflow: null };
   if (r.step === 'Approval') return { status: r.approvalIdx > 0 ? 'Partially Approved' : 'Confirm to Approve', workflow: null };
-  if (r.step === 'Review & SPK') return { status: 'Fully Approved', workflow: 'Kaji Ulang & SPK' };
+  if (DOC_WORKFLOW[r.step]) return { status: 'Fully Approved', workflow: DOC_WORKFLOW[r.step] };
   return { status: 'Confirmed', workflow: null };
 }
 
