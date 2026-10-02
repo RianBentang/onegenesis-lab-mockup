@@ -531,6 +531,12 @@ document.addEventListener('DOMContentLoaded', function () {
         var tujuanVal = document.getElementById('tujuanAnalisa').value;
         var chain = getApprovalChain(tipe, tujuanVal);
         var idx = chain.indexOf(role.code);
+        var pending = (getRequestById(docNo) || {}).approvalIdx || 0;
+        if (idx !== pending) {
+          showToast('Belum giliran ' + role.label + '. Menunggu approval ' + findRole(chain[pending]).label + '.');
+          refreshFormState();
+          return;
+        }
         var isLast = idx === chain.length - 1;
         if (isLast) {
           updateRequest(docNo, { step: 'Review & SPK', approvalIdx: chain.length });
@@ -565,7 +571,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     /* BSU edits only New / Draft / Return to Edit; an approver acts only on a pending level */
     var canEdit = isBsuEditable();
-    var canApprove = !isBSU && step === 'Approval' && idx >= approvedCount;
+    /* Only the role at the pending level may approve — no skipping earlier levels */
+    var canApprove = !isBSU && step === 'Approval' && idx === approvedCount;
 
     setFormLocked(!canEdit);
     /* Re-render after locking so the method dropdowns stay enabled for who may edit them */
