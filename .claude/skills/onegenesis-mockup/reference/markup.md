@@ -199,12 +199,12 @@ Always `badge bg-{color}-transparent`. Document statuses used across ONE-Genesis
 Icons used next to the status in the document status card: Draft `ri-draft-line`,
 Confirm to Approve `ri-time-line`. For other statuses pick a matching `ri-*-line` icon.
 
-Doc status flow: New → (Draft) → Confirm to Approve → Partially Approved (approval chain of 2+
-levels, not all approved) → Fully Approved; an approver can send it to Return to Edit or Rejected.
-After approval the status **stays Fully Approved** (no extra status such as Confirmed). While a
-workflow step is still pending, show a **workflow badge** after a `|` separator next to the status:
-`badge bg-warning-transparent` + `ri-time-line`, text "Waiting for …" (e.g. "Waiting for Kaji Ulang
-& SPK", then "Waiting for Label Sampel"). When nothing is pending, the status badge stands alone.
+Doc status flow: New → (Draft) → Confirm to Approve → Fully Approved → Confirmed. With an approval
+chain of 2+ levels: Confirm to Approve → Partially Approved → Fully Approved. An approver can send
+it to Return to Edit or Rejected. Between Fully Approved and Confirmed the document runs its
+**workflow** (Internal: Kaji Ulang & SPK, then Labeling); the pending step shows as a workflow
+badge after a `|` separator: `badge bg-warning-transparent` + `ri-time-line`, text "Waiting for …".
+When the last step is done (label handed to the analyst) the status becomes Confirmed.
 
 ```html
 <span class="badge bg-primary1-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1"><i class="ri-checkbox-circle-line"></i> Fully Approved</span>
