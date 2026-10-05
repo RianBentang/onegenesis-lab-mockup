@@ -32,6 +32,9 @@ map for migrating legacy pages.
   it initialises them. Multi-selects (`<select multiple>`) stay on TomSelect.
 - Mockup-only page overrides go in `LAB/assets/lab.css`, and only when no theme class fits.
 - Dummy data lives in `LAB/assets/dummy-*.js`; there is no backend.
+- **External** requests: Draft → approval → Fully Approved with workflow "Waiting for Sample
+  Delivery" → Lab Admin presses **Confirm Delivery** → Confirmed. That is the end: External never
+  goes to Excel or Report (the vendor lab issues its own COA), and has no tabs besides Request List.
 - **`PANELIS/`** is the separate panelist app (login → sensory booth). Panelists are not LAB users:
   its pages don't load `og-shell.js` (no sidebar/menu) but use the same theme, `lab.css`,
   `spk-select2.js` and dummy data from `../LAB/assets/`. Panel data (panelis, sessions, scores,

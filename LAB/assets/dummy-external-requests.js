@@ -25,7 +25,11 @@ var EXTERNAL_MASTER_PARAMETER = [
   { value: 'pb', text: 'Cemaran Logam (Pb)', method: 'AOAC 999.11', category: 'Fisika Kimia' }
 ];
 
+/* Steps: Draft → Approval → Sample Delivery (workflow after the last approval; Lab Admin sends the
+   sample to the vendor lab and presses Confirm Delivery) → Confirmed. External requests end there:
+   they do not go to Excel or Report (the vendor lab issues its own COA). */
 var EXTERNAL_REQUESTS_STORAGE_KEY = 'holabsysExternalRequests';
+var EXTERNAL_OLD_STEPS = { 'Pengiriman Sampel': 'Sample Delivery', 'Order Confirmation': 'Confirmed' };
 
 var SEED_EXTERNAL_REQUESTS = [
   {
@@ -47,15 +51,15 @@ var SEED_EXTERNAL_REQUESTS = [
     lab: 'SIG (Saraswanti Indo Genetech)', sampel: 'Maco Chocolate Wafer 120g',
     batch: 'B2609-09A', prod: '10-09-2026', kategoriPangan: 'Biskuit & Wafer', kemasan: 'Pouch Alufo',
     params: ['moisture', 'pb'], pemohon: 'Marsya Valentina', departemen: 'Quality Assurance',
-    step: 'Pengiriman Sampel', approvalIdx: 3, catatanTambahan: ''
+    step: 'Sample Delivery', approvalIdx: 3, catatanTambahan: ''
   },
   {
     id: 'REQ-202609-0019', tanggal: '16-09-2026', tipe: 'Normal', tujuan: 'Scale Up',
     lab: 'SGS Indonesia', sampel: 'Gery Saluut Kacang 18g',
     batch: 'B2609-06B', prod: '07-09-2026', kategoriPangan: 'Kacang & Snack', kemasan: 'Karton',
     params: ['ffa', 'protein'], pemohon: 'Marsya Valentina', departemen: 'Quality Assurance',
-    step: 'Order Confirmation', approvalIdx: 2, catatanTambahan: '',
-    reportStatus: null, reportNo: null
+    step: 'Confirmed', approvalIdx: 2, catatanTambahan: '',
+    deliveredAt: '19-09-2026 10:15', deliveredBy: 'Bambang Admin'
   }
 ];
 
@@ -66,7 +70,10 @@ function getExternalRequests() {
       localStorage.setItem(EXTERNAL_REQUESTS_STORAGE_KEY, JSON.stringify(SEED_EXTERNAL_REQUESTS));
       return SEED_EXTERNAL_REQUESTS.slice();
     }
-    return JSON.parse(raw);
+    /* Records saved before the Sample Delivery workflow used the old tab steps */
+    return JSON.parse(raw).map(function (r) {
+      return EXTERNAL_OLD_STEPS[r.step] ? Object.assign({}, r, { step: EXTERNAL_OLD_STEPS[r.step] }) : r;
+    });
   } catch (e) {
     return SEED_EXTERNAL_REQUESTS.slice();
   }

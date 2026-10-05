@@ -99,7 +99,8 @@ function addRequest(record) {
    Return to Edit and Rejected come from an approver.
    Between Fully Approved and Confirmed the doc runs its workflow; the pending step is shown
    as an extra workflow badge ("Waiting for …"): Kaji Ulang & SPK, then Labeling. When the
-   label is handed to the analyst the doc is Confirmed. */
+   label is handed to the analyst the doc is Confirmed.
+   External requests use the same statuses; their one workflow step is Sample Delivery. */
 var DOC_STATUS = {
   'New': { cls: 'bg-secondary-transparent', icon: 'ri-file-add-line' },
   'Draft': { cls: 'bg-secondary-transparent', icon: 'ri-draft-line' },
@@ -114,7 +115,8 @@ var DOC_STATUS = {
 /* Pending workflow step after approval, per request step */
 var DOC_WORKFLOW = {
   'Review & SPK': 'Waiting for Kaji Ulang & SPK',
-  'Labeling': 'Waiting for Labeling'
+  'Labeling': 'Waiting for Labeling',
+  'Sample Delivery': 'Waiting for Sample Delivery' // External: Lab Admin confirms the sample was sent
 };
 
 /* Returns { status, workflow } — workflow is null or the pending workflow step label */

@@ -70,8 +70,7 @@ function reportGenerateNo(jenis) {
   var now = new Date();
   var ym = now.getFullYear().toString() + String(now.getMonth() + 1).padStart(2, '0');
   var seq = String(Math.floor(Math.random() * 90) + 10);
-  var prefix = jenis === 'external' ? 'COA' : 'LHU';
-  return prefix + '/LAB/' + ym + '/00' + seq;
+  return 'LHU/LAB/' + ym + '/00' + seq;
 }
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -103,12 +102,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  var paramLookup = jenis === 'external' ? EXTERNAL_MASTER_PARAMETER : REPORT_MASTER_PARAMETER_INTERNAL;
+  var paramLookup = REPORT_MASTER_PARAMETER_INTERNAL;
 
   function renderCertificate() {
-    var titleText = jenis === 'external' ? 'CERTIFICATE OF ANALYSIS (COA)' : 'LAPORAN HASIL UJI (LHU)';
-    var labText = jenis === 'external' ? record.lab
-      : ((jenis === 'internal' ? record.lab : WORKSHEET_SOURCES[jenis].label) + ' — Laboratorium Internal');
+    var titleText = 'LAPORAN HASIL UJI (LHU)';
+    var labText = ((jenis === 'internal' ? record.lab : WORKSHEET_SOURCES[jenis].label) + ' — Laboratorium Internal');
     var results = record.results || {};
 
     function resultRow(i, text, unit, method, spec, result, pass) {

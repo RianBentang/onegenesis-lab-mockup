@@ -2,7 +2,8 @@
    Flow: Internal / Sensory / ASLT transactions → Excel "Tarik Data" (rows per parameter; Sensory /
    ASLT also get one sheet per panel test with every panelist × sample code from the booth) → analyst
    fills Ulangan → "Push Data" writes the results onto that No. ID Transaksi → the transaction shows
-   up in Report as a Draft report. External requests reach Report directly (vendor COA).
+   up in Report as a Draft report. External requests never reach Excel or Report: they end at
+   Sample Delivery (Confirmed) and the vendor lab issues its own COA.
    Needs dummy-requests.js and dummy-aslt-sensory-requests.js loaded first. */
 
 /* Internal parameter catalogue: name, unit, spec (method lives in internal-form.js / report-form.js) */
@@ -26,8 +27,7 @@ var WORKSHEET_SENSORY_PARAM_LABEL = {
 var WORKSHEET_SOURCES = {
   internal: { label: 'Internal', badge: 'bg-primary-transparent' },
   sensory: { label: 'Sensory', badge: 'bg-warning-transparent' },
-  aslt: { label: 'ASLT', badge: 'bg-success-transparent' },
-  external: { label: 'External', badge: 'bg-info-transparent' }
+  aslt: { label: 'ASLT', badge: 'bg-success-transparent' }
 };
 
 function worksheetSlug(text) {
@@ -73,7 +73,6 @@ function worksheetGetRecord(source, id) {
   if (source === 'internal') return getRequestById(id);
   if (source === 'sensory') return getSensoryRequestById(id);
   if (source === 'aslt') return getAsltRequestById(id);
-  if (source === 'external' && typeof getExternalRequestById === 'function') return getExternalRequestById(id);
   return null;
 }
 
@@ -81,7 +80,6 @@ function worksheetUpdateRecord(source, id, patch) {
   if (source === 'internal') return updateRequest(id, patch);
   if (source === 'sensory') return updateSensoryRequest(id, patch);
   if (source === 'aslt') return updateAsltRequest(id, patch);
-  if (source === 'external' && typeof updateExternalRequest === 'function') return updateExternalRequest(id, patch);
   return null;
 }
 
@@ -116,7 +114,7 @@ function pushWorksheetResults(source, id, results, analis, panelStats) {
   return worksheetUpdateRecord(source, id, patch);
 }
 
-/* Report list: every transaction with a report (Draft or Final), from all four sources */
+/* Report list: every transaction with a report (Draft or Final): Internal, Sensory, ASLT */
 function getReportRows() {
   var rows = [];
   getRequests().forEach(function (r) {
@@ -124,10 +122,5 @@ function getReportRows() {
   });
   getSensoryRequests().forEach(function (r) { if (r.reportStatus) rows.push({ source: 'sensory', record: r }); });
   getAsltRequests().forEach(function (r) { if (r.reportStatus) rows.push({ source: 'aslt', record: r }); });
-  if (typeof getExternalRequests === 'function') {
-    getExternalRequests().forEach(function (r) {
-      if (r.step === 'Order Confirmation') rows.push({ source: 'external', record: r });
-    });
-  }
   return rows;
 }

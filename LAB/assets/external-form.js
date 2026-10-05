@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '</div>';
   }
 
-  function renderApprovalList(containerId, chain, approvedCount) {
+  function renderApprovalList(containerId, chain, approvedCount, record) {
     var container = document.getElementById(containerId);
     if (!container) return;
 
@@ -264,6 +264,13 @@ document.addEventListener('DOMContentLoaded', function () {
       var isApproved = i < approvedCount;
       html += renderApprovalRow(findRole(code), 'Approver · Level ' + (i + 1), isApproved ? 'Approved' : 'Pending', !isApproved);
     });
+    /* Workflow after the last approval: Lab Admin confirms the sample was sent to the vendor lab */
+    var step = record ? record.step : null;
+    if (step === 'Sample Delivery' || step === 'Confirmed') {
+      var done = step === 'Confirmed';
+      html += renderApprovalRow(findRole('ADM'), 'Workflow · Sample Delivery' + (done && record.deliveredAt ? ' · ' + record.deliveredAt : ''),
+        done ? 'Delivered' : 'Pending', !done);
+    }
     container.innerHTML = html;
   }
 
@@ -293,7 +300,9 @@ document.addEventListener('DOMContentLoaded', function () {
       }
       var actionLabel = pendingReasonAction === 'reject' ? 'Ditolak' : 'Dikembalikan untuk Edit';
       var docNoVal = docNoEl ? docNoEl.textContent : '';
-      updateExternalRequest(docNoVal, { step: 'Draft', approvalIdx: 0 });
+      updateExternalRequest(docNoVal, pendingReasonAction === 'reject'
+        ? { step: 'Rejected', rejectReason: reason }
+        : { step: 'Draft', approvalIdx: 0, returned: true, returnReason: reason });
       if (reasonModal) reasonModal.hide();
       showToast('Dokumen ' + actionLabel + ': "' + reason + '"');
       setTimeout(function () { window.location.href = 'externalList.html'; }, 1200);
@@ -339,6 +348,9 @@ document.addEventListener('DOMContentLoaded', function () {
         '<button type="button" data-action="return" class="btn btn-sm btn-warning d-inline-flex align-items-center gap-1 text-white"><i class="ri-arrow-go-back-line"></i> Return to Edit</button>' +
         '<button type="button" data-action="reject" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1"><i class="ri-close-circle-line"></i> Reject</button>' +
         '<button type="button" data-action="approve" class="btn btn-sm btn-primary btn-wave d-inline-flex align-items-center gap-1"><i class="ri-checkbox-circle-line"></i> Approve</button>';
+    } else if (mode === 'delivery') {
+      formActionButtons.innerHTML = BACK_BTN_HTML +
+        '<button type="button" data-action="confirm-delivery" class="btn btn-sm btn-success btn-wave d-inline-flex align-items-center gap-1"><i class="ri-truck-line"></i> Confirm Delivery</button>';
     } else {
       formActionButtons.innerHTML = BACK_BTN_HTML;
     }
@@ -382,9 +394,21 @@ document.addEventListener('DOMContentLoaded', function () {
         var record = collectFormValues();
         record.step = 'Approval';
         record.approvalIdx = 0;
+        record.returned = false;
         updateExternalRequest(docNoVal, record);
         showToast('Pengajuan "' + docNoVal + '" berhasil dikirim untuk approval.');
         setTimeout(function () { window.location.href = 'externalList.html'; }, 1200);
+      } else if (action === 'confirm-delivery') {
+        var adm = findRole(localStorage.getItem('holabsysRole'));
+        var now = new Date();
+        var pad = function (n) { return String(n).padStart(2, '0'); };
+        updateExternalRequest(docNoVal, {
+          step: 'Confirmed',
+          deliveredBy: adm.name,
+          deliveredAt: extFormatDateID(now) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes())
+        });
+        showToast('Sampel "' + docNoVal + '" dikirim ke ' + (document.getElementById('laboratoriumTujuan').value || 'lab tujuan') + '. Dokumen Confirmed.');
+        refreshFormState();
       } else if (action === 'return') {
         openReasonModal('return');
       } else if (action === 'reject') {
@@ -403,9 +427,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         var isLast = idx === chain.length - 1;
         if (isLast) {
-          updateExternalRequest(docNoVal, { step: 'Pengiriman Sampel', approvalIdx: chain.length });
-          showToast('Disetujui oleh ' + role.name + ' (' + role.label + '). Dokumen diteruskan ke Pengiriman Sampel.');
-          setTimeout(function () { window.location.href = 'externalList.html'; }, 1200);
+          updateExternalRequest(docNoVal, { step: 'Sample Delivery', approvalIdx: chain.length });
+          showToast('Disetujui oleh ' + role.name + ' (' + role.label + '). Fully Approved, menunggu Sample Delivery.');
+          refreshFormState();
         } else {
           updateExternalRequest(docNoVal, { approvalIdx: idx + 1 });
           showToast('Disetujui oleh ' + role.name + ' (' + role.label + ').');
@@ -434,8 +458,14 @@ document.addEventListener('DOMContentLoaded', function () {
     /* Only the role at the pending level may approve — no skipping earlier levels */
     var isAuthorized = !isBSU && step === 'Approval' && idx === approvedCount;
 
-    setFormLocked(!isBSU);
-    renderActionButtons(isBSU ? 'bsu' : (isAuthorized ? 'approver' : 'back-only'));
+    /* BSU edits only a new / draft document; after Fully Approved the Lab Admin runs Sample Delivery */
+    var editable = isBSU && (!step || step === 'Draft');
+    var canDeliver = role.code === 'ADM' && step === 'Sample Delivery';
+    setFormLocked(!editable);
+    renderActionButtons(editable ? 'bsu' : (isAuthorized ? 'approver' : (canDeliver ? 'delivery' : 'back-only')));
+
+    var statusEl = document.getElementById('docStatusBadges');
+    if (statusEl) statusEl.innerHTML = docStatusCardHtml(record || {});
 
     var lastApproverEl = document.getElementById('lastApproverValue');
     if (lastApproverEl) {
@@ -444,8 +474,8 @@ document.addEventListener('DOMContentLoaded', function () {
         : '–';
     }
 
-    renderApprovalList('approvalOffcanvasBody', chain, approvedCount);
-    renderApprovalList('historyOffcanvasBody', chain, approvedCount);
+    renderApprovalList('approvalOffcanvasBody', chain, approvedCount, record);
+    renderApprovalList('historyOffcanvasBody', chain, approvedCount, record);
   }
 
   document.addEventListener('holabsys:rolechange', refreshFormState);
