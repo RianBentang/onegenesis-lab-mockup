@@ -10,20 +10,20 @@
 var PANEL_SCORES_KEY = 'holabsysPanelScores';
 var PANEL_LOGIN_KEY = 'holabsysPanelist';
 
-/* Master panelis (dummy). Login: username + PIN. */
+/* Master panelis (dummy). Login: NIK only; name / username come from HRIS (dummy-hris.js). */
 var MASTER_PANELIS = [
-  { id: 'PN-01', username: 'panelis01', pin: '1234', name: 'Ayu Pratiwi', tipe: 'Terlatih', booth: 1 },
-  { id: 'PN-02', username: 'panelis02', pin: '1234', name: 'Bima Santoso', tipe: 'Terlatih', booth: 2 },
-  { id: 'PN-03', username: 'panelis03', pin: '1234', name: 'Citra Maharani', tipe: 'Terlatih', booth: 3 },
-  { id: 'PN-04', username: 'panelis04', pin: '1234', name: 'Dimas Prakoso', tipe: 'Terlatih', booth: 4 },
-  { id: 'PN-05', username: 'panelis05', pin: '1234', name: 'Eka Wulandari', tipe: 'Semi Terlatih', booth: 5 },
-  { id: 'PN-06', username: 'panelis06', pin: '1234', name: 'Fajar Nugroho', tipe: 'Semi Terlatih', booth: 6 },
-  { id: 'PN-07', username: 'panelis07', pin: '1234', name: 'Gita Anjani', tipe: 'Semi Terlatih', booth: 1 },
-  { id: 'PN-08', username: 'panelis08', pin: '1234', name: 'Hana Puspita', tipe: 'Semi Terlatih', booth: 2 },
-  { id: 'PN-09', username: 'panelis09', pin: '1234', name: 'Irfan Hakim', tipe: 'Konsumen', booth: 3 },
-  { id: 'PN-10', username: 'panelis10', pin: '1234', name: 'Jihan Safitri', tipe: 'Konsumen', booth: 4 },
-  { id: 'PN-11', username: 'panelis11', pin: '1234', name: 'Kevin Adiputra', tipe: 'Konsumen', booth: 5 },
-  { id: 'PN-12', username: 'panelis12', pin: '1234', name: 'Laras Kusuma', tipe: 'Konsumen', booth: 6 }
+  { id: 'PN-01', nik: '20180123', name: 'Ayu Pratiwi', tipe: 'Terlatih', booth: 1 },
+  { id: 'PN-02', nik: '20170456', name: 'Bima Santoso', tipe: 'Terlatih', booth: 2 },
+  { id: 'PN-03', nik: '20190311', name: 'Citra Maharani', tipe: 'Terlatih', booth: 3 },
+  { id: 'PN-04', nik: '20160782', name: 'Dimas Prakoso', tipe: 'Terlatih', booth: 4 },
+  { id: 'PN-05', nik: '20200145', name: 'Eka Wulandari', tipe: 'Semi Terlatih', booth: 5 },
+  { id: 'PN-06', nik: '20210533', name: 'Fajar Nugroho', tipe: 'Semi Terlatih', booth: 6 },
+  { id: 'PN-07', nik: '20190877', name: 'Gita Anjani', tipe: 'Semi Terlatih', booth: 1 },
+  { id: 'PN-08', nik: '20220219', name: 'Hana Puspita', tipe: 'Semi Terlatih', booth: 2 },
+  { id: 'PN-09', nik: '20150664', name: 'Irfan Hakim', tipe: 'Konsumen', booth: 3 },
+  { id: 'PN-10', nik: '20230108', name: 'Jihan Safitri', tipe: 'Konsumen', booth: 4 },
+  { id: 'PN-11', nik: '20210990', name: 'Kevin Adiputra', tipe: 'Konsumen', booth: 5 },
+  { id: 'PN-12', nik: '20220347', name: 'Laras Kusuma', tipe: 'Konsumen', booth: 6 }
 ];
 
 /* Hedonic scale 1–9 */
