@@ -42,6 +42,12 @@ var REPORT_RESULT_TABLE = {
   pb: { unit: 'mg/kg', spec: 'Maks. 0.5', result: '0.12' }
 };
 
+/* Reference method printed for Sensory / ASLT rows (their worksheet rows carry no method) */
+var REPORT_METHOD_BY_SOURCE = {
+  sensory: 'IK-LAB-SN-01 (ISO 4121)',
+  aslt: 'IK-LAB-AS-01 (Labuza 1982)'
+};
+
 function showToast(message) {
   var container = document.getElementById('appToastContainer');
   if (!container) { alert(message); return; }
@@ -72,7 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var urlParams = new URLSearchParams(window.location.search);
   var docId = urlParams.get('docId');
   var jenis = (urlParams.get('jenis') || 'internal').toLowerCase();
-  var record = jenis === 'external' ? getExternalRequestById(docId) : getRequestById(docId);
+  var record = worksheetGetRecord(jenis, docId);
 
   var content = document.getElementById('reportContent');
   var docNoEl = document.getElementById('docNoValue');
@@ -101,21 +107,45 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function renderCertificate() {
     var titleText = jenis === 'external' ? 'CERTIFICATE OF ANALYSIS (COA)' : 'LAPORAN HASIL UJI (LHU)';
-    var labText = jenis === 'external' ? record.lab : (record.lab + ' — Laboratorium Internal');
+    var labText = jenis === 'external' ? record.lab
+      : ((jenis === 'internal' ? record.lab : WORKSHEET_SOURCES[jenis].label) + ' — Laboratorium Internal');
+    var results = record.results || {};
 
-    var rows = (record.params || []).map(function (code, i) {
-      var p = paramLookup.filter(function (x) { return x.value === code; })[0];
-      var r = REPORT_RESULT_TABLE[code] || { unit: '-', spec: '-', result: '-' };
+    function resultRow(i, text, unit, method, spec, result, pass) {
       return '<tr>' +
         '<td>' + (i + 1) + '</td>' +
-        '<td>' + (p ? p.text : code) + '</td>' +
-        '<td>' + r.unit + '</td>' +
-        '<td class="font-monospace">' + (p ? p.method : '-') + '</td>' +
-        '<td>' + r.spec + '</td>' +
-        '<td class="font-monospace fw-semibold">' + r.result + '</td>' +
-        '<td><span class="badge bg-success-transparent">PASS</span></td>' +
+        '<td>' + text + '</td>' +
+        '<td>' + unit + '</td>' +
+        '<td class="font-monospace">' + method + '</td>' +
+        '<td>' + spec + '</td>' +
+        '<td class="font-monospace fw-semibold">' + result + '</td>' +
+        '<td>' + (pass === false ? '<span class="badge bg-danger-transparent">FAIL</span>' : '<span class="badge bg-success-transparent">PASS</span>') + '</td>' +
         '</tr>';
-    }).join('');
+    }
+
+    var rows;
+    if (jenis === 'sensory' || jenis === 'aslt') {
+      /* Rows = worksheet parameters (values from Push Data in Excel) and/or panel statistics
+         (sent from ASLT & Sensory → Data Panelis & Statistik) */
+      var list = [];
+      if (record.results || !record.panelStats) {
+        worksheetParamsFor(jenis, record).forEach(function (p) {
+          list.push({ text: p.text, unit: p.unit, spec: p.spec, result: results[p.key] ? results[p.key].result : '-' });
+        });
+      }
+      if (record.panelStats && typeof panelReportRows === 'function') list = list.concat(panelReportRows(record));
+      rows = list.map(function (r, i) {
+        return resultRow(i, r.text, r.unit, REPORT_METHOD_BY_SOURCE[jenis], r.spec, r.result, r.pass);
+      }).join('');
+    } else {
+      rows = (record.params || []).map(function (code, i) {
+        var p = paramLookup.filter(function (x) { return x.value === code; })[0];
+        var r = REPORT_RESULT_TABLE[code] || { unit: '-', spec: '-', result: '-' };
+        var method = (record.paramMethods && record.paramMethods[code]) || (p ? p.method : '-');
+        /* Internal: pushed worksheet result wins over the dummy value */
+        return resultRow(i, p ? p.text : code, r.unit, method, r.spec, results[code] ? results[code].result : r.result);
+      }).join('');
+    }
 
     var isFinal = record.reportStatus === 'Final';
 
@@ -146,8 +176,8 @@ document.addEventListener('DOMContentLoaded', function () {
       '<div class="row-item"><span>Jenis Laboratorium</span><span>' + labText + '</span></div>' +
       '<div class="row-item"><span>Pemohon / Departemen</span><span>' + record.pemohon + ' / ' + record.departemen + '</span></div>' +
       '<div class="row-item"><span>Nama Sampel</span><span>' + record.sampel + '</span></div>' +
-      '<div class="row-item"><span>Kode Batch</span><span>' + record.batch + '</span></div>' +
-      '<div class="row-item"><span>Tgl. Produksi</span><span>' + record.prod + '</span></div>' +
+      '<div class="row-item"><span>Kode Batch</span><span>' + (record.batch || '-') + '</span></div>' +
+      '<div class="row-item"><span>Tgl. Produksi</span><span>' + (record.prod || '-') + '</span></div>' +
       '<div class="row-item"><span>Tgl. Pengajuan</span><span>' + record.tanggal + '</span></div>' +
       '<div class="row-item"><span>Tipe Pengajuan</span><span>' + record.tipe + '</span></div>' +
       '</div>' +
@@ -194,7 +224,7 @@ document.addEventListener('DOMContentLoaded', function () {
       finalizeBtn.addEventListener('click', function () {
         var reportNo = reportGenerateNo(jenis);
         var patch = { reportStatus: 'Final', reportNo: reportNo };
-        record = jenis === 'external' ? updateExternalRequest(record.id, patch) : updateRequest(record.id, patch);
+        record = worksheetUpdateRecord(jenis, record.id, patch);
         updateDocInfoBar();
         renderCertificate();
         renderActionButtons();

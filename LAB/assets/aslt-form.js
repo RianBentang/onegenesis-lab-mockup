@@ -12,6 +12,7 @@ var MASTER_JENIS_PLASTIK = ['Alufo', 'Metalized', 'Other'];
 var MASTER_KATEGORI_KEMASAN = ['Primer', 'Sekunder', 'Primer dan Sekunder'];
 var MASTER_JUMLAH_LAYER = ['1 Layer', '2 Layer', '3 Layer', '4 Layer', 'Others'];
 var MASTER_METODE_PENGEMASAN = ['With Nitrogen', 'Vacuum', 'With Oxigen', 'Other'];
+var MASTER_LAB_ASLT = ['Fisika Kimia', 'Mikrobiologi', 'Sensory', 'ASLT'];
 
 var MASTER_PARAMETER_ASLT = [
   { value: 'arrhenius', text: 'Arrhenius' },
@@ -37,8 +38,7 @@ function fillSelectAslt(selectEl, options, placeholder) {
 
 function initSelect2Aslt(id, placeholder) {
   var el = document.getElementById(id);
-  if (!el || !window.jQuery || !window.jQuery.fn.select2) return;
-  window.jQuery(el).select2({ width: '100%', placeholder: placeholder || '-- Pilih --', allowClear: true });
+  if (el && window.spkSelect2) window.spkSelect2(el, placeholder ? { placeholder: placeholder } : {});
 }
 
 function generateAsltDocNo() {
@@ -85,10 +85,12 @@ document.addEventListener('DOMContentLoaded', function () {
   fillSelectAslt(document.getElementById('kategoriKemasan'), toOptionsAslt(MASTER_KATEGORI_KEMASAN));
   fillSelectAslt(document.getElementById('jumlahLayer'), toOptionsAslt(MASTER_JUMLAH_LAYER));
   fillSelectAslt(document.getElementById('metodePengemasan'), toOptionsAslt(MASTER_METODE_PENGEMASAN));
+  fillSelectAslt(document.getElementById('laboratorium'), toOptionsAslt(MASTER_LAB_ASLT));
+  document.getElementById('laboratorium').value = (existingRecord && existingRecord.lab) || 'ASLT';
 
   ['alamatPelanggan', 'alamatPabrik', 'departemenPemohon', 'tujuanAnalisa', 'kategoriPangan', 'idGenesis',
     'tipePengajuan', 'standarOrganoleptik', 'kategoriAslt', 'kategoriPerubahan', 'kategoriSampelAslt',
-    'jenisKemasan', 'jenisPlastik', 'kategoriKemasan', 'jumlahLayer', 'metodePengemasan', 'ujiSealing', 'ujiVacuum'
+    'jenisKemasan', 'jenisPlastik', 'kategoriKemasan', 'jumlahLayer', 'metodePengemasan', 'ujiSealing', 'ujiVacuum', 'laboratorium'
   ].forEach(function (id) { initSelect2Aslt(id); });
 
   /* Departemen Pemohon auto-fills from the logged-in dummy role's department */
@@ -336,6 +338,7 @@ document.addEventListener('DOMContentLoaded', function () {
       kategori: val('kategoriAslt'),
       kategoriPangan: val('kategoriPangan'),
       jenisKemasan: val('jenisKemasan'),
+      lab: val('laboratorium'),
       batch: val('kodeBatch'),
       prod: val('tanggalProduksi'),
       catatanTambahan: val('catatanTambahan'),
@@ -363,6 +366,7 @@ document.addEventListener('DOMContentLoaded', function () {
       } else if (action === 'submit') {
         var form = document.getElementById('asltForm');
         if (form.checkValidity() === false) { form.reportValidity(); return; }
+        if (!files.length) { showToast('Lampiran Dokumen (Klausul ASLT) wajib diunggah.'); return; }
         var record = collectFormValues();
         record.step = 'Approval';
         record.approvalIdx = 0;

@@ -16,16 +16,26 @@ map for migrating legacy pages.
 - **Never use Python** for anything here: not `python -m http.server`, not `python -c` to edit
   files. Edit files with the Edit/Write tools.
 - **Preview:** open the file directly in a browser, or when the browser tool refuses `file://`
-  URLs, serve the folder with Node (no cache, so edits show up on reload):
-  `npx --yes http-server C:/Users/Bentang/Projects/experiment/LAB/LAB -p 8765 -c-1 -s`
-  and open `http://localhost:8765/<path>`. Stop the server when done.
+  URLs, serve the repo root with Node (no cache, so edits show up on reload; the root, not
+  `LAB/LAB`, so LAB and PANELIS share one origin and therefore one localStorage):
+  `npx --yes http-server C:/Users/Bentang/Projects/experiment/LAB -p 8765 -c-1 -s`
+  and open `http://localhost:8765/LAB/<path>` or `http://localhost:8765/PANELIS/`. Stop the
+  server when done.
 - **Styling comes from the real app theme** in `LAB/assets/og-theme/onegenesis.css` (compiled
   from onegenesis-web). Don't edit that folder, don't add another Bootstrap copy, don't re-add the
   legacy `assets/css/bootstrap.css` / `assets/css/app.css` to a page.
 - **Layout comes from `LAB/assets/og-shell.js`** (header, sidebar, footer, dark mode, mockup role
   switcher). Pages contain only their content. Add new pages to the `MENU` array in that file.
+- **Every single-value dropdown is `SpkSelect2`** (select2), never a native `<select>` dropdown —
+  form fields, filters, modals, table cells, selects built in JS. Write a plain
+  `<select class="form-select">` and load `LAB/assets/spk-select2.js` (after jQuery + select2);
+  it initialises them. Multi-selects (`<select multiple>`) stay on TomSelect.
 - Mockup-only page overrides go in `LAB/assets/lab.css`, and only when no theme class fits.
 - Dummy data lives in `LAB/assets/dummy-*.js`; there is no backend.
+- **`PANELIS/`** is the separate panelist app (login → sensory booth). Panelists are not LAB users:
+  its pages don't load `og-shell.js` (no sidebar/menu) but use the same theme, `lab.css`,
+  `spk-select2.js` and dummy data from `../LAB/assets/`. Panel data (panelis, sessions, scores,
+  statistics) lives in `LAB/assets/dummy-panel.js`, shared by both apps.
 
 ## Layout
 
@@ -40,9 +50,12 @@ LAB/
 │   └── assets/
 │       ├── og-theme/         ← vendored onegenesis-web theme + fonts (do not edit)
 │       ├── og-shell.js       ← app shell + MENU + dummy roles
+│       ├── spk-select2.js    ← SpkSelect2: every single <select> becomes select2
 │       ├── lab.css           ← small mockup-only overrides
 │       ├── *-list.js, *-form.js, dummy-*.js   ← page scripts / dummy data
 │       └── img/              ← Garudafood logo used by the printable certificate
+├── PANELIS/                  ← panelist app: index.html (login) → booth.html (scoring)
+│   └── assets/               ← panelis.js (theme + login helpers), login.js, booth.js
 └── docs/legacy-mockup/       ← original single-file design mockups; reference only, never link to them
 ```
 

@@ -100,6 +100,10 @@
                       <textarea id="alasanUrgent" class="form-control" rows="1" placeholder="Wajib diisi jika pengajuan bersifat Urgent"></textarea>
                     </div>
                     <div class="col-4 col-md-4">
+                      <label class="form-label">Laboratorium <span class="text-danger">*</span></label>
+                      <select id="laboratorium" class="form-select" required></select>
+                    </div>
+                    <div class="col-4 col-md-4">
                       <label class="form-label">No. ID GENESIS</label>
                       <select id="idGenesis" class="form-select">
                         <option value="">-- Tanpa Link Genesis --</option>
@@ -120,11 +124,17 @@
                   <div class="row g-3">
                     <div class="col-12 col-md-6">
                       <label class="form-label">Alamat Pelanggan <span class="text-danger">*</span></label>
-                      <select id="alamatPelanggan" class="form-select" required></select>
+                      <div class="input-group flex-nowrap">
+                        <select id="alamatPelanggan" class="form-select" required></select>
+                        <button type="button" class="btn btn-light" data-address-for="alamatPelanggan" title="Lihat detail alamat"><i class="ri-eye-line align-middle"></i></button>
+                      </div>
                     </div>
                     <div class="col-12 col-md-6">
                       <label class="form-label">Alamat Pabrik <span class="text-danger">*</span></label>
-                      <select id="alamatPabrik" class="form-select" required></select>
+                      <div class="input-group flex-nowrap">
+                        <select id="alamatPabrik" class="form-select" required></select>
+                        <button type="button" class="btn btn-light" data-address-for="alamatPabrik" title="Lihat detail alamat"><i class="ri-eye-line align-middle"></i></button>
+                      </div>
                     </div>
                     <div class="col-12 col-md-6">
                       <label class="form-label">Departemen Pemohon <span class="text-danger">*</span></label>
@@ -165,28 +175,20 @@
                       <select id="kategoriPangan" class="form-select" required></select>
                     </div>
                     <div class="col-12 col-md-4">
-                      <label class="form-label">Jenis Kemasan <span class="text-danger">*</span></label>
-                      <select id="jenisKemasan" class="form-select" required></select>
-                    </div>
-                    <div class="col-12 col-md-6">
                       <label class="form-label">Suhu Penyajian <span class="text-danger">*</span></label>
                       <select id="suhuPenyajian" class="form-select" required></select>
                     </div>
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
                       <label class="form-label">Kondisi Penyajian <span class="text-danger">*</span></label>
                       <input type="text" id="kondisiPenyajian" class="form-control" placeholder="e.g., Cawan Plastik Kode Blind" required />
                     </div>
-                    <div class="col-12 col-md-6">
+                    <div class="col-12 col-md-4">
+                      <label class="form-label">Jenis Kemasan <span class="text-danger">*</span></label>
+                      <select id="jenisKemasan" class="form-select" required></select>
+                    </div>
+                    <div class="col-12 col-md-4">
                       <label class="form-label">Jenis Sampel <span class="text-danger">*</span></label>
                       <input type="text" id="jenisSampel" class="form-control" required />
-                    </div>
-                    <div class="col-12 col-md-3">
-                      <label class="form-label">Atribut <span class="text-danger">*</span></label>
-                      <select id="atribut" class="form-select" required></select>
-                    </div>
-                    <div class="col-12 col-md-3">
-                      <label class="form-label">Ketepatan <span class="text-danger">*</span></label>
-                      <input type="text" id="ketepatan" class="form-control" placeholder="e.g., rasa manis, asam" required />
                     </div>
                   </div>
                 </div>
@@ -204,6 +206,20 @@
                       <span class="badge bg-primary-transparent" id="paramCountBadge">0 Parameter Terpilih</span>
                     </div>
                     <select id="parameterUji" multiple placeholder="Cari &amp; pilih parameter uji..."></select>
+
+                    <!-- Atribut & Ketepatan per parameter: options depend on the parameter; both multi (TomSelect) -->
+                    <div class="table-responsive bg-white rounded border mt-3" id="atributTableWrap" style="display:none;">
+                      <table class="table table-sm align-middle mb-0">
+                        <thead>
+                          <tr>
+                            <th style="width: 22%">Parameter Uji</th>
+                            <th style="width: 34%">Atribut <span class="text-danger">*</span></th>
+                            <th>Ketepatan <span class="text-danger">*</span></th>
+                          </tr>
+                        </thead>
+                        <tbody id="atributTableBody"></tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -308,10 +324,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/og-shell.js"></script>
+    <script src="../assets/dummy-sites.js"></script>
+    <script src="../assets/address-detail.js"></script>
     <script src="../assets/dummy-aslt-sensory-requests.js"></script>
     <script src="../assets/sensory-form.js"></script>
   </body>

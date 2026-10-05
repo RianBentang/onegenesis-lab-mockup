@@ -5,7 +5,7 @@ var MASTER_TUJUAN_SN = ['Scale Up', 'R&D Trial', 'Routine QC', 'Customer Complai
 var MASTER_KATEGORI_PANGAN_SN = ['Makanan Ringan', 'Minuman Susu', 'Biskuit & Wafer', 'Cokelat & Kembang Gula', 'Kacang & Snack'];
 var MASTER_KEMASAN_SN = ['Plastik', 'Cup', 'Kaleng', 'Pouch Alufo', 'Karton'];
 var MASTER_SUHU_PENYAJIAN = ['Ambient', 'Cool (Sejuk)', 'Frozen', 'Hot', 'Warm'];
-var MASTER_ATRIBUT = ['Aftertaste', 'Rasa', 'Aroma', 'Warna & Penampakan', 'Tekstur'];
+var MASTER_LAB_SN = ['Fisika Kimia', 'Mikrobiologi', 'Sensory', 'ASLT'];
 
 var MASTER_PARAMETER_SN = [
   { value: 'internal-rating', text: 'Internal Rating' },
@@ -13,6 +13,24 @@ var MASTER_PARAMETER_SN = [
   { value: 'triangle', text: 'Triangle (Pembeda)' },
   { value: 'quality-monitoring', text: 'Quality Monitoring' }
 ];
+
+/* Atribut that each parameter can test (Master Scope Lab) */
+var MASTER_ATRIBUT_BY_PARAM = {
+  'internal-rating': ['Rasa', 'Aroma', 'Tekstur', 'Warna & Penampakan', 'Aftertaste', 'Overall'],
+  'ranking': ['Rasa', 'Aroma', 'Tekstur', 'Overall'],
+  'triangle': ['Rasa', 'Aroma', 'Tekstur', 'Warna & Penampakan'],
+  'quality-monitoring': ['Rasa', 'Aroma', 'Tekstur', 'Warna & Penampakan', 'Aftertaste']
+};
+
+/* Ketepatan (specific note) per atribut; the Ketepatan options of a row = those of its chosen atribut */
+var MASTER_KETEPATAN_BY_ATRIBUT = {
+  'Rasa': ['Rasa Manis', 'Rasa Asin', 'Rasa Asam', 'Rasa Pahit', 'Rasa Pedas', 'Rasa Gurih (Umami)'],
+  'Aroma': ['Aroma Cokelat', 'Aroma Susu', 'Aroma Vanila', 'Aroma Gosong', 'Off-odor / Tengik'],
+  'Tekstur': ['Renyah', 'Keras', 'Lembut', 'Lengket', 'Berpasir'],
+  'Warna & Penampakan': ['Warna Cokelat', 'Kecerahan', 'Keseragaman Warna', 'Bentuk Utuh'],
+  'Aftertaste': ['Aftertaste Pahit', 'Aftertaste Manis', 'Aftertaste Logam', 'Tertinggal Lama'],
+  'Overall': ['Overall Liking', 'Overall Preference']
+};
 
 function toOptionsSn(list) { return list.map(function (v) { return { value: v, text: v }; }); }
 
@@ -32,8 +50,7 @@ function fillSelectSn(selectEl, options, placeholder) {
 
 function initSelect2Sn(id, placeholder) {
   var el = document.getElementById(id);
-  if (!el || !window.jQuery || !window.jQuery.fn.select2) return;
-  window.jQuery(el).select2({ width: '100%', placeholder: placeholder || '-- Pilih --', allowClear: true });
+  if (el && window.spkSelect2) window.spkSelect2(el, placeholder ? { placeholder: placeholder } : {});
 }
 
 function generateSensoryDocNo() {
@@ -73,10 +90,11 @@ document.addEventListener('DOMContentLoaded', function () {
   fillSelectSn(document.getElementById('kategoriPangan'), toOptionsSn(MASTER_KATEGORI_PANGAN_SN));
   fillSelectSn(document.getElementById('jenisKemasan'), toOptionsSn(MASTER_KEMASAN_SN));
   fillSelectSn(document.getElementById('suhuPenyajian'), toOptionsSn(MASTER_SUHU_PENYAJIAN));
-  fillSelectSn(document.getElementById('atribut'), toOptionsSn(MASTER_ATRIBUT));
+  fillSelectSn(document.getElementById('laboratorium'), toOptionsSn(MASTER_LAB_SN));
+  document.getElementById('laboratorium').value = (existingRecord && existingRecord.lab) || 'Sensory';
 
   ['alamatPelanggan', 'alamatPabrik', 'departemenPemohon', 'tujuanAnalisa', 'kategoriPangan', 'idGenesis',
-    'tipePengajuan', 'jenisKemasan', 'suhuPenyajian', 'atribut'
+    'tipePengajuan', 'jenisKemasan', 'suhuPenyajian', 'laboratorium'
   ].forEach(function (id) { initSelect2Sn(id); });
 
   var roleCode = localStorage.getItem('holabsysRole');
@@ -118,6 +136,81 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var paramEl = document.getElementById('parameterUji');
   var paramCountBadge = document.getElementById('paramCountBadge');
+  /* ---------- Atribut & Ketepatan per parameter ----------
+     One row per selected parameter. Atribut options come from the parameter, Ketepatan options
+     from the chosen atribut; both can hold many values (TomSelect multi). */
+  var atributState = {};   // { paramValue: { atribut: [], ketepatan: [] } }
+  var rowSelects = [];     // TomSelect instances of the current rows
+  var formLocked = false;
+  var atributWrap = document.getElementById('atributTableWrap');
+  var atributBody = document.getElementById('atributTableBody');
+
+  if (existingRecord && existingRecord.atributMap) {
+    Object.keys(existingRecord.atributMap).forEach(function (k) {
+      atributState[k] = { atribut: (existingRecord.atributMap[k].atribut || []).slice(), ketepatan: (existingRecord.atributMap[k].ketepatan || []).slice() };
+    });
+  }
+
+  function paramText(v) {
+    var f = MASTER_PARAMETER_SN.filter(function (p) { return p.value === v; })[0];
+    return f ? f.text : v;
+  }
+
+  function ketepatanOptions(atributList) {
+    var out = [];
+    atributList.forEach(function (a) {
+      (MASTER_KETEPATAN_BY_ATRIBUT[a] || []).forEach(function (k) { out.push({ value: k, text: k, group: a }); });
+    });
+    return out;
+  }
+
+  function renderAtributTable(params) {
+    rowSelects.forEach(function (t) { t.destroy(); });
+    rowSelects = [];
+    atributWrap.style.display = params.length ? '' : 'none';
+    atributBody.innerHTML = params.map(function (p) {
+      return '<tr data-param="' + p + '">' +
+        '<td class="fw-semibold">' + paramText(p) + '</td>' +
+        '<td><select multiple data-role="atribut" placeholder="Pilih atribut..."></select></td>' +
+        '<td><select multiple data-role="ketepatan" placeholder="Pilih ketepatan..."></select></td>' +
+        '</tr>';
+    }).join('');
+
+    params.forEach(function (p) {
+      var st = atributState[p] = atributState[p] || { atribut: [], ketepatan: [] };
+      var row = atributBody.querySelector('tr[data-param="' + p + '"]');
+      var ketTs = new window.TomSelect(row.querySelector('[data-role="ketepatan"]'), {
+        plugins: ['remove_button'], persist: false, create: false, dropdownParent: 'body',
+        optgroupField: 'group', lockOptgroupOrder: true,
+        optgroups: st.atribut.map(function (a) { return { value: a, label: a }; }),
+        options: ketepatanOptions(st.atribut),
+        items: st.ketepatan,
+        onChange: function (v) { st.ketepatan = Array.isArray(v) ? v : (v ? [v] : []); }
+      });
+      var atrTs = new window.TomSelect(row.querySelector('[data-role="atribut"]'), {
+        plugins: ['remove_button'], persist: false, create: false, dropdownParent: 'body',
+        options: (MASTER_ATRIBUT_BY_PARAM[p] || []).map(function (a) { return { value: a, text: a }; }),
+        items: st.atribut,
+        onChange: function (v) {
+          st.atribut = Array.isArray(v) ? v : (v ? [v] : []);
+          /* Ketepatan follows the atribut: drop options/values of removed atribut, add new ones */
+          var opts = ketepatanOptions(st.atribut);
+          var allowed = opts.map(function (o) { return o.value; });
+          st.ketepatan = st.ketepatan.filter(function (k) { return allowed.indexOf(k) !== -1; });
+          ketTs.clear(true);
+          ketTs.clearOptions();
+          ketTs.clearOptionGroups();
+          st.atribut.forEach(function (a) { ketTs.addOptionGroup(a, { value: a, label: a }); });
+          ketTs.addOptions(opts);
+          ketTs.setValue(st.ketepatan, true);
+          ketTs.refreshOptions(false);
+        }
+      });
+      rowSelects.push(atrTs, ketTs);
+      if (formLocked) { atrTs.disable(); ketTs.disable(); }
+    });
+  }
+
   var ts = null;
   if (paramEl && window.TomSelect) {
     ts = new window.TomSelect(paramEl, {
@@ -128,8 +221,25 @@ document.addEventListener('DOMContentLoaded', function () {
       onChange: function (values) {
         var arr = Array.isArray(values) ? values : (values ? [values] : []);
         paramCountBadge.textContent = arr.length + ' Parameter Terpilih';
+        renderAtributTable(arr);
       }
     });
+    if (existingRecord && existingRecord.params && existingRecord.params.length) {
+      ts.setValue(existingRecord.params, true);
+      paramCountBadge.textContent = existingRecord.params.length + ' Parameter Terpilih';
+      renderAtributTable(existingRecord.params);
+    }
+  }
+
+  /* Each parameter needs at least one atribut and one ketepatan */
+  function atributIncomplete() {
+    var params = ts ? ts.getValue() : [];
+    if (!params.length) return 'Pilih minimal satu Parameter Uji.';
+    var missing = params.filter(function (p) {
+      var st = atributState[p];
+      return !st || !st.atribut.length || !st.ketepatan.length;
+    });
+    return missing.length ? 'Atribut & Ketepatan wajib diisi untuk: ' + missing.map(paramText).join(', ') + '.' : '';
   }
 
   var dropzone = document.getElementById('fileDropzone');
@@ -276,6 +386,8 @@ document.addEventListener('DOMContentLoaded', function () {
       });
     }
     if (ts) { locked ? ts.disable() : ts.enable(); }
+    formLocked = locked;
+    rowSelects.forEach(function (t) { locked ? t.disable() : t.enable(); });
     if (tanggalProduksiFp) {
       tanggalProduksiFp.set('clickOpens', !locked);
       document.getElementById('tanggalProduksi').disabled = locked;
@@ -304,8 +416,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function collectFormValues() {
     var val = function (id) { var el = document.getElementById(id); return el ? el.value : ''; };
-    var atributEl = document.getElementById('atribut');
-    var atributText = atributEl && atributEl.selectedIndex > -1 ? atributEl.options[atributEl.selectedIndex].text : '';
+    var params = ts ? ts.getValue() : [];
+    var atributMap = {};
+    params.forEach(function (p) { if (atributState[p]) atributMap[p] = atributState[p]; });
+    var flat = function (key) {
+      var seen = {};
+      params.forEach(function (p) { (atributMap[p] ? atributMap[p][key] : []).forEach(function (v) { seen[v] = true; }); });
+      return Object.keys(seen).join(', ');
+    };
     return {
       id: docNoEl ? docNoEl.textContent : generateSensoryDocNo(),
       tanggal: docDateEl ? docDateEl.textContent : formatDateIDSn(new Date()),
@@ -322,9 +440,14 @@ document.addEventListener('DOMContentLoaded', function () {
       blindCodes: [],
       sesi: '– (menunggu Approve Admin)',
       suhuWadah: (val('suhuPenyajian') || '-') + ' · ' + (val('kondisiPenyajian') || '-'),
-      atribut: atributText,
-      ketepatan: val('ketepatan'),
-      param: ts ? ts.getValue().map(function (v) { var f = MASTER_PARAMETER_SN.find(function (p) { return p.value === v; }); return f ? f.text : v; }).join(', ') : '',
+      lab: val('laboratorium'),
+      jenisSampel: val('jenisSampel'),
+      kemasan: val('jenisKemasan'),
+      params: params,
+      atributMap: JSON.parse(JSON.stringify(atributMap)),
+      atribut: flat('atribut'),
+      ketepatan: flat('ketepatan'),
+      param: params.map(paramText).join(', '),
       step: 'Draft',
       approvalIdx: 0,
       status: 'Menunggu Approve Admin'
@@ -344,6 +467,8 @@ document.addEventListener('DOMContentLoaded', function () {
       } else if (action === 'submit') {
         var form = document.getElementById('sensoryForm');
         if (form.checkValidity() === false) { form.reportValidity(); return; }
+        var atributError = atributIncomplete();
+        if (atributError) { showToast(atributError); return; }
         var record = collectFormValues();
         record.step = 'Approval';
         record.approvalIdx = 0;

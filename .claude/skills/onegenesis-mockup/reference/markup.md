@@ -17,7 +17,7 @@ The comment above each snippet is the React component it maps to when ported.
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> <!-- only if select2 is used -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" /> <!-- always: every dropdown is SpkSelect2 -->
     <link href="../assets/og-theme/onegenesis.css" rel="stylesheet" />
     <link href="../assets/lab.css" rel="stylesheet" />
   </head>
@@ -30,8 +30,9 @@ The comment above each snippet is the React component it maps to when ported.
       </div>
     </div>
     <!-- modals / offcanvas here, outside .page -->
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>          <!-- only if select2 -->
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script> <!-- only if select2 -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>   <!-- SpkSelect2: auto-inits every single <select> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/og-shell.js"></script>
     <script src="../assets/<page>.js"></script>
@@ -160,7 +161,9 @@ Icon buttons, one per action, in a `d-flex gap-1` wrapper:
 ```
 
 Switch panes by toggling `active` on `.nav-link` and `d-none` on the pane element
-(see `assets/internal-list.js`).
+(see `assets/internal-form.js`: Form Internal / Kaji Ulang & SPK tabs — sample labels live under Kaji
+Ulang & SPK once the SPK is issued — shown to the Lab
+Administrator only — other roles get the form without a tab bar).
 
 ## 6. Buttons — `SpkButton` (`btn-wave` + variant)
 
@@ -196,12 +199,20 @@ Always `badge bg-{color}-transparent`. Document statuses used across ONE-Genesis
 Icons used next to the status in the document status card: Draft `ri-draft-line`,
 Confirm to Approve `ri-time-line`. For other statuses pick a matching `ri-*-line` icon.
 
-Doc status flow: New → (Draft) → Confirm to Approve → Partially Approved (approval chain of 2+
-levels, not all approved) → Fully Approved → Confirmed; an approver can send it to Return to Edit
-or Rejected. When a doc is Fully Approved but a workflow step is still pending (e.g. Kaji Ulang &
-SPK), show an extra **workflow badge** next to the status: `badge bg-warning-transparent` with
-`ri-time-line`. Helpers: `getDocStatus` / `docStatusBadgesHtml` / `docStatusCardHtml` in
-`assets/dummy-requests.js`.
+Doc status flow: New → (Draft) → Confirm to Approve → Fully Approved → Confirmed. With an approval
+chain of 2+ levels: Confirm to Approve → Partially Approved → Fully Approved. An approver can send
+it to Return to Edit or Rejected. Between Fully Approved and Confirmed the document runs its
+**workflow** (Internal: Kaji Ulang & SPK, then Labeling); the pending step shows as a workflow
+badge after a `|` separator: `badge bg-warning-transparent` + `ri-time-line`, text "Waiting for …".
+When the last step is done (label handed to the analyst) the status becomes Confirmed.
+
+```html
+<span class="badge bg-primary1-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1"><i class="ri-checkbox-circle-line"></i> Fully Approved</span>
+<span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+<span class="badge bg-warning-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1"><i class="ri-time-line"></i> Waiting for Kaji Ulang &amp; SPK</span>
+```
+
+Helpers: `getDocStatus` / `docStatusBadgesHtml` / `docStatusCardHtml` in `assets/dummy-requests.js`.
 
 In lists: `<span class="badge bg-warning-transparent">Menunggu Head of Laboratory</span>`.
 Pill counter: add `rounded-pill`.
@@ -285,9 +296,10 @@ Simple section heading used inside a plain card (real pages): `<h6 class="fw-sem
   <input type="text" class="form-control" id="sampleName" />
 </div>
 
+<!-- SpkSelect2 — single dropdown. Plain <select>; assets/spk-select2.js turns it into select2. -->
 <div class="col-md-6">
   <label class="form-label" for="type">Type</label>
-  <select class="form-select" id="type"><option>Normal</option><option>Urgent</option></select>
+  <select class="form-select" id="type"><option value="">-- Pilih --</option><option>Normal</option><option>Urgent</option></select>
 </div>
 
 <!-- validation (after submit) -->
@@ -309,6 +321,42 @@ Simple section heading used inside a plain card (real pages): `<h6 class="fw-sem
 ```
 
 Compact variant (filters, table cells): `form-control-sm` / `form-select-sm`.
+
+### Dropdown — `SpkSelect2`
+
+**Every single-value dropdown is SpkSelect2** — form fields, filters, modal fields, selects
+inside table cells, selects built in JS strings. Never leave a native `<select>` dropdown.
+
+- Markup is a plain `<select class="form-select">` (or `form-select-sm`). `assets/spk-select2.js`
+  (loaded on every page after jQuery + select2) initialises all of them, including selects added
+  to the DOM later, with the SpkSelect2 options: width 100%,
+  placeholder = first `<option value="">`, `allowClear` when not `required`, `dropdownParent` =
+  the enclosing modal/offcanvas.
+- The theme forces `.select2-container { width: 100% !important }`, so size a dropdown with a
+  wrapper, never on the `<select>`: `<div style="width: 160px;"><select class="form-select form-select-sm">…</select></div>`
+  (list filters).
+- Page scripts need no init code. Only call `spkSelect2(el, { … })` for non-default options.
+- Page scripts can keep using `el.value = …`, `addEventListener('change', …)`, replacing
+  `<option>`s, `form.reset()` and `el.disabled` — the helper keeps select2 in sync.
+- **Multi-selects (`<select multiple>`) are not SpkSelect2**: they stay on TomSelect
+  (`plugins: ['remove_button']`), as in `internal-form.js` "Pilih Parameter Uji".
+- `data-native` opts a select out. Don't use it for app UI.
+
+Dropdown with an attached "view detail" eye button — one joined field, like the app's password
+input (e.g. Alamat Pelanggan / Alamat Pabrik → address modal from `assets/address-detail.js` +
+`dummy-sites.js`; stays clickable when the form is locked). `lab.css` makes select2 fit the
+`input-group`:
+
+```html
+<label class="form-label">Alamat Pelanggan <span class="text-danger">*</span></label>
+<div class="input-group flex-nowrap">
+  <select id="alamatPelanggan" class="form-select" required></select>
+  <button type="button" class="btn btn-light" data-address-for="alamatPelanggan" title="Lihat detail alamat"><i class="ri-eye-line align-middle"></i></button>
+</div>
+```
+
+Compact SpkSelect2 (table cells, e.g. Metode Acuan Uji): add `spk-select2-sm` →
+`<select class="form-select form-select-sm spk-select2-sm">` (31px, same as `form-select-sm`).
 
 ### Date — `SpkDatepicker`
 

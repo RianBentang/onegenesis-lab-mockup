@@ -106,18 +106,22 @@
           <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2 flex-wrap">
               <input type="text" id="searchParamInput" class="form-control form-control-sm" placeholder="Cari parameter / metode..." style="width: 220px;" />
-              <select id="filterLabSelect" class="form-select form-select-sm" style="width: 160px;">
-                <option value="">Semua Lab</option>
-                <option value="Fisika Kimia">Fisika Kimia</option>
-                <option value="Mikrobiologi">Mikrobiologi</option>
-                <option value="Sensory">Sensory</option>
-                <option value="ASLT">ASLT</option>
-              </select>
-              <select id="filterScopeSelect" class="form-select form-select-sm" style="width: 160px;">
-                <option value="">Semua Status Scope</option>
-                <option value="In-Scope">In-Scope (KAN)</option>
-                <option value="Non-Scope">Non-Scope</option>
-              </select>
+              <div style="width: 160px;">
+                <select id="filterLabSelect" class="form-select form-select-sm">
+                  <option value="">Semua Lab</option>
+                  <option value="Fisika Kimia">Fisika Kimia</option>
+                  <option value="Mikrobiologi">Mikrobiologi</option>
+                  <option value="Sensory">Sensory</option>
+                  <option value="ASLT">ASLT</option>
+                </select>
+              </div>
+              <div style="width: 190px;">
+                <select id="filterScopeSelect" class="form-select form-select-sm">
+                  <option value="">Semua Status Scope</option>
+                  <option value="In-Scope">In-Scope (KAN)</option>
+                  <option value="Non-Scope">Non-Scope</option>
+                </select>
+              </div>
             </div>
             <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalAddParam">
               <i class="ri-add-line"></i> Tambah Parameter &amp; Metode
@@ -221,6 +225,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/og-shell.js"></script>
     <script src="../assets/metode-scope.js"></script>

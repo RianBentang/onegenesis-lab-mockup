@@ -40,7 +40,7 @@
 }
 
 /* ---------- Print layouts (not app UI) ----------
-   Label sheet (HOLABSYS/reviewAndSpkForm.html) and certificate / LHU (HOLABSYS/reportForm.html)
+   Label sheet (Kaji Ulang & SPK tab of HOLABSYS/internalForm.html) and certificate / LHU (HOLABSYS/reportForm.html)
    are paper documents, so they keep fixed black-on-white colors in both themes.
    Moved from the legacy assets/css/app.css. */
 @media print {
@@ -323,3 +323,86 @@
   height: 100%;
   min-height: 0;
 }
+
+/* SpkSelect2 inside an .input-group (dropdown + attached button, e.g. the Alamat eye button).
+   No theme class fits: the theme forces .select2-container to width:100% and has no input-group
+   rule, so the select2 box would push the button to the next line and keep its right radius. */
+.input-group > .select2-container {
+  flex: 1 1 auto;
+  width: 1% !important;
+  min-width: 0;
+}
+.input-group > .select2-container:not(:last-child) .select2-selection,
+.input-group > .select2-container:not(:last-child) .select2-selection__rendered {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+/* The theme's select2 border box (line-height 2.33rem + 2px border) overhangs its 2.37rem box by
+   ~1.4px; fit it exactly so its bottom edge lines up with the attached button. */
+.input-group > .select2-container .select2-selection__rendered {
+  line-height: calc(2.37rem - 2px) !important;
+}
+
+/* Compact SpkSelect2 for table cells (opt-in: class spk-select2-sm on the <select>, passed on by
+   spk-select2.js). The theme pins select2 to 2.37rem with !important and has no small variant. */
+.select2-container .select2-selection--single.spk-select2-sm,
+.select2-container--default .select2-selection--single.spk-select2-sm .select2-selection__arrow {
+  height: 1.94rem !important;
+}
+.select2-container--default .select2-selection--single.spk-select2-sm .select2-selection__rendered {
+  line-height: 1.82rem !important;
+  font-size: .8125rem;
+  padding-inline-start: 8px !important;
+}
+.select2-dropdown.spk-select2-sm .select2-results__option {
+  font-size: .8125rem;
+  padding: 4px 8px;
+}
+
+/* The button attached to a SpkSelect2 (eye button) takes the select2 field's border and fill, so
+   the pair reads as one field. Its left border overlaps the select2 right edge (input-group -1px
+   margin), leaving a single divider line between them. */
+.input-group > .select2-container + .btn {
+  border: 1px solid var(--input-border);
+  background-color: var(--form-control-bg);
+  color: var(--default-text-color);
+}
+.input-group > .select2-container + .btn:hover,
+.input-group > .select2-container + .btn:focus-visible {
+  color: rgb(var(--primary-rgb));
+}
+
+/* ---------- PANELIS app (login + booth) ----------
+   Panelists use a standalone booth screen without the LAB shell; these rules cover what the theme
+   has no class for: the top bar, the big blind-code badge, the 9-point hedonic scale grid and
+   the triangle cups. */
+.panelis-logo { height: 3rem; }
+.panelis-logo-sm { height: 2.25rem; }
+.booth-topbar {
+  background-color: var(--custom-white);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.booth-code {
+  display: inline-block;
+  padding: .35rem 1.5rem;
+  border-radius: .5rem;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  background-color: rgba(var(--primary-rgb), .1);
+  color: rgb(var(--primary-rgb));
+}
+.booth-code-sm { font-size: 1.25rem; padding: .2rem .9rem; }
+.booth-scale {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: .4rem;
+}
+.booth-scale .btn { padding: .5rem .25rem; line-height: 1.15; }
+.booth-scale-label { display: block; font-size: .625rem; white-space: normal; opacity: .85; }
+@media (max-width: 767.98px) {
+  .booth-scale { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.booth-cup { min-height: 8rem; }

@@ -58,7 +58,7 @@
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link py-3 fw-medium d-flex align-items-center gap-2" id="tab-booth-btn" data-bs-toggle="tab" data-bs-target="#tab-booth" type="button" role="tab">
-                  <i class="ri-tablet-line"></i> Layar Booth Panelis (Tablet Mode)
+                  <i class="ri-group-line"></i> Data Panelis &amp; Statistik
                 </button>
               </li>
             </ul>
@@ -71,13 +71,15 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                   <div class="d-flex align-items-center gap-2 flex-wrap">
                     <input type="text" id="searchSensory" class="form-control form-control-sm" placeholder="Cari No. Dokumen / Sampel..." style="width: 240px;" />
-                    <select id="filterJenisSensory" class="form-select form-select-sm" style="width: 220px;">
-                      <option value="">Semua Jenis Pengujian</option>
-                      <option value="Uji Sensori Internal - Afektif Rating">Internal - Afektif Rating</option>
-                      <option value="Uji Sensori Internal - Afektif Ranking">Internal - Afektif Ranking</option>
-                      <option value="Uji Triangle">Uji Triangle (Pembeda)</option>
-                      <option value="Quality Monitoring">Quality Monitoring (LAB-QM)</option>
-                    </select>
+                    <div style="width: 240px;">
+                      <select id="filterJenisSensory" class="form-select form-select-sm">
+                        <option value="">Semua Jenis Pengujian</option>
+                        <option value="Uji Sensori Internal - Afektif Rating">Internal - Afektif Rating</option>
+                        <option value="Uji Sensori Internal - Afektif Ranking">Internal - Afektif Ranking</option>
+                        <option value="Uji Triangle">Uji Triangle (Pembeda)</option>
+                        <option value="Quality Monitoring">Quality Monitoring (LAB-QM)</option>
+                      </select>
+                    </div>
                   </div>
                   <div class="d-flex gap-2">
                     <a href="sensoryForm.html" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
@@ -111,12 +113,14 @@
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                   <div class="d-flex align-items-center gap-2 flex-wrap">
                     <input type="text" id="searchAslt" class="form-control form-control-sm" placeholder="Cari batch / sampel ASLT..." style="width: 240px;" />
-                    <select id="filterKategoriAslt" class="form-select form-select-sm" style="width: 170px;">
-                      <option value="">Semua Kategori</option>
-                      <option value="NPL">NPL (New Product)</option>
-                      <option value="Existing">Existing Monitoring</option>
-                      <option value="Trial">Trial Kemasan/Formula</option>
-                    </select>
+                    <div style="width: 190px;">
+                      <select id="filterKategoriAslt" class="form-select form-select-sm">
+                        <option value="">Semua Kategori</option>
+                        <option value="NPL">NPL (New Product)</option>
+                        <option value="Existing">Existing Monitoring</option>
+                        <option value="Trial">Trial Kemasan/Formula</option>
+                      </select>
+                    </div>
                   </div>
                   <div class="d-flex gap-2">
                     <a href="asltForm.html" class="btn btn-success btn-sm d-flex align-items-center gap-1">
@@ -230,100 +234,23 @@
                 </div>
               </div>
 
-              <!-- TAB 4: LAYAR BOOTH PANELIS (TABLET SIMULATION) -->
+              <!-- TAB 4: DATA PANELIS & STATISTIK (scores come from the PANELIS booth app) -->
               <div class="tab-pane fade p-3" id="tab-booth" role="tabpanel">
-                <div class="row justify-content-center">
-                  <div class="col-12 col-lg-8">
-                    <div class="card border shadow-sm">
-                      <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center py-2">
-                        <div>
-                          <span class="fw-semibold"><i class="ri-tablet-line me-1"></i> SENSORY BOOTH #03</span>
-                          <span class="badge bg-success ms-2">Online</span>
-                        </div>
-                        <div class="small text-light">
-                          Panelis: <span class="fw-bold text-warning" id="boothPanelisName">Panelis #08 (Dewi Lestari)</span>
-                        </div>
-                      </div>
-                      <div class="card-body p-4">
-                        <div class="alert alert-info py-2 small d-flex align-items-center gap-2 mb-3">
-                          <i class="ri-information-line fs-18"></i>
-                          <span>Instruksi: Silakan cicipi sampel dari kiri ke kanan. Netralkan indera pengecap dengan air mineral sebelum mencicipi kode berikutnya.</span>
-                        </div>
-
-                        <div class="text-center mb-4">
-                          <span class="text-muted small text-uppercase fw-semibold d-block mb-1">Kode Sampel Tertera pada Cawan</span>
-                          <span class="badge bg-dark-transparent font-monospace fs-13 fs-3 px-4 py-1" id="boothBlindCode">842</span>
-                          <div class="text-muted small mt-1">Uji Sensori Afektif Rating Hedonik (Skala 1 - 9)</div>
-                        </div>
-
-                        <!-- Atribut 1: Warna & Penampakan -->
-                        <div class="mb-3 border-bottom pb-3">
-                          <label class="form-label fw-semibold small d-flex justify-content-between">
-                            <span>1. Warna &amp; Penampakan (Appearance)</span>
-                            <span class="badge bg-light text-primary font-monospace" id="scoreVal1">Skor: 8 (Sangat Suka)</span>
-                          </label>
-                          <div class="d-flex flex-wrap gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(1, 1)">1<br><small>Amat Sangat Tdk Suka</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(1, 3)">3<br><small>Tidak Suka</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(1, 5)">5<br><small>Biasa / Netral</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(1, 7)">7<br><small>Suka</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill active" onclick="setScore(1, 8)">8<br><small>Sangat Suka</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(1, 9)">9<br><small>Amat Sangat Suka</small></button>
-                          </div>
-                        </div>
-
-                        <!-- Atribut 2: Aroma -->
-                        <div class="mb-3 border-bottom pb-3">
-                          <label class="form-label fw-semibold small d-flex justify-content-between">
-                            <span>2. Aroma Cokelat &amp; Wafer</span>
-                            <span class="badge bg-light text-primary font-monospace" id="scoreVal2">Skor: 7 (Suka)</span>
-                          </label>
-                          <div class="d-flex flex-wrap gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(2, 1)">1<br><small>Tdk Suka</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(2, 5)">5<br><small>Biasa</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill active" onclick="setScore(2, 7)">7<br><small>Suka</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(2, 8)">8<br><small>Sangat Suka</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(2, 9)">9<br><small>Amat Sangat Suka</small></button>
-                          </div>
-                        </div>
-
-                        <!-- Atribut 3: Rasa & Aftertaste -->
-                        <div class="mb-3 border-bottom pb-3">
-                          <label class="form-label fw-semibold small d-flex justify-content-between">
-                            <span>3. Rasa Keseluruhan &amp; Aftertaste</span>
-                            <span class="badge bg-light text-primary font-monospace" id="scoreVal3">Skor: 8 (Sangat Suka)</span>
-                          </label>
-                          <div class="d-flex flex-wrap gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(3, 3)">3<br><small>Tdk Suka</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(3, 5)">5<br><small>Biasa</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(3, 7)">7<br><small>Suka</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill active" onclick="setScore(3, 8)">8<br><small>Sangat Suka</small></button>
-                            <button type="button" class="btn btn-sm btn-outline-primary flex-fill" onclick="setScore(3, 9)">9<br><small>Amat Sangat Suka</small></button>
-                          </div>
-                        </div>
-
-                        <!-- Ketepatan Rasa Manis -->
-                        <div class="mb-4">
-                          <label class="form-label fw-semibold small">Ketepatan Rasa Manis (Just About Right):</label>
-                          <div class="btn-group w-100" role="group">
-                            <input type="radio" class="btn-check" name="ketepatanManis" id="manis1" autocomplete="off">
-                            <label class="btn btn-outline-secondary btn-sm" for="manis1">Kurang Manis</label>
-
-                            <input type="radio" class="btn-check" name="ketepatanManis" id="manis2" autocomplete="off" checked>
-                            <label class="btn btn-outline-success btn-sm" for="manis2"><i class="ri-check-line"></i> Pas / Cukup</label>
-
-                            <input type="radio" class="btn-check" name="ketepatanManis" id="manis3" autocomplete="off">
-                            <label class="btn btn-outline-secondary btn-sm" for="manis3">Terlalu Manis</label>
-                          </div>
-                        </div>
-
-                        <button type="button" class="btn btn-primary w-100 py-2 fw-semibold" id="btnSubmitBooth">
-                          <i class="ri-send-plane-fill me-1"></i> Kirim Penilaian Panelis untuk Kode #842
-                        </button>
-                      </div>
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                  <div class="d-flex align-items-center flex-wrap gap-2">
+                    <!-- SpkSelect2 -->
+                    <div style="width: 380px; max-width: 100%;">
+                      <select id="panelSessionSelect" class="form-select form-select-sm"></select>
                     </div>
+                    <span id="panelSessionStatus"></span>
+                  </div>
+                  <div class="btn-list">
+                    <a href="../../PANELIS/index.html" target="_blank" class="btn btn-sm btn-light btn-wave"><i class="ri-tablet-line me-1 align-middle"></i>Buka Aplikasi Panelis</a>
+                    <button type="button" class="btn btn-sm btn-success btn-wave" id="btnPanelToggle"><i class="ri-play-circle-line me-1 align-middle"></i>Buka Sesi Panel</button>
+                    <button type="button" class="btn btn-sm btn-primary btn-wave" id="btnPanelReport"><i class="ri-file-chart-line me-1 align-middle"></i>Kirim Statistik ke Report</button>
                   </div>
                 </div>
+                <div id="panelContent"></div>
               </div>
             </div>
           </div>
@@ -332,12 +259,16 @@
       </div>
     </div>
 
+    <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" id="appToastContainer"></div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/og-shell.js"></script>
     <script src="../assets/dummy-aslt-sensory-requests.js"></script>
+    <script src="../assets/dummy-panel.js"></script>
     <script src="../assets/aslt-sensory.js"></script>
   </body>
 </html>
