@@ -12,18 +12,18 @@ var PANEL_LOGIN_KEY = 'holabsysPanelist';
 
 /* Master panelis (dummy). Login: NIK only; name / username come from HRIS (dummy-hris.js). */
 var MASTER_PANELIS = [
-  { id: 'PN-01', nik: '20180123', name: 'Ayu Pratiwi', tipe: 'Terlatih', booth: 1 },
-  { id: 'PN-02', nik: '20170456', name: 'Bima Santoso', tipe: 'Terlatih', booth: 2 },
-  { id: 'PN-03', nik: '20190311', name: 'Citra Maharani', tipe: 'Terlatih', booth: 3 },
-  { id: 'PN-04', nik: '20160782', name: 'Dimas Prakoso', tipe: 'Terlatih', booth: 4 },
-  { id: 'PN-05', nik: '20200145', name: 'Eka Wulandari', tipe: 'Semi Terlatih', booth: 5 },
-  { id: 'PN-06', nik: '20210533', name: 'Fajar Nugroho', tipe: 'Semi Terlatih', booth: 6 },
-  { id: 'PN-07', nik: '20190877', name: 'Gita Anjani', tipe: 'Semi Terlatih', booth: 1 },
-  { id: 'PN-08', nik: '20220219', name: 'Hana Puspita', tipe: 'Semi Terlatih', booth: 2 },
-  { id: 'PN-09', nik: '20150664', name: 'Irfan Hakim', tipe: 'Konsumen', booth: 3 },
-  { id: 'PN-10', nik: '20230108', name: 'Jihan Safitri', tipe: 'Konsumen', booth: 4 },
-  { id: 'PN-11', nik: '20210990', name: 'Kevin Adiputra', tipe: 'Konsumen', booth: 5 },
-  { id: 'PN-12', nik: '20220347', name: 'Laras Kusuma', tipe: 'Konsumen', booth: 6 }
+  { id: 'PN-01', nik: '20180123', name: 'Ayu Pratiwi', tipe: 'Terlatih' },
+  { id: 'PN-02', nik: '20170456', name: 'Bima Santoso', tipe: 'Terlatih' },
+  { id: 'PN-03', nik: '20190311', name: 'Citra Maharani', tipe: 'Terlatih' },
+  { id: 'PN-04', nik: '20160782', name: 'Dimas Prakoso', tipe: 'Terlatih' },
+  { id: 'PN-05', nik: '20200145', name: 'Eka Wulandari', tipe: 'Semi Terlatih' },
+  { id: 'PN-06', nik: '20210533', name: 'Fajar Nugroho', tipe: 'Semi Terlatih' },
+  { id: 'PN-07', nik: '20190877', name: 'Gita Anjani', tipe: 'Semi Terlatih' },
+  { id: 'PN-08', nik: '20220219', name: 'Hana Puspita', tipe: 'Semi Terlatih' },
+  { id: 'PN-09', nik: '20150664', name: 'Irfan Hakim', tipe: 'Konsumen' },
+  { id: 'PN-10', nik: '20230108', name: 'Jihan Safitri', tipe: 'Konsumen' },
+  { id: 'PN-11', nik: '20210990', name: 'Kevin Adiputra', tipe: 'Konsumen' },
+  { id: 'PN-12', nik: '20220347', name: 'Laras Kusuma', tipe: 'Konsumen' }
 ];
 
 /* Hedonic scale 1–9 */
@@ -183,7 +183,7 @@ function panelSeedScores() {
           answers[t.param] = { ranks: ranks };
         }
       });
-      out.push({ sessionId: p.id, source: p.source, panelistId: pan.id, booth: pan.booth, at: '2026-09-' + String(23 + (i % 5)).padStart(2, '0') + 'T0' + (8 + (i % 2)) + ':' + String(10 + i * 4) + ':00', answers: answers });
+      out.push({ sessionId: p.id, source: p.source, panelistId: pan.id, booth: (i % 5) + 1, at: '2026-09-' + String(23 + (i % 5)).padStart(2, '0') + 'T0' + (8 + (i % 2)) + ':' + String(10 + i * 4) + ':00', answers: answers });
     }
   });
   return out;

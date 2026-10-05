@@ -1,4 +1,4 @@
-/* ---------- PANELIS login: NIK only → HRIS lookup shows the username → booth screen ---------- */
+/* ---------- PANELIS login: NIK only (booth comes from the tablet) → HRIS lookup shows the username → booth screen ---------- */
 document.addEventListener('DOMContentLoaded', function () {
   /* Already logged in → straight to the booth */
   if (panelisCurrent()) { window.location.href = 'booth.html'; return; }
@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var submit = document.getElementById('loginSubmit');
   var timer = null;
   var found = null; // panelist record when the NIK is in HRIS and registered as panelist
+  var booth = panelisDeviceBooth();
+  document.getElementById('deviceBooth').textContent = 'Booth ' + String(booth).padStart(2, '0');
 
   function setState(state, message) {
     nikInput.classList.toggle('is-invalid', state === 'invalid');
@@ -62,7 +64,6 @@ document.addEventListener('DOMContentLoaded', function () {
   form.addEventListener('submit', function (e) {
     e.preventDefault();
     if (!found) { if (!nikInput.value.trim()) setState('invalid', 'NIK wajib diisi.'); return; }
-    var booth = Number(document.getElementById('loginBooth').value) || found.booth;
     panelisLogin(found.id, booth);
     window.location.href = 'booth.html';
   });

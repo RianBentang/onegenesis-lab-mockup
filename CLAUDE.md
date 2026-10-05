@@ -35,7 +35,7 @@ map for migrating legacy pages.
 - **`PANELIS/`** is the separate panelist app (login → sensory booth). Panelists are not LAB users:
   its pages don't load `og-shell.js` (no sidebar/menu) but use the same theme, `lab.css`,
   `spk-select2.js` and dummy data from `../LAB/assets/`. Panel data (panelis, sessions, scores,
-  statistics) lives in `LAB/assets/dummy-panel.js`, shared by both apps. Login is by NIK only:
+  statistics) lives in `LAB/assets/dummy-panel.js`, shared by both apps. Login is by NIK only (the booth is fixed per tablet, 1-5; the mockup uses `?booth=N`):
   the NIK is looked up in the dummy HRIS (`LAB/assets/dummy-hris.js`), which shows the username.
 
 ## Layout

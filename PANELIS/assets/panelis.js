@@ -27,6 +27,19 @@
     applyTheme(html.getAttribute('data-theme-mode') === 'dark' ? 'light' : 'dark');
   };
 
+  /* ---------- device booth ----------
+     The booth is fixed per tablet (tablet 1-5 = booth 1-5), it is not picked at login. The real
+     web app gets it from the device setup; the mockup simulates a tablet with ?booth=1..5 in the
+     URL, remembered in localStorage. */
+  var BOOTH_COUNT = 5;
+  window.panelisDeviceBooth = function () {
+    var m = /[?&]booth=(\d+)/.exec(location.search);
+    var n = m ? Number(m[1]) : Number(storageGet('holabsysPanelDeviceBooth'));
+    if (!(n >= 1 && n <= BOOTH_COUNT)) n = 1;
+    storageSet('holabsysPanelDeviceBooth', String(n));
+    return n;
+  };
+
   /* ---------- login state: { panelistId, booth } ---------- */
   window.panelisLogin = function (panelistId, booth) {
     storageSet(PANEL_LOGIN_KEY, JSON.stringify({ panelistId: panelistId, booth: booth, at: new Date().toISOString() }));
