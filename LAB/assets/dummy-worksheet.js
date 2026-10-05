@@ -1,5 +1,6 @@
 /* ---------- Shared worksheet ↔ transaction bridge (design-only, localStorage-backed) ----------
-   Flow: Internal / Sensory / ASLT transactions → Excel "Tarik Data" (rows per parameter) → analyst
+   Flow: Internal / Sensory / ASLT transactions → Excel "Tarik Data" (rows per parameter; Sensory /
+   ASLT also get one sheet per panel test with every panelist × sample code from the booth) → analyst
    fills Ulangan → "Push Data" writes the results onto that No. ID Transaksi → the transaction shows
    up in Report as a Draft report. External requests reach Report directly (vendor COA).
    Needs dummy-requests.js and dummy-aslt-sensory-requests.js loaded first. */
@@ -100,9 +101,17 @@ function getWorksheetTransactions() {
   return out;
 }
 
-/* Push Data: results = { paramKey: { values: [..], result: '..' } } */
-function pushWorksheetResults(source, id, results, analis) {
+/* Lab parameters that stay in the "Ulangan" worksheet when the transaction also runs a sensory
+   panel: Sensory has none (the panel sheets replace them), ASLT keeps its non-organoleptic ones. */
+function worksheetLabParams(source, record) {
+  if (source === 'sensory') return [];
+  return worksheetParamsFor(source, record).filter(function (p) { return !/organoleptik/i.test(p.text); });
+}
+
+/* Push Data: results = { paramKey: { values: [..], result: '..' } }; panelStats from the panel sheets (Sensory / ASLT) */
+function pushWorksheetResults(source, id, results, analis, panelStats) {
   var patch = { results: results, analisHasil: analis || null, reportStatus: 'Draft', pushedAt: new Date().toISOString() };
+  if (panelStats) patch.panelStats = panelStats;
   if (source === 'internal') patch.step = 'Draft Report';
   return worksheetUpdateRecord(source, id, patch);
 }

@@ -406,3 +406,7 @@
   .booth-scale { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 .booth-cup { min-height: 8rem; }
+
+/* Schedule (HOLABSYS/schedule.html): the panelist TomSelect sits in a scrolling table inside a
+   modal, so its dropdown is attached to <body>; lift it above the modal (z-index 1055). */
+body > .ts-dropdown { z-index: 1060; }

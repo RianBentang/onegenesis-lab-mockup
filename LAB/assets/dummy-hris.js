@@ -1,7 +1,7 @@
 /* ---------- HRIS karyawan (design-only dummy, no backend) ----------
    Stands in for the HRIS employee lookup. The PANELIS login asks only for the NIK and shows the
-   username / name from here. Panelists (MASTER_PANELIS in dummy-panel.js) link to it by NIK.
-   The last two are employees who are not registered as panelists. */
+   username / name from here. Panelists are registered per session in Schedule (by NIK; interns
+   without an HRIS record are added there as non-HRIS panelists with their NIK magang). */
 
 var HRIS_KARYAWAN = [
   { nik: '20180123', username: 'ayu.pratiwi', name: 'Ayu Pratiwi', dept: 'Quality Control', position: 'QC Analyst' },

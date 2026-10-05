@@ -1,30 +1,15 @@
-/* ---------- Panel sensori: panelis, sesi, nilai & statistik (design-only, localStorage-backed) ----------
-   Shared by LAB (ASLT & Sensory → Data Panelis & Statistik, Report) and the PANELIS app
-   (login + booth). Needs dummy-aslt-sensory-requests.js loaded first.
+/* ---------- Panel sensori: sesi, panelis, nilai & statistik (design-only, localStorage-backed) ----------
+   Shared by LAB (ASLT & Sensory → Data Panelis, Excel, Report) and the PANELIS app (login + booth).
+   Needs dummy-aslt-sensory-requests.js and dummy-schedule.js loaded first.
 
-   A Sensory / ASLT transaction becomes a panel session when the lab opens it
-   (record.panel = { open, codes, oddCode }). Panelists score it in the booth; each submission is
-   one entry in PANEL_SCORES_KEY. LAB computes statistics from those entries and sends them to the
-   transaction (record.panelStats), which the report prints. */
+   Flow: Schedule → a Sensory / ASLT session with registered panelists is a panel session. While
+   it runs (start–end) the booth shows it to those panelists (HRIS employees by NIK, or non-HRIS
+   such as interns by NIK magang). Each submission is one entry in PANEL_SCORES_KEY. Excel pulls
+   the entries of a transaction (one row per panelist × sample code), the lab checks them and
+   Push Data computes the statistics (record.panelStats) → Report Draft. */
 
-var PANEL_SCORES_KEY = 'holabsysPanelScores';
-var PANEL_LOGIN_KEY = 'holabsysPanelist';
-
-/* Master panelis (dummy). Login: NIK only; name / username come from HRIS (dummy-hris.js). */
-var MASTER_PANELIS = [
-  { id: 'PN-01', nik: '20180123', name: 'Ayu Pratiwi', tipe: 'Terlatih' },
-  { id: 'PN-02', nik: '20170456', name: 'Bima Santoso', tipe: 'Terlatih' },
-  { id: 'PN-03', nik: '20190311', name: 'Citra Maharani', tipe: 'Terlatih' },
-  { id: 'PN-04', nik: '20160782', name: 'Dimas Prakoso', tipe: 'Terlatih' },
-  { id: 'PN-05', nik: '20200145', name: 'Eka Wulandari', tipe: 'Semi Terlatih' },
-  { id: 'PN-06', nik: '20210533', name: 'Fajar Nugroho', tipe: 'Semi Terlatih' },
-  { id: 'PN-07', nik: '20190877', name: 'Gita Anjani', tipe: 'Semi Terlatih' },
-  { id: 'PN-08', nik: '20220219', name: 'Hana Puspita', tipe: 'Semi Terlatih' },
-  { id: 'PN-09', nik: '20150664', name: 'Irfan Hakim', tipe: 'Konsumen' },
-  { id: 'PN-10', nik: '20230108', name: 'Jihan Safitri', tipe: 'Konsumen' },
-  { id: 'PN-11', nik: '20210990', name: 'Kevin Adiputra', tipe: 'Konsumen' },
-  { id: 'PN-12', nik: '20220347', name: 'Laras Kusuma', tipe: 'Konsumen' }
-];
+var PANEL_SCORES_KEY = 'holabsysPanelScores.v2';
+var PANEL_LOGIN_KEY = 'holabsysPanelist.v2';
 
 /* Hedonic scale 1–9 */
 var PANEL_HEDONIK = [
@@ -71,8 +56,6 @@ function panelGenerateCodes(n, seedText) {
   }
   return out;
 }
-function panelFindPanelis(id) { return MASTER_PANELIS.filter(function (p) { return p.id === id; })[0] || null; }
-
 /* Parameters a sensory record tests (form records have params; old seeds only a "jenis" label) */
 function panelSensoryParams(record) {
   if (record.params && record.params.length) return record.params;
@@ -83,11 +66,15 @@ function panelSensoryParams(record) {
   return ['internal-rating'];
 }
 
-/* ---------- sessions ---------- */
-/* Session definition for one transaction: { id, source, record, title, open, codes, oddCode, tests } */
-function panelSessionFor(source, record) {
+
+/* ---------- transaction: what is tested ---------- */
+/* Panel definition of one Sensory / ASLT transaction: { id, source, record, title, codes, oddCode, tests }.
+   The blind codes are fixed per transaction (3 cups; triangle marks one odd cup). */
+function panelTrxFor(source, record) {
   if (!record) return null;
   var panel = record.panel || {};
+  var blind = (record.blindCodes || []).filter(function (c, i, a) { return a.indexOf(c) === i; });
+  var codes = panel.codes && panel.codes.length ? panel.codes : (blind.length >= 2 ? blind : panelGenerateCodes(3, record.id));
   var tests;
   if (source === 'aslt') {
     tests = [{ param: 'organoleptik', type: 'rating', label: PANEL_PARAM_LABEL.organoleptik, atribut: ASLT_ORGANOLEPTIK_ATRIBUT.slice(), ketepatan: [] }];
@@ -97,39 +84,71 @@ function panelSessionFor(source, record) {
       return { param: p, type: PANEL_TEST_TYPE[p] || 'rating', label: PANEL_PARAM_LABEL[p] || p, atribut: (m.atribut || []).slice(), ketepatan: (m.ketepatan || []).slice() };
     });
   }
+  var hasTriangle = tests.some(function (t) { return t.type === 'triangle'; });
   return {
-    id: record.id, source: source, record: record,
-    title: record.sampel, open: !!panel.open,
-    codes: panel.codes || [], oddCode: panel.oddCode || null, tests: tests
+    id: record.id, source: source, record: record, title: record.sampel,
+    codes: codes, oddCode: hasTriangle ? (panel.oddCode || codes[1]) : null, tests: tests
   };
 }
-
-/* Open a session: fixes the blind codes (3 cups; triangle marks one odd cup) */
-function panelOpenSession(source, id) {
-  var record = source === 'aslt' ? getAsltRequestById(id) : getSensoryRequestById(id);
-  var prev = record.panel || {};
-  var codes = prev.codes && prev.codes.length ? prev.codes : panelGenerateCodes(3, id);
-  var session = panelSessionFor(source, record);
-  var hasTriangle = session.tests.some(function (t) { return t.type === 'triangle'; });
-  var patch = { panel: { open: true, codes: codes, oddCode: hasTriangle ? (prev.oddCode || codes[1]) : null, openedAt: prev.openedAt || new Date().toISOString() } };
-  return source === 'aslt' ? updateAsltRequest(id, patch) : updateSensoryRequest(id, patch);
-}
-function panelCloseSession(source, id) {
-  var record = source === 'aslt' ? getAsltRequestById(id) : getSensoryRequestById(id);
-  var patch = { panel: Object.assign({}, record.panel, { open: false }) };
-  return source === 'aslt' ? updateAsltRequest(id, patch) : updateSensoryRequest(id, patch);
+function panelTrxById(source, id) {
+  return panelTrxFor(source, source === 'aslt' ? getAsltRequestById(id) : getSensoryRequestById(id));
 }
 
-/* All Sensory / ASLT transactions that can run a panel (approved, running) */
-function panelAllSessions() {
+/* ---------- sessions: from Schedule ---------- */
+function panelLocalIso(d) {
+  var p = function (n) { return String(n).padStart(2, '0'); };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes());
+}
+function panelStatusOf(sch, now) {
+  var n = panelLocalIso(now || new Date());
+  if (n < sch.start) return 'Terjadwal';
+  if (n >= sch.end) return 'Selesai';
+  return 'Berlangsung';
+}
+var PANEL_STATUS_BADGE = { Terjadwal: 'bg-info-transparent', Berlangsung: 'bg-success-transparent', Selesai: 'bg-secondary-transparent' };
+
+/* Every Sensory / ASLT schedule session with panelists:
+   [{ id, sesiNo, schedule, start, end, status, panelists, trx }] sorted by start */
+function panelSessions() {
+  var all = getSchedules();
   var out = [];
-  getSensoryRequests().forEach(function (r) { if (r.step === 'Berjalan') out.push(panelSessionFor('sensory', r)); });
-  getAsltRequests().forEach(function (r) { if (r.step === 'Berjalan') out.push(panelSessionFor('aslt', r)); });
-  return out;
+  all.forEach(function (sch) {
+    if ((sch.jenis !== 'Sensory' && sch.jenis !== 'ASLT') || !(sch.panelists || []).length) return;
+    var source = sch.jenis === 'ASLT' ? 'aslt' : 'sensory';
+    var trx = panelTrxById(source, sch.requestId);
+    if (!trx) return;
+    var siblings = all.filter(function (x) { return x.requestId === sch.requestId; }).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
+    out.push({
+      id: sch.id, sesiNo: siblings.indexOf(sch) + 1, schedule: sch, start: sch.start, end: sch.end,
+      status: panelStatusOf(sch), panelists: sch.panelists, trx: trx
+    });
+  });
+  return out.sort(function (a, b) { return a.start < b.start ? -1 : 1; });
 }
-function panelOpenSessions() { return panelAllSessions().filter(function (s) { return s.open; }); }
+function panelSessionById(id) { return panelSessions().filter(function (s) { return s.id === id; })[0] || null; }
+function panelSessionsForTrx(trxId) { return panelSessions().filter(function (s) { return s.trx.id === trxId; }); }
+function panelSessionsForNik(nik) {
+  return panelSessions().filter(function (s) { return s.panelists.some(function (p) { return p.nik === nik; }); });
+}
+
+/* ---------- people: HRIS employee or a non-HRIS panelist registered in Schedule ---------- */
+/* → { nik, name, source: 'HRIS' | 'Non-HRIS', username, info } or null */
+function panelFindPerson(nik) {
+  nik = String(nik || '').trim().toUpperCase();
+  if (!nik) return null;
+  var k = typeof hrisFindByNik === 'function' ? hrisFindByNik(nik) : null;
+  if (k) return { nik: k.nik, name: k.name, source: 'HRIS', username: k.username, info: k.position + ' · ' + k.dept };
+  var found = null;
+  getSchedules().forEach(function (sch) {
+    (sch.panelists || []).forEach(function (p) {
+      if (!found && p.source === 'Non-HRIS' && String(p.nik).toUpperCase() === nik) found = p;
+    });
+  });
+  return found ? { nik: found.nik, name: found.name, source: 'Non-HRIS', username: null, info: found.ket || 'Panelis non-HRIS' } : null;
+}
 
 /* ---------- scores ---------- */
+/* Entry: { scheduleId, trxId, source, nik, name, booth, at, answers } */
 function panelGetScores() {
   try {
     var raw = localStorage.getItem(PANEL_SCORES_KEY);
@@ -140,55 +159,63 @@ function panelGetScores() {
   return seed;
 }
 function panelSaveScores(list) { try { localStorage.setItem(PANEL_SCORES_KEY, JSON.stringify(list)); } catch (e) { /* ignore */ } }
-function panelScoresFor(sessionId) { return panelGetScores().filter(function (s) { return s.sessionId === sessionId; }); }
-function panelHasSubmitted(sessionId, panelistId) {
-  return panelScoresFor(sessionId).some(function (s) { return s.panelistId === panelistId; });
+function panelScoresForSession(scheduleId) { return panelGetScores().filter(function (e) { return e.scheduleId === scheduleId; }); }
+function panelScoresForTrx(trxId) { return panelGetScores().filter(function (e) { return e.trxId === trxId; }); }
+function panelHasSubmitted(scheduleId, nik) {
+  return panelScoresForSession(scheduleId).some(function (e) { return e.nik === nik; });
 }
 function panelSubmit(entry) {
-  var list = panelGetScores();
-  list = list.filter(function (s) { return !(s.sessionId === entry.sessionId && s.panelistId === entry.panelistId); });
+  var list = panelGetScores().filter(function (e) { return !(e.scheduleId === entry.scheduleId && e.nik === entry.nik); });
   list.push(entry);
   panelSaveScores(list);
 }
 
-/* Dummy responses for the seeded open sessions, so LAB has statistics to show */
+/* Random but repeatable answers for one panelist on one transaction */
+function panelFakeAnswers(trx, seedText) {
+  var rnd = panelRng(panelHash(seedText)), answers = {};
+  for (var w = 0; w < 5; w++) rnd(); // the first xorshift outputs of similar seeds are close
+  trx.tests.forEach(function (t) {
+    if (t.type === 'rating') {
+      var scores = {}, jar = {};
+      trx.codes.forEach(function (code, ci) {
+        scores[code] = {}; jar[code] = {};
+        t.atribut.forEach(function (a) { scores[code][a] = Math.max(3, Math.min(9, Math.round(7.4 - ci * 0.6 + (rnd() - 0.5) * 3))); });
+        t.ketepatan.forEach(function (k) { var r = rnd(); jar[code][k] = r < 0.2 ? 1 : (r < 0.8 ? 2 : 3); });
+      });
+      answers[t.param] = { scores: scores, jar: jar };
+    } else if (t.type === 'triangle') {
+      var correct = rnd() < 0.75;
+      answers[t.param] = { pick: correct ? trx.oddCode : trx.codes.filter(function (c) { return c !== trx.oddCode; })[0] };
+    } else if (t.type === 'ranking') {
+      var ranks = {};
+      t.atribut.forEach(function (a) {
+        var order = trx.codes.slice().sort(function () { return rnd() - 0.5; });
+        ranks[a] = {}; order.forEach(function (c, ri) { ranks[a][c] = ri + 1; });
+      });
+      answers[t.param] = { ranks: ranks };
+    }
+  });
+  return answers;
+}
+
+/* Seed: finished sessions are fully scored, running ones partly (first `n` panelists) */
 function panelSeedScores() {
   var out = [];
-  var plan = [{ source: 'sensory', id: 'SN-202609-0012', n: 8 }, { source: 'sensory', id: 'SN-202609-0011', n: 6 }, { source: 'aslt', id: 'ASLT-202609-001', n: 5 }];
-  plan.forEach(function (p) {
-    var record = p.source === 'aslt' ? getAsltRequestById(p.id) : getSensoryRequestById(p.id);
-    var s = panelSessionFor(p.source, record);
-    if (!s || !s.codes.length) return;
-    for (var i = 0; i < p.n; i++) {
-      var pan = MASTER_PANELIS[i], rnd = panelRng(panelHash(p.id + pan.id));
-      var answers = {};
-      s.tests.forEach(function (t) {
-        if (t.type === 'rating') {
-          var scores = {}, jar = {};
-          s.codes.forEach(function (code, ci) {
-            scores[code] = {}; jar[code] = {};
-            t.atribut.forEach(function (a) { scores[code][a] = Math.max(3, Math.min(9, Math.round(7.4 - ci * 0.6 + (rnd() - 0.5) * 3))); });
-            t.ketepatan.forEach(function (k) { var r = rnd(); jar[code][k] = r < 0.2 ? 1 : (r < 0.8 ? 2 : 3); });
-          });
-          answers[t.param] = { scores: scores, jar: jar };
-        } else if (t.type === 'triangle') {
-          var correct = rnd() < 0.75;
-          answers[t.param] = { pick: correct ? s.oddCode : s.codes.filter(function (c) { return c !== s.oddCode; })[0] };
-        } else if (t.type === 'ranking') {
-          var ranks = {};
-          t.atribut.forEach(function (a) {
-            var order = s.codes.slice().sort(function () { return rnd() - 0.5; });
-            ranks[a] = {}; order.forEach(function (c, ri) { ranks[a][c] = ri + 1; });
-          });
-          answers[t.param] = { ranks: ranks };
-        }
-      });
-      out.push({ sessionId: p.id, source: p.source, panelistId: pan.id, booth: (i % 5) + 1, at: '2026-09-' + String(23 + (i % 5)).padStart(2, '0') + 'T0' + (8 + (i % 2)) + ':' + String(10 + i * 4) + ':00', answers: answers });
-    }
+  var plan = { 'SCH-0013': 99, 'SCH-0014': 99, 'SCH-0017': 2, 'SCH-0018': 2 };
+  panelSessions().forEach(function (s) {
+    var n = plan[s.id];
+    if (!n) return;
+    // Running sessions: skip the demo logins (Ayu, interns) so they still have something to score
+    var who = s.panelists.filter(function (p) { return n === 99 || (p.nik !== '20180123' && p.source === 'HRIS'); }).slice(0, n);
+    who.forEach(function (p, i) {
+      var at = new Date(s.start);
+      at.setMinutes(at.getMinutes() + 6 + i * 7);
+      out.push({ scheduleId: s.id, trxId: s.trx.id, source: s.trx.source, nik: p.nik, name: p.name, booth: (i % 5) + 1,
+        at: panelLocalIso(at), answers: panelFakeAnswers(s.trx, s.id + p.nik) });
+    });
   });
   return out;
 }
-
 /* ---------- statistics ---------- */
 function panelMeanSd(values) {
   var n = values.length;
@@ -209,39 +236,42 @@ function panelTriangleCritical(n, alpha) {
   return n + 1;
 }
 
-/* Statistics per test of a session: [{ test, type, rows | triangle | ranking }] */
-function panelStatsFor(session) {
-  var entries = panelScoresFor(session.id);
-  return session.tests.map(function (t) {
-    var out = { param: t.param, label: t.label, type: t.type, n: entries.length };
+
+/* Statistics per test of a transaction from panel entries (Excel rows):
+   [{ param, label, type, n, rows+jar | triangle | ranking }] */
+function panelStatsFor(trx, entries) {
+  return trx.tests.map(function (t) {
+    var mine = entries.filter(function (e) { return e.answers && e.answers[t.param]; });
+    var out = { param: t.param, label: t.label, type: t.type, n: mine.length };
     if (t.type === 'rating') {
       out.rows = [];
-      session.codes.forEach(function (code) {
+      trx.codes.forEach(function (code) {
         t.atribut.forEach(function (a) {
-          var vals = entries.map(function (e) { var x = e.answers[t.param]; return x && x.scores && x.scores[code] ? x.scores[code][a] : null; })
+          var vals = mine.map(function (e) { var x = e.answers[t.param]; return x.scores && x.scores[code] ? x.scores[code][a] : null; })
             .filter(function (v) { return typeof v === 'number'; });
           var st = panelMeanSd(vals);
           out.rows.push({ code: code, atribut: a, n: st.n, mean: st.mean, sd: st.sd, min: st.min, max: st.max, pass: st.mean !== null && st.mean >= PANEL_SPEC_MIN });
         });
       });
       out.jar = [];
-      session.codes.forEach(function (code) {
+      trx.codes.forEach(function (code) {
         t.ketepatan.forEach(function (k) {
           var c = { 1: 0, 2: 0, 3: 0 }, n = 0;
-          entries.forEach(function (e) { var x = e.answers[t.param]; var v = x && x.jar && x.jar[code] ? x.jar[code][k] : null; if (v) { c[v]++; n++; } });
+          mine.forEach(function (e) { var x = e.answers[t.param]; var v = x.jar && x.jar[code] ? x.jar[code][k] : null; if (v) { c[v]++; n++; } });
           out.jar.push({ code: code, ketepatan: k, n: n, kurang: n ? c[1] / n * 100 : 0, pas: n ? c[2] / n * 100 : 0, terlalu: n ? c[3] / n * 100 : 0 });
         });
       });
     } else if (t.type === 'triangle') {
       var n = 0, correct = 0;
-      entries.forEach(function (e) { var x = e.answers[t.param]; if (x && x.pick) { n++; if (x.pick === session.oddCode) correct++; } });
+      mine.forEach(function (e) { var x = e.answers[t.param]; if (x.pick) { n++; if (String(x.pick) === String(trx.oddCode)) correct++; } });
       var crit = panelTriangleCritical(n);
-      out.triangle = { n: n, correct: correct, critical: crit, significant: n > 0 && correct >= crit, oddCode: session.oddCode };
+      out.triangle = { n: n, correct: correct, critical: crit, significant: n > 0 && correct >= crit, oddCode: trx.oddCode };
     } else if (t.type === 'ranking') {
       out.ranking = t.atribut.map(function (a) {
-        var sums = session.codes.map(function (code) {
-          var vals = entries.map(function (e) { var x = e.answers[t.param]; return x && x.ranks && x.ranks[a] ? x.ranks[a][code] : null; }).filter(Boolean);
-          return { code: code, n: vals.length, sum: vals.reduce(function (p, q) { return p + q; }, 0), mean: vals.length ? vals.reduce(function (p, q) { return p + q; }, 0) / vals.length : null };
+        var sums = trx.codes.map(function (code) {
+          var vals = mine.map(function (e) { var x = e.answers[t.param]; return x.ranks && x.ranks[a] ? x.ranks[a][code] : null; }).filter(Boolean);
+          var sum = vals.reduce(function (p, q) { return p + q; }, 0);
+          return { code: code, n: vals.length, sum: sum, mean: vals.length ? sum / vals.length : null };
         }).sort(function (x, y) { return x.sum - y.sum; });
         return { atribut: a, codes: sums };
       });
@@ -251,15 +281,6 @@ function panelStatsFor(session) {
 }
 
 function panelFmt(v, d) { return v === null || v === undefined ? '-' : Number(v).toFixed(d === undefined ? 2 : d); }
-
-/* Send statistics to the transaction → it shows in Report as a Draft (or refreshes a Draft) */
-function panelSendToReport(source, id) {
-  var record = source === 'aslt' ? getAsltRequestById(id) : getSensoryRequestById(id);
-  var session = panelSessionFor(source, record);
-  var patch = { panelStats: { at: new Date().toISOString(), codes: session.codes, oddCode: session.oddCode, tests: panelStatsFor(session) } };
-  if (record.reportStatus !== 'Final') patch.reportStatus = 'Draft';
-  return source === 'aslt' ? updateAsltRequest(id, patch) : updateSensoryRequest(id, patch);
-}
 
 /* Report rows from record.panelStats: [{ text, unit, method, spec, result, pass }] */
 function panelReportRows(record) {

@@ -125,11 +125,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var rows;
     if (jenis === 'sensory' || jenis === 'aslt') {
-      /* Rows = worksheet parameters (values from Push Data in Excel) and/or panel statistics
-         (sent from ASLT & Sensory → Data Panelis & Statistik) */
+      /* Rows = worksheet parameters and/or panel statistics, both from Push Data in Excel. With
+         panel statistics the organoleptic rows come from the panel (worksheetLabParams). */
       var list = [];
       if (record.results || !record.panelStats) {
-        worksheetParamsFor(jenis, record).forEach(function (p) {
+        (record.panelStats ? worksheetLabParams(jenis, record) : worksheetParamsFor(jenis, record)).forEach(function (p) {
           list.push({ text: p.text, unit: p.unit, spec: p.spec, result: results[p.key] ? results[p.key].result : '-' });
         });
       }

@@ -54,7 +54,7 @@
 
       var actionsHtml = isPreOp
         ? '<a href="sensoryForm.html?docId=' + item.id + '" class="btn btn-outline-primary" title="Lihat / Approve"><i class="ri-edit-line"></i></a>'
-        : '<button type="button" class="btn btn-outline-primary btn-open-booth" data-session="sensory|' + item.id + '" title="Data Panelis & Statistik"><i class="ri-group-line"></i></button>' +
+        : '<button type="button" class="btn btn-outline-primary btn-open-booth" data-session="sensory|' + item.id + '" title="Sesi Panelis"><i class="ri-group-line"></i></button>' +
           '<button type="button" class="btn btn-outline-secondary" title="Cetak Rekap Sensori"><i class="ri-printer-line"></i></button>';
 
       return '<tr>' +
@@ -87,148 +87,68 @@
     new window.bootstrap.Toast(el, { delay: 3500 }).show();
   }
 
-  /* ---------- Data Panelis & Statistik (scores from the PANELIS booth app) ---------- */
-  function fillPanelSessions(preferKey) {
-    var sel = document.getElementById('panelSessionSelect');
-    if (!sel) return;
-    var prev = preferKey || sel.value;
-    var sessions = panelAllSessions();
-    function opts(src) {
-      return sessions.filter(function (s) { return s.source === src; }).map(function (s) {
-        return '<option value="' + src + '|' + s.id + '">' + s.id + ' — ' + s.title + (s.open ? ' · Sesi dibuka' : '') + '</option>';
-      }).join('');
-    }
-    sel.innerHTML = '<optgroup label="Sensory">' + opts('sensory') + '</optgroup><optgroup label="ASLT (Organoleptik)">' + opts('aslt') + '</optgroup>';
-    if (prev && sel.querySelector('option[value="' + prev + '"]')) sel.value = prev;
-  }
-
-  function currentPanelSession() {
-    var sel = document.getElementById('panelSessionSelect');
-    if (!sel || !sel.value) return null;
-    var parts = sel.value.split('|');
-    var record = parts[0] === 'aslt' ? getAsltRequestById(parts[1]) : getSensoryRequestById(parts[1]);
-    return panelSessionFor(parts[0], record);
-  }
-
-  function statCard(title, body) {
-    return '<div class="card custom-card border shadow-none mb-3">' +
-      '<div class="card-header"><div class="card-title fs-14">' + title + '</div></div>' +
-      '<div class="card-body p-0"><div class="table-responsive">' + body + '</div></div></div>';
-  }
-
-  function renderPanel() {
-    var host = document.getElementById('panelContent');
-    if (!host) return;
-    var s = currentPanelSession();
-    var toggle = document.getElementById('btnPanelToggle');
-    var reportBtn = document.getElementById('btnPanelReport');
-    var statusEl = document.getElementById('panelSessionStatus');
-    if (!s) {
-      host.innerHTML = '<div class="text-center text-muted p-4">Belum ada pengajuan Sensory / ASLT yang berjalan.</div>';
-      if (toggle) toggle.disabled = true;
-      if (reportBtn) reportBtn.disabled = true;
-      return;
-    }
-
-    var entries = panelScoresFor(s.id);
-    var stats = panelStatsFor(s);
-    var rec = s.record;
-
-    toggle.disabled = false;
-    toggle.className = 'btn btn-sm btn-wave ' + (s.open ? 'btn-danger-light' : 'btn-success');
-    toggle.innerHTML = s.open ? '<i class="ri-stop-circle-line me-1 align-middle"></i>Tutup Sesi Panel' : '<i class="ri-play-circle-line me-1 align-middle"></i>Buka Sesi Panel';
-    reportBtn.disabled = !entries.length;
-    statusEl.innerHTML =
-      '<span class="badge ' + (s.open ? 'bg-success-transparent' : 'bg-secondary-transparent') + ' me-1">' + (s.open ? 'Sesi dibuka' : 'Sesi ditutup') + '</span>' +
-      '<span class="badge bg-primary-transparent me-1">' + entries.length + ' / ' + MASTER_PANELIS.length + ' panelis</span>' +
-      (rec.panelStats ? '<span class="badge bg-info-transparent">Statistik di Report (' + (rec.reportStatus || 'Draft') + ')</span>' : '');
-
-    var codes = s.codes.length
-      ? s.codes.map(function (c) {
-          return '<span class="badge bg-dark-transparent font-monospace fs-13 me-1">' + c + (c === s.oddCode ? ' <i class="ri-star-fill text-warning" title="Sampel berbeda (triangle)"></i>' : '') + '</span>';
-        }).join('')
-      : '<span class="text-muted fs-12">Kode dibuat saat sesi dibuka</span>';
-    var html = '<div class="d-flex flex-wrap align-items-center gap-3 mb-3 fs-13">' +
-      '<div><span class="text-muted">Kode sampel:</span> ' + codes + '</div>' +
-      '<div><span class="text-muted">Parameter:</span> ' + s.tests.map(function (t) { return '<span class="badge bg-primary-transparent me-1">' + t.label + '</span>'; }).join('') + '</div>' +
-      '</div>';
-
-    if (!entries.length) {
-      host.innerHTML = html + '<div class="text-center text-muted border rounded p-4">' +
-        (s.open ? 'Sesi dibuka. Menunggu panelis mengisi penilaian di booth.' : 'Buka sesi panel agar panelis bisa menilai di booth.') + '</div>';
-      return;
-    }
-
-    /* Statistics per parameter */
-    stats.forEach(function (t) {
-      if (t.type === 'rating') {
-        html += statCard('Statistik — ' + t.label + ' <span class="text-muted fw-normal fs-12">(skala hedonik 1–9, standar min. ' + panelFmt(PANEL_SPEC_MIN, 1) + ')</span>',
-          '<table class="table table-hover text-nowrap mb-0"><thead><tr><th>Kode</th><th>Atribut</th><th class="text-end">n</th><th class="text-end">Rata-rata</th><th class="text-end">SD</th><th class="text-end">Min</th><th class="text-end">Max</th><th>Status</th></tr></thead><tbody>' +
-          t.rows.map(function (r) {
-            return '<tr><td class="font-monospace fw-semibold">' + r.code + '</td><td>' + r.atribut + '</td><td class="text-end">' + r.n + '</td>' +
-              '<td class="text-end fw-semibold">' + panelFmt(r.mean) + '</td><td class="text-end">' + panelFmt(r.sd) + '</td><td class="text-end">' + panelFmt(r.min, 0) + '</td><td class="text-end">' + panelFmt(r.max, 0) + '</td>' +
-              '<td>' + (r.pass ? '<span class="badge bg-success-transparent">Memenuhi</span>' : '<span class="badge bg-danger-transparent">Di bawah standar</span>') + '</td></tr>';
-          }).join('') + '</tbody></table>');
-        if (t.jar.length) {
-          html += statCard('Ketepatan (Just About Right) — ' + t.label,
-            '<table class="table table-hover text-nowrap mb-0"><thead><tr><th>Kode</th><th>Ketepatan</th><th class="text-end">n</th><th class="text-end">Kurang</th><th class="text-end">Pas</th><th class="text-end">Terlalu</th></tr></thead><tbody>' +
-            t.jar.map(function (j) {
-              return '<tr><td class="font-monospace fw-semibold">' + j.code + '</td><td>' + j.ketepatan + '</td><td class="text-end">' + j.n + '</td>' +
-                '<td class="text-end">' + panelFmt(j.kurang, 0) + '%</td><td class="text-end fw-semibold">' + panelFmt(j.pas, 0) + '%</td><td class="text-end">' + panelFmt(j.terlalu, 0) + '%</td></tr>';
-            }).join('') + '</tbody></table>');
-        }
-      } else if (t.type === 'triangle') {
-        var tr = t.triangle;
-        html += statCard('Statistik — ' + t.label,
-          '<table class="table mb-0"><tbody>' +
-          '<tr><td class="text-muted">Panelis</td><td class="fw-semibold">' + tr.n + '</td></tr>' +
-          '<tr><td class="text-muted">Jawaban benar (kode ' + tr.oddCode + ')</td><td class="fw-semibold">' + tr.correct + '</td></tr>' +
-          '<tr><td class="text-muted">Minimal benar agar beda nyata (α 0,05)</td><td class="fw-semibold">' + tr.critical + '</td></tr>' +
-          '<tr><td class="text-muted">Kesimpulan</td><td>' + (tr.significant ? '<span class="badge bg-warning-transparent">Beda nyata</span>' : '<span class="badge bg-success-transparent">Tidak beda nyata</span>') + '</td></tr>' +
-          '</tbody></table>');
-      } else if (t.type === 'ranking') {
-        html += statCard('Statistik — ' + t.label + ' <span class="text-muted fw-normal fs-12">(jumlah rank terkecil = paling disukai)</span>',
-          '<table class="table table-hover text-nowrap mb-0"><thead><tr><th>Atribut</th><th>Urutan</th><th>Kode</th><th class="text-end">n</th><th class="text-end">Jumlah Rank</th><th class="text-end">Rata-rata Rank</th></tr></thead><tbody>' +
-          t.ranking.map(function (rk) {
-            return rk.codes.map(function (c, i) {
-              return '<tr><td>' + (i === 0 ? rk.atribut : '') + '</td><td>' + (i + 1) + '</td><td class="font-monospace fw-semibold">' + c.code + '</td><td class="text-end">' + c.n + '</td><td class="text-end fw-semibold">' + c.sum + '</td><td class="text-end">' + panelFmt(c.mean) + '</td></tr>';
-            }).join('');
-          }).join('') + '</tbody></table>');
-      }
+  /* ---------- Sesi Panelis: sessions from Schedule, submissions from the PANELIS booth ---------- */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
     });
+  }
+  var openPanelRows = {};
 
-    /* Raw panelist data */
-    var heads = [];
-    s.tests.forEach(function (t) {
-      if (t.type === 'rating') s.codes.forEach(function (c) { heads.push({ t: t, code: c, label: t.label + ' · ' + c + '<div class="fs-11 text-muted fw-normal">' + t.atribut.join(' / ') + '</div>' }); });
-      else heads.push({ t: t, label: t.label });
-    });
-    html += statCard('Data Panelis <span class="text-muted fw-normal fs-12">(' + entries.length + ' panelis sudah menilai)</span>',
-      '<table class="table table-hover text-nowrap mb-0"><thead><tr><th>Panelis</th><th>Booth</th><th>Waktu</th>' +
-      heads.map(function (h) { return '<th>' + h.label + '</th>'; }).join('') + '</tr></thead><tbody>' +
-      entries.map(function (e) {
-        var p = panelFindPanelis(e.panelistId) || { name: e.panelistId, tipe: '' };
-        return '<tr><td><div class="fw-semibold">' + p.name + '</div><div class="fs-11 text-muted">' + e.panelistId + ' · ' + p.tipe + '</div></td>' +
-          '<td>' + (e.booth ? '#' + String(e.booth).padStart(2, '0') : '-') + '</td>' +
-          '<td class="fs-12">' + String(e.at).replace('T', ' ').slice(0, 16) + '</td>' +
-          heads.map(function (h) {
-            var a = e.answers[h.t.param] || {};
-            if (h.t.type === 'rating') {
-              var sc = (a.scores || {})[h.code] || {}, jr = (a.jar || {})[h.code] || {};
-              return '<td class="font-monospace">' + h.t.atribut.map(function (x) { return sc[x] || '-'; }).join(' / ') +
-                (h.t.ketepatan.length ? '<div class="fs-11 text-muted">' + h.t.ketepatan.map(function (k) { return k + ': ' + (jr[k] ? PANEL_JAR[jr[k] - 1].label : '-'); }).join(', ') + '</div>' : '') + '</td>';
-            }
-            if (h.t.type === 'triangle') {
-              return '<td class="font-monospace">' + (a.pick || '-') + (a.pick ? (a.pick === s.oddCode ? ' <i class="ri-check-line text-success"></i>' : ' <i class="ri-close-line text-danger"></i>') : '') + '</td>';
-            }
-            var rk = a.ranks || {};
-            return '<td class="fs-12">' + h.t.atribut.map(function (x) {
-              return x + ': ' + s.codes.slice().sort(function (c1, c2) { return ((rk[x] || {})[c1] || 9) - ((rk[x] || {})[c2] || 9); }).join(' > ');
-            }).join('<br>') + '</td>';
-          }).join('') + '</tr>';
-      }).join('') + '</tbody></table>');
+  function fmtSlot(s) {
+    return new Date(s.start).toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' }) +
+      '<div class="fs-11 text-muted">' + s.start.slice(11, 16) + ' – ' + s.end.slice(11, 16) + '</div>';
+  }
 
-    host.innerHTML = html;
+  function panelDetailHtml(s, entries) {
+    var byNik = {};
+    entries.forEach(function (e) { byNik[e.nik] = e; });
+    return '<div class="p-2"><table class="table table-sm table-bordered mb-0 bg-white">' +
+      '<thead><tr><th>NIK</th><th>Nama Panelis</th><th>Sumber</th><th>Booth</th><th>Waktu Kirim</th><th>Status</th></tr></thead><tbody>' +
+      s.panelists.map(function (p) {
+        var e = byNik[p.nik];
+        return '<tr><td class="font-monospace">' + esc(p.nik) + '</td>' +
+          '<td>' + esc(p.name) + (p.ket ? '<div class="fs-11 text-muted">' + esc(p.ket) + '</div>' : '') + '</td>' +
+          '<td><span class="badge ' + (p.source === 'HRIS' ? 'bg-primary-transparent' : 'bg-warning-transparent') + '">' + esc(p.source) + '</span></td>' +
+          '<td>' + (e && e.booth ? '#' + String(e.booth).padStart(2, '0') : '-') + '</td>' +
+          '<td class="fs-12">' + (e ? String(e.at).replace('T', ' ').slice(0, 16) : '-') + '</td>' +
+          '<td>' + (e ? '<span class="badge bg-success-transparent"><i class="ri-check-line me-1"></i>Sudah menilai</span>'
+            : (s.status === 'Selesai' ? '<span class="badge bg-danger-transparent">Tidak hadir</span>' : '<span class="badge bg-light text-muted">Belum</span>')) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  function renderPanelSessions() {
+    var tbody = document.getElementById('panelSessionBody');
+    if (!tbody) return;
+    var q = (document.getElementById('searchPanel')?.value || '').toLowerCase().trim();
+    var st = document.getElementById('filterPanelStatus')?.value || '';
+    var order = { Berlangsung: 0, Terjadwal: 1, Selesai: 2 };
+    var list = panelSessions().filter(function (s) {
+      var hay = [s.id, s.trx.id, s.trx.title].concat(s.panelists.map(function (p) { return p.name + ' ' + p.nik; })).join(' ').toLowerCase();
+      return (!q || hay.indexOf(q) !== -1) && (!st || s.status === st);
+    }).sort(function (a, b) { return order[a.status] - order[b.status] || (a.start < b.start ? -1 : 1); });
+
+    tbody.innerHTML = list.map(function (s) {
+      var entries = panelScoresForSession(s.id);
+      var done = s.panelists.filter(function (p) { return entries.some(function (e) { return e.nik === p.nik; }); }).length;
+      var nonHris = s.panelists.filter(function (p) { return p.source !== 'HRIS'; }).length;
+      var pct = s.panelists.length ? Math.round(done / s.panelists.length * 100) : 0;
+      var isOpen = !!openPanelRows[s.id];
+      return '<tr>' +
+        '<td><button type="button" class="btn btn-icon btn-sm btn-light btn-panel-detail" data-id="' + s.id + '" title="Lihat panelis"><i class="' + (isOpen ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line') + '"></i></button></td>' +
+        '<td><div class="fw-semibold">Sesi ' + s.sesiNo + '</div><div class="fs-11 text-muted font-monospace">' + s.id + '</div></td>' +
+        '<td><span class="badge ' + (s.trx.source === 'aslt' ? 'bg-success-transparent' : 'bg-primary-transparent') + ' me-1">' + (s.trx.source === 'aslt' ? 'ASLT' : 'Sensory') + '</span>' +
+          '<span class="font-monospace fw-semibold">' + s.trx.id + '</span><div class="fs-12 text-muted">' + esc(s.trx.title) + '</div></td>' +
+        '<td>' + fmtSlot(s) + '</td>' +
+        '<td>' + s.trx.tests.map(function (t) { return '<span class="badge bg-light text-dark border me-1">' + esc(t.label) + '</span>'; }).join('') +
+          '<div class="fs-11 text-muted mt-1">Kode: <span class="font-monospace">' + s.trx.codes.join(' · ') + '</span></div></td>' +
+        '<td><span class="fw-semibold">' + s.panelists.length + '</span> orang' + (nonHris ? '<div class="fs-11 text-muted">' + nonHris + ' non-HRIS</div>' : '') + '</td>' +
+        '<td style="min-width: 140px"><div class="d-flex justify-content-between fs-12 mb-1"><span>' + done + ' / ' + s.panelists.length + '</span><span class="text-muted">' + pct + '%</span></div>' +
+          '<div class="progress progress-xs"><div class="progress-bar' + (pct === 100 ? ' bg-success' : '') + '" style="width:' + pct + '%"></div></div></td>' +
+        '<td><span class="badge ' + PANEL_STATUS_BADGE[s.status] + '">' + s.status + '</span></td>' +
+        '</tr>' +
+        (isOpen ? '<tr class="bg-light"><td></td><td colspan="7">' + panelDetailHtml(s, entries) + '</td></tr>' : '');
+    }).join('') || '<tr><td colspan="8" class="text-center text-muted p-4">Belum ada sesi panel. Daftarkan panelis pada sesi Sensory / ASLT di Schedule.</td></tr>';
   }
 
   function renderAsltTable() {
@@ -254,7 +174,7 @@
       var actionsHtml = isPreOp
         ? '<a href="asltForm.html?docId=' + item.id + '" class="btn btn-outline-success" title="Lihat / Approve"><i class="ri-edit-line"></i></a>'
         : '<button type="button" class="btn btn-outline-success btn-view-matrix" data-id="' + item.id + '" title="Buka Matriks Suhu x Waktu"><i class="ri-table-line"></i></button>' +
-          '<button type="button" class="btn btn-outline-primary btn-open-booth" data-session="aslt|' + item.id + '" title="Data Panelis & Statistik (Organoleptik)"><i class="ri-group-line"></i></button>' +
+          '<button type="button" class="btn btn-outline-primary btn-open-booth" data-session="aslt|' + item.id + '" title="Sesi Panelis (Organoleptik)"><i class="ri-group-line"></i></button>' +
           '<button type="button" class="btn btn-outline-secondary" title="Detail Pengajuan"><i class="ri-file-list-line"></i></button>';
 
       return '<tr>' +
@@ -310,17 +230,25 @@
     document.getElementById('searchAslt')?.addEventListener('input', renderAsltTable);
     document.getElementById('filterKategoriAslt')?.addEventListener('change', renderAsltTable);
 
-    // Switch to Booth tab from table
+    // Switch to the Sesi Panelis tab from a table row, filtered to that transaction
     document.addEventListener('click', function (e) {
       var boothBtn = e.target.closest('.btn-open-booth');
       if (boothBtn) {
-        fillPanelSessions(boothBtn.getAttribute('data-session'));
-        renderPanel();
+        var search = document.getElementById('searchPanel');
+        if (search) search.value = boothBtn.getAttribute('data-session').split('|')[1];
+        renderPanelSessions();
         var triggerTab = document.getElementById('tab-booth-btn');
         if (triggerTab && window.bootstrap) {
           var tab = new window.bootstrap.Tab(triggerTab);
           tab.show();
         }
+      }
+
+      var detailBtn = e.target.closest('.btn-panel-detail');
+      if (detailBtn) {
+        var id = detailBtn.getAttribute('data-id');
+        openPanelRows[id] = !openPanelRows[id];
+        renderPanelSessions();
       }
 
       var matrixBtn = e.target.closest('.btn-view-matrix');
@@ -333,30 +261,16 @@
       }
     });
 
-    /* ---------- Data Panelis & Statistik ---------- */
-    fillPanelSessions();
-    renderPanel();
-    document.getElementById('panelSessionSelect')?.addEventListener('change', renderPanel);
+    /* ---------- Sesi Panelis ---------- */
+    renderPanelSessions();
+    document.getElementById('searchPanel')?.addEventListener('input', renderPanelSessions);
+    document.getElementById('filterPanelStatus')?.addEventListener('change', renderPanelSessions);
 
-    document.getElementById('btnPanelToggle')?.addEventListener('click', function () {
-      var s = currentPanelSession();
-      if (!s) return;
-      if (s.open) { panelCloseSession(s.source, s.id); showToast('Sesi panel ' + s.id + ' ditutup. Booth tidak lagi menampilkan sesi ini.'); }
-      else { panelOpenSession(s.source, s.id); showToast('Sesi panel ' + s.id + ' dibuka. Panelis bisa menilai di booth.'); }
-      fillPanelSessions(s.source + '|' + s.id);
-      renderPanel();
+    /* Booth submissions / schedule edits from another tab show up live; status follows the clock */
+    window.addEventListener('storage', function (e) {
+      if (e.key === PANEL_SCORES_KEY || e.key === SCHEDULE_STORAGE_KEY) renderPanelSessions();
     });
-
-    document.getElementById('btnPanelReport')?.addEventListener('click', function () {
-      var s = currentPanelSession();
-      if (!s) return;
-      var rec = panelSendToReport(s.source, s.id);
-      showToast('Statistik ' + s.id + ' dikirim ke Report (' + (rec.reportStatus || 'Draft') + ').');
-      renderPanel();
-    });
-
-    /* Booth submissions from another tab show up live */
-    window.addEventListener('storage', function (e) { if (e.key === PANEL_SCORES_KEY) renderPanel(); });
+    setInterval(renderPanelSessions, 60000);
 
     document.getElementById('btnExportMatrix')?.addEventListener('click', function () {
       alert('Matriks Pengamatan & Kurva Arrhenius (ln k vs 1/T) berhasil diekspor dalam format spreadsheet XLS!');

@@ -40,16 +40,15 @@
     return n;
   };
 
-  /* ---------- login state: { panelistId, booth } ---------- */
-  window.panelisLogin = function (panelistId, booth) {
-    storageSet(PANEL_LOGIN_KEY, JSON.stringify({ panelistId: panelistId, booth: booth, at: new Date().toISOString() }));
+  /* ---------- login state: { panelist: { nik, name, source, username, info }, booth } ---------- */
+  window.panelisLogin = function (person, booth) {
+    storageSet(PANEL_LOGIN_KEY, JSON.stringify({ panelist: person, booth: booth, at: new Date().toISOString() }));
   };
   window.panelisLogout = function () { storageSet(PANEL_LOGIN_KEY, null); };
   window.panelisCurrent = function () {
     try {
       var s = JSON.parse(storageGet(PANEL_LOGIN_KEY) || 'null');
-      var p = s && panelFindPanelis(s.panelistId);
-      return p ? { panelist: p, booth: s.booth } : null;
+      return s && s.panelist && s.panelist.nik ? { panelist: s.panelist, booth: s.booth } : null;
     } catch (e) { return null; }
   };
 

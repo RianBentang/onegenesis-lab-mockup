@@ -1,6 +1,7 @@
-/* ---------- PANELIS booth: score the open Sensory / ASLT sessions ----------
+/* ---------- PANELIS booth: score the running Sensory / ASLT panel sessions ----------
    Steps: one per sample code for rating tests (hedonik 1–9 per atribut + ketepatan JAR),
    one for ranking (rank the codes per atribut), one for triangle (pick the odd cup).
+   Sessions come from Schedule: only those this NIK is registered in and that are running now.
    Submitting stores one entry per panelist per session (panelSubmit, dummy-panel.js). */
 document.addEventListener('DOMContentLoaded', function () {
   var me = panelisCurrent();
@@ -15,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------- top bar ---------- */
   document.getElementById('boothNo').textContent = 'Sensory Booth #' + String(me.booth).padStart(2, '0');
   document.getElementById('panelistName').textContent = me.panelist.name;
-  document.getElementById('panelistMeta').textContent = me.panelist.id + ' · Panelis ' + me.panelist.tipe;
+  document.getElementById('panelistMeta').textContent = me.panelist.nik + ' · ' + (me.panelist.username ? '@' + me.panelist.username : 'Non-HRIS');
   document.getElementById('btnTheme').addEventListener('click', panelisToggleTheme);
   document.getElementById('btnLogout').addEventListener('click', function () {
     panelisLogout();
@@ -23,9 +24,15 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
-  function key(s) { return s.source + '|' + s.id; }
+  function key(s) { return s.id; }
+  function srcLabel(s) { return s.source === 'aslt' ? 'ASLT' : 'Sensory'; }
+  /* Running sessions for this NIK, not yet scored → booth session { id (schedule), trxId, sesiNo, source, title, codes, oddCode, tests } */
   function pendingSessions() {
-    return panelOpenSessions().filter(function (s) { return !panelHasSubmitted(s.id, me.panelist.id); });
+    return panelSessionsForNik(me.panelist.nik).filter(function (s) {
+      return s.status === 'Berlangsung' && !panelHasSubmitted(s.id, me.panelist.nik);
+    }).map(function (s) {
+      return { id: s.id, trxId: s.trx.id, sesiNo: s.sesiNo, end: s.end, source: s.trx.source, title: s.trx.title, codes: s.trx.codes, oddCode: s.trx.oddCode, tests: s.trx.tests };
+    });
   }
 
   /* ---------- home: pick the next pending session ---------- */
@@ -33,16 +40,19 @@ document.addEventListener('DOMContentLoaded', function () {
     var list = pendingSessions();
     pickerCard.classList.toggle('d-none', list.length < 2);
     sessionSelect.innerHTML = list.map(function (s) {
-      return '<option value="' + key(s) + '">' + s.id + ' — ' + esc(s.title) + ' (' + (s.source === 'aslt' ? 'ASLT' : 'Sensory') + ')</option>';
+      return '<option value="' + key(s) + '">' + s.trxId + ' · Sesi ' + s.sesiNo + ' — ' + esc(s.title) + ' (' + srcLabel(s) + ')</option>';
     }).join('');
 
     if (!list.length) {
       state.session = null;
+      var next = panelSessionsForNik(me.panelist.nik).filter(function (s) { return s.status === 'Terjadwal'; })[0];
       content.innerHTML =
         '<div class="card custom-card"><div class="card-body text-center py-5">' +
           '<span class="avatar avatar-xl bg-primary-transparent rounded-circle mb-3"><i class="ri-cup-line fs-24"></i></span>' +
           '<h5 class="fw-semibold mb-1">Belum ada sesi untuk dinilai</h5>' +
-          '<p class="text-muted mb-4">Tunggu instruksi panel leader. Layar ini otomatis menampilkan sesi baru begitu dibuka oleh lab.</p>' +
+          '<p class="text-muted mb-4">Sesi panel muncul otomatis sesuai jadwal yang diatur lab.' +
+            (next ? '<br />Sesi berikutnya: <span class="fw-semibold">' + next.trx.id + ' · Sesi ' + next.sesiNo + '</span>, ' +
+              new Date(next.start).toLocaleDateString('id-ID', { weekday: 'long', day: '2-digit', month: 'short' }) + ' ' + next.start.slice(11, 16) + '.' : '') + '</p>' +
           '<button type="button" class="btn btn-primary-light btn-wave" id="btnReload"><i class="ri-refresh-line me-1 align-middle"></i>Muat Ulang</button>' +
         '</div></div>';
       document.getElementById('btnReload').addEventListener('click', function () { renderHome(); });
@@ -157,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '<div class="card custom-card">' +
         '<div class="card-header justify-content-between flex-wrap gap-2">' +
           '<div><div class="card-title">' + esc(s.title) + '</div>' +
-          '<div class="text-muted fs-12 mt-1"><span class="font-monospace">' + s.id + '</span> &middot; ' + (s.source === 'aslt' ? 'ASLT' : 'Sensory') + ' &middot; ' + esc(t.label) + '</div></div>' +
+          '<div class="text-muted fs-12 mt-1"><span class="font-monospace">' + s.trxId + '</span> &middot; Sesi ' + s.sesiNo + ' &middot; ' + srcLabel(s) + ' &middot; ' + esc(t.label) + '</div></div>' +
           '<span class="badge bg-primary-transparent">Langkah ' + (state.idx + 1) + ' dari ' + state.steps.length + '</span>' +
         '</div>' +
         '<div class="card-body">' +
@@ -223,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function submit() {
     var s = state.session;
-    panelSubmit({ sessionId: s.id, source: s.source, panelistId: me.panelist.id, booth: me.booth, at: new Date().toISOString(), answers: state.answers });
+    panelSubmit({ scheduleId: s.id, trxId: s.trxId, source: s.source, nik: me.panelist.nik, name: me.panelist.name, booth: me.booth, at: panelLocalIso(new Date()), answers: state.answers });
     state.session = null;
     var next = pendingSessions();
     pickerCard.classList.add('d-none');
@@ -231,7 +241,7 @@ document.addEventListener('DOMContentLoaded', function () {
       '<div class="card custom-card"><div class="card-body text-center py-5">' +
         '<span class="avatar avatar-xl bg-success-transparent rounded-circle mb-3"><i class="ri-checkbox-circle-line fs-24"></i></span>' +
         '<h5 class="fw-semibold mb-1">Terima kasih, ' + esc(me.panelist.name.split(' ')[0]) + '!</h5>' +
-        '<p class="text-muted mb-4">Penilaian untuk <span class="font-monospace">' + s.id + '</span> sudah terkirim ke lab.</p>' +
+        '<p class="text-muted mb-4">Penilaian untuk <span class="font-monospace">' + s.trxId + '</span> (Sesi ' + s.sesiNo + ') sudah terkirim ke lab.</p>' +
         (next.length
           ? '<button type="button" class="btn btn-primary btn-wave" id="btnNextSession">Lanjut ke sesi berikutnya<i class="ri-arrow-right-line ms-1 align-middle"></i></button>'
           : '<p class="fs-13 text-muted mb-0">Tidak ada sesi lain. Silakan keluar atau tunggu sesi berikutnya.</p>') +
@@ -240,8 +250,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (btn) btn.addEventListener('click', function () { renderHome(); });
   }
 
-  /* The lab opens / closes sessions from another tab: refresh while idle */
+  /* Sessions start / end by the schedule clock, and the lab may edit the schedule from another
+     tab: refresh while idle */
   window.addEventListener('storage', function () { if (!state.session) renderHome(); });
+  setInterval(function () { if (!state.session) renderHome(); }, 60000);
 
   renderHome();
 });

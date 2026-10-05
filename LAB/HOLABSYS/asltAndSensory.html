@@ -58,7 +58,7 @@
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link py-3 fw-medium d-flex align-items-center gap-2" id="tab-booth-btn" data-bs-toggle="tab" data-bs-target="#tab-booth" type="button" role="tab">
-                  <i class="ri-group-line"></i> Data Panelis &amp; Statistik
+                  <i class="ri-group-line"></i> Sesi Panelis
                 </button>
               </li>
             </ul>
@@ -234,23 +234,48 @@
                 </div>
               </div>
 
-              <!-- TAB 4: DATA PANELIS & STATISTIK (scores come from the PANELIS booth app) -->
+              <!-- TAB 4: SESI PANELIS (sessions + panelists come from Schedule, scores from the PANELIS booth app;
+                   statistics are made in Excel and pushed to Report) -->
               <div class="tab-pane fade p-3" id="tab-booth" role="tabpanel">
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
                   <div class="d-flex align-items-center flex-wrap gap-2">
+                    <input type="text" id="searchPanel" class="form-control form-control-sm" placeholder="Cari No. Transaksi / sampel / panelis..." style="width: 280px;" />
                     <!-- SpkSelect2 -->
-                    <div style="width: 380px; max-width: 100%;">
-                      <select id="panelSessionSelect" class="form-select form-select-sm"></select>
+                    <div style="width: 190px;">
+                      <select id="filterPanelStatus" class="form-select form-select-sm">
+                        <option value="">Semua Status</option>
+                        <option value="Berlangsung">Berlangsung</option>
+                        <option value="Terjadwal">Terjadwal</option>
+                        <option value="Selesai">Selesai</option>
+                      </select>
                     </div>
-                    <span id="panelSessionStatus"></span>
                   </div>
                   <div class="btn-list">
                     <a href="../../PANELIS/index.html" target="_blank" class="btn btn-sm btn-light btn-wave"><i class="ri-tablet-line me-1 align-middle"></i>Buka Aplikasi Panelis</a>
-                    <button type="button" class="btn btn-sm btn-success btn-wave" id="btnPanelToggle"><i class="ri-play-circle-line me-1 align-middle"></i>Buka Sesi Panel</button>
-                    <button type="button" class="btn btn-sm btn-primary btn-wave" id="btnPanelReport"><i class="ri-file-chart-line me-1 align-middle"></i>Kirim Statistik ke Report</button>
+                    <a href="schedule.html" class="btn btn-sm btn-primary-light btn-wave"><i class="ri-calendar-event-line me-1 align-middle"></i>Atur Sesi &amp; Panelis</a>
+                    <a href="excel.html" class="btn btn-sm btn-success-light btn-wave"><i class="ri-file-excel-2-line me-1 align-middle"></i>Lembar Kerja (Excel)</a>
                   </div>
                 </div>
-                <div id="panelContent"></div>
+                <div class="alert alert-primary-transparent py-2 fs-12 mb-3">
+                  <i class="ri-information-line me-1"></i>Sesi dan panelis diatur di <span class="fw-semibold">Schedule</span>. Booth otomatis menampilkan sesi ke panelis terdaftar selama jam sesi. Rekap nilai dan statistik dibuat di <span class="fw-semibold">Excel</span> (Tarik Data), lalu Push Data mengirimnya ke Report sebagai Draft.
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover text-nowrap align-middle mb-0 border">
+                    <thead class="table-light">
+                      <tr>
+                        <th style="width: 1%"></th>
+                        <th>Sesi</th>
+                        <th>Transaksi</th>
+                        <th>Jadwal</th>
+                        <th>Parameter</th>
+                        <th>Panelis</th>
+                        <th>Sudah Menilai</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody id="panelSessionBody"></tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -268,6 +293,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../assets/og-shell.js"></script>
     <script src="../assets/dummy-aslt-sensory-requests.js"></script>
+    <script src="../assets/dummy-schedule.js"></script>
     <script src="../assets/dummy-panel.js"></script>
     <script src="../assets/aslt-sensory.js"></script>
   </body>
