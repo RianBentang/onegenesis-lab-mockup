@@ -186,10 +186,6 @@
                       <label class="form-label">Jenis Kemasan <span class="text-danger">*</span></label>
                       <select id="jenisKemasan" class="form-select" required></select>
                     </div>
-                    <div class="col-12 col-md-4">
-                      <label class="form-label">Jenis Sampel <span class="text-danger">*</span></label>
-                      <input type="text" id="jenisSampel" class="form-control" required />
-                    </div>
                   </div>
                 </div>
               </div>
@@ -200,25 +196,17 @@
                   <div class="mb-3">
                     <h6 class="fw-semibold mb-0">4. Parameter Uji</h6>
                   </div>
-                  <div class="p-3 border rounded-3" style="background-color: var(--bs-secondary-bg);">
-                    <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                      <label class="form-label fw-bold mb-0">Pilih Parameter Uji <span class="text-danger">*</span></label>
-                      <span class="badge bg-primary-transparent" id="paramCountBadge">0 Parameter Terpilih</span>
+                  <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Parameter Uji <span class="text-danger">*</span></label>
+                      <!-- SpkSelect2 -->
+                      <select id="parameterUji" class="form-select" required></select>
                     </div>
-                    <select id="parameterUji" multiple placeholder="Cari &amp; pilih parameter uji..."></select>
-
-                    <!-- Atribut & Ketepatan per parameter: options depend on the parameter; both multi (TomSelect) -->
-                    <div class="table-responsive bg-white rounded border mt-3" id="atributTableWrap" style="display:none;">
-                      <table class="table table-sm align-middle mb-0">
-                        <thead>
-                          <tr>
-                            <th style="width: 22%">Parameter Uji</th>
-                            <th style="width: 34%">Atribut <span class="text-danger">*</span></th>
-                            <th>Ketepatan <span class="text-danger">*</span></th>
-                          </tr>
-                        </thead>
-                        <tbody id="atributTableBody"></tbody>
-                      </table>
+                    <div class="col-12">
+                      <label class="form-label" for="jenisSampel-ts-control">Jenis Sampel <span class="text-danger">*</span></label>
+                      <!-- TomSelect multi, free text (create): one tag per jenis sampel -->
+                      <select id="jenisSampel" multiple placeholder="Ketik jenis sampel, lalu Enter..."></select>
+                      <div class="form-text">Bisa lebih dari satu, isi bebas. Ketik lalu tekan Enter atau koma untuk menambah.</div>
                     </div>
                   </div>
                 </div>
