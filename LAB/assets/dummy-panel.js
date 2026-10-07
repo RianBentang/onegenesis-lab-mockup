@@ -1,15 +1,16 @@
 /* ---------- Panel sensori: sesi, panelis, nilai & statistik (design-only, localStorage-backed) ----------
-   Shared by LAB (ASLT & Sensory → Data Panelis, Excel, Report) and the PANELIS app (login + booth).
+   Shared by LAB (ASLT & Sensory → Sesi Panelis, Excel, Report) and the PANELIS app (login + booth).
    Needs dummy-aslt-sensory-requests.js and dummy-schedule.js loaded first.
 
-   Flow: Schedule → a Sensory / ASLT session with registered panelists is a panel session. While
-   it runs (start–end) the booth shows it to those panelists (HRIS employees by NIK, or non-HRIS
-   such as interns by NIK magang). Each submission is one entry in PANEL_SCORES_KEY. Excel pulls
-   the entries of a transaction (one row per panelist × sample code), the lab checks them and
-   Push Data computes the statistics (record.panelStats) → Report Draft. */
+   Flow: every Sensory / ASLT session in Schedule is a panel session. Panelists are not
+   registered: while a session runs (start–end) anyone can log in at the booth (HRIS NIK, or a
+   non-HRIS person such as an intern with NIK magang + name) and score it once. An ASLT session
+   takes at most ASLT_PANEL_QUOTA scores. Each submission is one entry in PANEL_SCORES_KEY. Excel
+   pulls the entries of a transaction (one row per panelist × sample code), the lab checks them
+   and Push Data computes the statistics (record.panelStats) → Report Draft. */
 
-var PANEL_SCORES_KEY = 'holabsysPanelScores.v2';
-var PANEL_LOGIN_KEY = 'holabsysPanelist.v2';
+var PANEL_SCORES_KEY = 'holabsysPanelScores.v3';
+var PANEL_LOGIN_KEY = 'holabsysPanelist.v3';
 
 /* Hedonic scale 1–9 */
 var PANEL_HEDONIK = [
@@ -107,48 +108,51 @@ function panelStatusOf(sch, now) {
 }
 var PANEL_STATUS_BADGE = { Terjadwal: 'bg-info-transparent', Berlangsung: 'bg-success-transparent', Selesai: 'bg-secondary-transparent' };
 
-/* Every Sensory / ASLT schedule session with panelists:
-   [{ id, sesiNo, schedule, start, end, status, panelists, trx }] sorted by start */
+/* Every Sensory / ASLT schedule session, sorted by start:
+   [{ id, sesiLabel, schedule, start, end, status, quota (ASLT) | null, trx }]
+   Sensory sessions are named by their fixed slot (Sesi 1–3), ASLT ones by their order in the request. */
 function panelSessions() {
   var all = getSchedules();
   var out = [];
   all.forEach(function (sch) {
-    if ((sch.jenis !== 'Sensory' && sch.jenis !== 'ASLT') || !(sch.panelists || []).length) return;
+    if (sch.jenis !== 'Sensory' && sch.jenis !== 'ASLT') return;
     var source = sch.jenis === 'ASLT' ? 'aslt' : 'sensory';
     var trx = panelTrxById(source, sch.requestId);
     if (!trx) return;
-    var siblings = all.filter(function (x) { return x.requestId === sch.requestId; }).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
+    var label;
+    if (source === 'sensory') label = sensorySlotLabel(sch.slot);
+    else {
+      var siblings = all.filter(function (x) { return x.requestId === sch.requestId; }).sort(function (a, b) { return a.start < b.start ? -1 : 1; });
+      label = 'Sesi ' + (siblings.indexOf(sch) + 1);
+    }
     out.push({
-      id: sch.id, sesiNo: siblings.indexOf(sch) + 1, schedule: sch, start: sch.start, end: sch.end,
-      status: panelStatusOf(sch), panelists: sch.panelists, trx: trx
+      id: sch.id, sesiLabel: label, schedule: sch, start: sch.start, end: sch.end,
+      status: panelStatusOf(sch), quota: source === 'aslt' ? ASLT_PANEL_QUOTA : null, trx: trx
     });
   });
   return out.sort(function (a, b) { return a.start < b.start ? -1 : 1; });
 }
 function panelSessionById(id) { return panelSessions().filter(function (s) { return s.id === id; })[0] || null; }
 function panelSessionsForTrx(trxId) { return panelSessions().filter(function (s) { return s.trx.id === trxId; }); }
-function panelSessionsForNik(nik) {
-  return panelSessions().filter(function (s) { return s.panelists.some(function (p) { return p.nik === nik; }); });
+function panelQuotaFull(s) { return !!s.quota && panelScoresForSession(s.id).length >= s.quota; }
+/* Sessions this person can score right now: running, not scored by them yet, ASLT quota not full */
+function panelOpenSessionsFor(nik) {
+  return panelSessions().filter(function (s) {
+    return s.status === 'Berlangsung' && !panelHasSubmitted(s.id, nik) && !panelQuotaFull(s);
+  });
 }
+function panelNextSession() { return panelSessions().filter(function (s) { return s.status === 'Terjadwal'; })[0] || null; }
 
-/* ---------- people: HRIS employee or a non-HRIS panelist registered in Schedule ---------- */
-/* → { nik, name, source: 'HRIS' | 'Non-HRIS', username, info } or null */
+/* ---------- people: HRIS employee by NIK (non-HRIS people give their name at login) ---------- */
+/* → { nik, name, source: 'HRIS', username, info } or null */
 function panelFindPerson(nik) {
   nik = String(nik || '').trim().toUpperCase();
-  if (!nik) return null;
-  var k = typeof hrisFindByNik === 'function' ? hrisFindByNik(nik) : null;
-  if (k) return { nik: k.nik, name: k.name, source: 'HRIS', username: k.username, info: k.position + ' · ' + k.dept };
-  var found = null;
-  getSchedules().forEach(function (sch) {
-    (sch.panelists || []).forEach(function (p) {
-      if (!found && p.source === 'Non-HRIS' && String(p.nik).toUpperCase() === nik) found = p;
-    });
-  });
-  return found ? { nik: found.nik, name: found.name, source: 'Non-HRIS', username: null, info: found.ket || 'Panelis non-HRIS' } : null;
+  var k = nik && typeof hrisFindByNik === 'function' ? hrisFindByNik(nik) : null;
+  return k ? { nik: k.nik, name: k.name, source: 'HRIS', username: k.username, info: k.position + ' · ' + k.dept } : null;
 }
 
 /* ---------- scores ---------- */
-/* Entry: { scheduleId, trxId, source, nik, name, booth, at, answers } */
+/* Entry: { scheduleId, trxId, source, nik, name, personSource: 'HRIS' | 'Non-HRIS', booth, at, answers } */
 function panelGetScores() {
   try {
     var raw = localStorage.getItem(PANEL_SCORES_KEY);
@@ -198,24 +202,33 @@ function panelFakeAnswers(trx, seedText) {
   return answers;
 }
 
-/* Seed: finished sessions are fully scored, running ones partly (first `n` panelists) */
+/* People used by the seeded scores (from the dummy HRIS, plus one intern) */
+var PANEL_SEED_PEOPLE = [
+  { nik: '20170456', name: 'Bima Santoso', source: 'HRIS' }, { nik: '20190311', name: 'Citra Maharani', source: 'HRIS' },
+  { nik: '20160782', name: 'Dimas Prakoso', source: 'HRIS' }, { nik: '20200145', name: 'Eka Wulandari', source: 'HRIS' },
+  { nik: 'MG24090017', name: 'Nadia Rahma', source: 'Non-HRIS' }, { nik: '20210533', name: 'Fajar Nugroho', source: 'HRIS' },
+  { nik: '20190877', name: 'Gita Anjani', source: 'HRIS' }, { nik: '20220219', name: 'Hana Puspita', source: 'HRIS' },
+  { nik: '20150664', name: 'Irfan Hakim', source: 'HRIS' }, { nik: '20230108', name: 'Jihan Safitri', source: 'HRIS' }
+];
+
+/* Seed: finished sessions get several scores, running ones a few (so the demo login still has
+   something to score, and the ASLT session shows its quota filling up) */
 function panelSeedScores() {
   var out = [];
-  var plan = { 'SCH-0013': 99, 'SCH-0014': 99, 'SCH-0017': 2, 'SCH-0018': 2 };
+  var plan = { 'SCH-0013': 8, 'SCH-0014': 6, 'SCH-0010': 5, 'SCH-0017': 3, 'SCH-0018': 2 };
   panelSessions().forEach(function (s) {
     var n = plan[s.id];
-    if (!n) return;
-    // Running sessions: skip the demo logins (Ayu, interns) so they still have something to score
-    var who = s.panelists.filter(function (p) { return n === 99 || (p.nik !== '20180123' && p.source === 'HRIS'); }).slice(0, n);
-    who.forEach(function (p, i) {
+    if (!n || s.status === 'Terjadwal') return;
+    PANEL_SEED_PEOPLE.slice(0, n).forEach(function (p, i) {
       var at = new Date(s.start);
       at.setMinutes(at.getMinutes() + 6 + i * 7);
-      out.push({ scheduleId: s.id, trxId: s.trx.id, source: s.trx.source, nik: p.nik, name: p.name, booth: (i % 5) + 1,
-        at: panelLocalIso(at), answers: panelFakeAnswers(s.trx, s.id + p.nik) });
+      out.push({ scheduleId: s.id, trxId: s.trx.id, source: s.trx.source, nik: p.nik, name: p.name, personSource: p.source,
+        booth: (i % 5) + 1, at: panelLocalIso(at), answers: panelFakeAnswers(s.trx, s.id + p.nik) });
     });
   });
   return out;
 }
+
 /* ---------- statistics ---------- */
 function panelMeanSd(values) {
   var n = values.length;

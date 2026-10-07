@@ -39,12 +39,15 @@ map for migrating legacy pages.
   its pages don't load `og-shell.js` (no sidebar/menu) but use the same theme, `lab.css`,
   `spk-select2.js` and dummy data from `../LAB/assets/`. Panel data (panelis, sessions, scores,
   statistics) lives in `LAB/assets/dummy-panel.js`, shared by both apps. Panel flow:
-  **Schedule** (a Sensory / ASLT session with registered panelists: HRIS employees by NIK, or
-  non-HRIS such as interns by NIK magang) → **booth** (login by NIK only, allowed while one of the
-  person's sessions runs; the booth is fixed per tablet 1-5, the mockup uses `?booth=N`) →
-  **ASLT & Sensory → Sesi Panelis** (list of sessions + who scored, no open/close) → **Excel**
-  (Tarik Data: one sheet per panel test, one row per panelist × sample code, statistics block) →
-  Push Data → **Report** Draft. HRIS is dummy (`LAB/assets/dummy-hris.js`).
+  **Schedule** (only Sensory and ASLT have a schedule, one tab each; Internal / External have none.
+  Sensory sessions use fixed slots: Sesi 1 10:00-12:00, Sesi 2 13:00-15:00, Sesi 3 15:00-17:00, and
+  one slot can hold many requests. ASLT sessions have free times, draggable) → **booth** (panelists
+  are never registered: anyone logs in by NIK while a session runs; a NIK not in HRIS, e.g. an
+  intern, gives a name and scores as non-HRIS; an ASLT session takes at most 5 scores; the booth
+  is fixed per tablet 1-5, the mockup uses `?booth=N`) → **ASLT & Sensory → Sesi Panelis** (list
+  of sessions + who scored) → **Excel** (Tarik Data: one sheet per panel test, one row per
+  panelist × sample code, statistics block) → Push Data → **Report** Draft. HRIS is dummy
+  (`LAB/assets/dummy-hris.js`).
 
 ## Layout
 

@@ -100,20 +100,20 @@
       '<div class="fs-11 text-muted">' + s.start.slice(11, 16) + ' – ' + s.end.slice(11, 16) + '</div>';
   }
 
+  /* Who scored this session (panelists are not registered, so this is the submissions list) */
   function panelDetailHtml(s, entries) {
-    var byNik = {};
-    entries.forEach(function (e) { byNik[e.nik] = e; });
+    if (!entries.length) {
+      return '<div class="p-3 text-center text-muted fs-13">' +
+        (s.status === 'Terjadwal' ? 'Sesi belum dimulai.' : s.status === 'Berlangsung' ? 'Belum ada panelis yang menilai.' : 'Tidak ada panelis yang menilai sesi ini.') + '</div>';
+    }
     return '<div class="p-2"><table class="table table-sm table-bordered mb-0 bg-white">' +
-      '<thead><tr><th>NIK</th><th>Nama Panelis</th><th>Sumber</th><th>Booth</th><th>Waktu Kirim</th><th>Status</th></tr></thead><tbody>' +
-      s.panelists.map(function (p) {
-        var e = byNik[p.nik];
-        return '<tr><td class="font-monospace">' + esc(p.nik) + '</td>' +
-          '<td>' + esc(p.name) + (p.ket ? '<div class="fs-11 text-muted">' + esc(p.ket) + '</div>' : '') + '</td>' +
-          '<td><span class="badge ' + (p.source === 'HRIS' ? 'bg-primary-transparent' : 'bg-warning-transparent') + '">' + esc(p.source) + '</span></td>' +
-          '<td>' + (e && e.booth ? '#' + String(e.booth).padStart(2, '0') : '-') + '</td>' +
-          '<td class="fs-12">' + (e ? String(e.at).replace('T', ' ').slice(0, 16) : '-') + '</td>' +
-          '<td>' + (e ? '<span class="badge bg-success-transparent"><i class="ri-check-line me-1"></i>Sudah menilai</span>'
-            : (s.status === 'Selesai' ? '<span class="badge bg-danger-transparent">Tidak hadir</span>' : '<span class="badge bg-light text-muted">Belum</span>')) + '</td></tr>';
+      '<thead><tr><th>No</th><th>NIK</th><th>Nama Panelis</th><th>Sumber</th><th>Booth</th><th>Waktu Kirim</th></tr></thead><tbody>' +
+      entries.slice().sort(function (a, b) { return a.at < b.at ? -1 : 1; }).map(function (e, i) {
+        var src = e.personSource || 'HRIS';
+        return '<tr><td>' + (i + 1) + '</td><td class="font-monospace">' + esc(e.nik) + '</td><td>' + esc(e.name) + '</td>' +
+          '<td><span class="badge ' + (src === 'HRIS' ? 'bg-primary-transparent' : 'bg-warning-transparent') + '">' + esc(src) + '</span></td>' +
+          '<td>' + (e.booth ? '#' + String(e.booth).padStart(2, '0') : '-') + '</td>' +
+          '<td class="fs-12">' + String(e.at).replace('T', ' ').slice(0, 16) + '</td></tr>';
       }).join('') + '</tbody></table></div>';
   }
 
@@ -123,32 +123,36 @@
     var q = (document.getElementById('searchPanel')?.value || '').toLowerCase().trim();
     var st = document.getElementById('filterPanelStatus')?.value || '';
     var order = { Berlangsung: 0, Terjadwal: 1, Selesai: 2 };
+    var all = panelGetScores();
     var list = panelSessions().filter(function (s) {
-      var hay = [s.id, s.trx.id, s.trx.title].concat(s.panelists.map(function (p) { return p.name + ' ' + p.nik; })).join(' ').toLowerCase();
+      var names = all.filter(function (e) { return e.scheduleId === s.id; }).map(function (e) { return e.name + ' ' + e.nik; });
+      var hay = [s.id, s.trx.id, s.trx.title, s.sesiLabel].concat(names).join(' ').toLowerCase();
       return (!q || hay.indexOf(q) !== -1) && (!st || s.status === st);
     }).sort(function (a, b) { return order[a.status] - order[b.status] || (a.start < b.start ? -1 : 1); });
 
     tbody.innerHTML = list.map(function (s) {
-      var entries = panelScoresForSession(s.id);
-      var done = s.panelists.filter(function (p) { return entries.some(function (e) { return e.nik === p.nik; }); }).length;
-      var nonHris = s.panelists.filter(function (p) { return p.source !== 'HRIS'; }).length;
-      var pct = s.panelists.length ? Math.round(done / s.panelists.length * 100) : 0;
+      var entries = all.filter(function (e) { return e.scheduleId === s.id; });
+      var n = entries.length;
       var isOpen = !!openPanelRows[s.id];
+      var progress = s.quota
+        ? '<div class="d-flex justify-content-between fs-12 mb-1"><span>' + n + ' / ' + s.quota + '</span>' +
+            (n >= s.quota ? '<span class="badge bg-danger-transparent">Kuota penuh</span>' : '<span class="text-muted">sisa ' + (s.quota - n) + '</span>') + '</div>' +
+          '<div class="progress progress-xs"><div class="progress-bar' + (n >= s.quota ? ' bg-success' : '') + '" style="width:' + Math.round(n / s.quota * 100) + '%"></div></div>'
+        : '<span class="fw-semibold">' + n + '</span> panelis';
       return '<tr>' +
         '<td><button type="button" class="btn btn-icon btn-sm btn-light btn-panel-detail" data-id="' + s.id + '" title="Lihat panelis"><i class="' + (isOpen ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line') + '"></i></button></td>' +
-        '<td><div class="fw-semibold">Sesi ' + s.sesiNo + '</div><div class="fs-11 text-muted font-monospace">' + s.id + '</div></td>' +
+        '<td><div class="fw-semibold">' + esc(s.sesiLabel.replace(/ \(.*\)$/, '')) + '</div><div class="fs-11 text-muted font-monospace">' + s.id + '</div></td>' +
         '<td><span class="badge ' + (s.trx.source === 'aslt' ? 'bg-success-transparent' : 'bg-primary-transparent') + ' me-1">' + (s.trx.source === 'aslt' ? 'ASLT' : 'Sensory') + '</span>' +
           '<span class="font-monospace fw-semibold">' + s.trx.id + '</span><div class="fs-12 text-muted">' + esc(s.trx.title) + '</div></td>' +
         '<td>' + fmtSlot(s) + '</td>' +
         '<td>' + s.trx.tests.map(function (t) { return '<span class="badge bg-light text-dark border me-1">' + esc(t.label) + '</span>'; }).join('') +
           '<div class="fs-11 text-muted mt-1">Kode: <span class="font-monospace">' + s.trx.codes.join(' · ') + '</span></div></td>' +
-        '<td><span class="fw-semibold">' + s.panelists.length + '</span> orang' + (nonHris ? '<div class="fs-11 text-muted">' + nonHris + ' non-HRIS</div>' : '') + '</td>' +
-        '<td style="min-width: 140px"><div class="d-flex justify-content-between fs-12 mb-1"><span>' + done + ' / ' + s.panelists.length + '</span><span class="text-muted">' + pct + '%</span></div>' +
-          '<div class="progress progress-xs"><div class="progress-bar' + (pct === 100 ? ' bg-success' : '') + '" style="width:' + pct + '%"></div></div></td>' +
+        '<td class="fs-12">' + (s.quota ? 'Maks. ' + s.quota + ' orang' : 'Terbuka') + '</td>' +
+        '<td style="min-width: 140px">' + progress + '</td>' +
         '<td><span class="badge ' + PANEL_STATUS_BADGE[s.status] + '">' + s.status + '</span></td>' +
         '</tr>' +
         (isOpen ? '<tr class="bg-light"><td></td><td colspan="7">' + panelDetailHtml(s, entries) + '</td></tr>' : '');
-    }).join('') || '<tr><td colspan="8" class="text-center text-muted p-4">Belum ada sesi panel. Daftarkan panelis pada sesi Sensory / ASLT di Schedule.</td></tr>';
+    }).join('') || '<tr><td colspan="8" class="text-center text-muted p-4">Belum ada sesi panel. Buat jadwal Sensory / ASLT di Schedule.</td></tr>';
   }
 
   function renderAsltTable() {

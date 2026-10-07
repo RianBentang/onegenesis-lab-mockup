@@ -1,19 +1,23 @@
 /* ---------- PANELIS login: NIK only (booth comes from the tablet) ----------
-   The NIK is looked up in HRIS, or among the non-HRIS panelists (interns, by NIK magang) that the
-   lab registered in Schedule. Login is allowed only while one of this person's panel sessions is
-   running (Schedule start–end). */
+   Panelists are not registered: anyone can log in while a panel session runs. The NIK is looked
+   up in HRIS; a NIK that is not there (e.g. an intern's NIK magang) logs in as non-HRIS with a
+   name. Login needs at least one session this person can still score (running, not scored by
+   them yet, ASLT quota not full). */
 document.addEventListener('DOMContentLoaded', function () {
   /* Already logged in → straight to the booth */
   if (panelisCurrent()) { window.location.href = 'booth.html'; return; }
 
   var form = document.getElementById('loginForm');
   var nikInput = document.getElementById('loginNik');
+  var namaInput = document.getElementById('loginNama');
+  var nonHrisWrap = document.getElementById('nonHrisWrap');
   var feedback = document.getElementById('loginNikFeedback');
   var checking = document.getElementById('loginNikChecking');
   var result = document.getElementById('hrisResult');
   var submit = document.getElementById('loginSubmit');
   var timer = null;
-  var found = null; // person, when they have a running session
+  var person = null;   // HRIS person, or { nik, source: 'Non-HRIS' } waiting for a name
+  var canEnter = false; // there is a session this NIK can score now
   var booth = panelisDeviceBooth();
   document.getElementById('deviceBooth').textContent = 'Booth ' + String(booth).padStart(2, '0');
 
@@ -28,59 +32,71 @@ document.addEventListener('DOMContentLoaded', function () {
     return new Date(iso).toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short' }) + ' ' + iso.slice(11, 16);
   }
 
-  function showPerson(person, badge) {
-    document.getElementById('hrisAvatar').textContent = person.name.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
-    document.getElementById('hrisName').textContent = person.name;
-    document.getElementById('hrisUsername').textContent = person.username ? '@' + person.username : 'Panelis non-HRIS';
-    document.getElementById('hrisDept').textContent = person.info;
+  function showPerson(p, open) {
+    document.getElementById('hrisAvatar').textContent = p.name.split(' ').map(function (w) { return w[0]; }).join('').slice(0, 2).toUpperCase();
+    document.getElementById('hrisName').textContent = p.name;
+    document.getElementById('hrisUsername').textContent = '@' + p.username;
+    document.getElementById('hrisDept').textContent = p.info;
     var el = document.getElementById('hrisBadge');
-    el.className = 'badge ' + badge.cls;
-    el.innerHTML = badge.html;
+    el.className = 'badge mt-1 ' + (open ? 'bg-success-transparent' : 'bg-warning-transparent');
+    el.innerHTML = open ? '<i class="ri-checkbox-circle-line me-1"></i>HRIS · ' + open + ' sesi bisa dinilai' : 'HRIS';
     result.classList.remove('d-none');
+  }
+
+  function updateSubmit() {
+    var nameOk = person && (person.source === 'HRIS' || namaInput.value.trim().length >= 3);
+    submit.disabled = !(canEnter && nameOk);
   }
 
   function lookup() {
     var nik = nikInput.value.trim();
-    found = null;
-    submit.disabled = true;
+    person = null;
+    canEnter = false;
     result.classList.add('d-none');
+    nonHrisWrap.classList.add('d-none');
+    updateSubmit();
     if (!nik) { setState(''); return; }
     setState('checking');
     clearTimeout(timer);
     // Fake HRIS round trip so the "checking" state is visible in the mockup.
     timer = setTimeout(function () {
-      var person = panelFindPerson(nik);
-      if (!person) { setState('invalid', 'NIK tidak ditemukan di HRIS maupun di daftar panelis non-HRIS.'); return; }
-      var sessions = panelSessionsForNik(person.nik);
-      var running = sessions.filter(function (s) { return s.status === 'Berlangsung'; });
-      var next = sessions.filter(function (s) { return s.status === 'Terjadwal'; })[0];
-      var srcBadge = person.source === 'HRIS' ? 'HRIS' : 'Non-HRIS';
-      if (running.length) {
-        showPerson(person, { cls: 'bg-success-transparent', html: '<i class="ri-checkbox-circle-line me-1"></i>' + srcBadge + ' · ' + running.length + ' sesi berjalan' });
-        setState('valid');
-        found = person;
-        submit.disabled = false;
-        return;
+      var open = panelOpenSessionsFor(nik);
+      var hris = panelFindPerson(nik);
+      person = hris || { nik: nik, source: 'Non-HRIS' };
+      canEnter = open.length > 0;
+      if (hris) showPerson(hris, open.length);
+      else nonHrisWrap.classList.remove('d-none');
+
+      if (canEnter) {
+        setState('valid', '');
+      } else {
+        var running = panelSessions().filter(function (s) { return s.status === 'Berlangsung'; });
+        var next = panelNextSession();
+        setState('invalid', running.length
+          ? 'Semua sesi yang berjalan sudah Anda nilai atau kuota panelisnya penuh.'
+          : 'Belum ada sesi panel yang berjalan.' + (next ? ' Sesi berikutnya: ' + fmt(next.start) + '.' : ''));
       }
-      showPerson(person, { cls: 'bg-warning-transparent', html: '<i class="ri-time-line me-1"></i>' + srcBadge });
-      if (next) setState('invalid', 'Belum ada sesi panel yang berjalan untuk NIK ini. Sesi berikutnya: ' + fmt(next.start) + '.');
-      else if (sessions.length) setState('invalid', 'Tidak ada sesi panel yang berjalan untuk NIK ini saat ini.');
-      else setState('invalid', 'NIK ini belum didaftarkan sebagai panelis di sesi mana pun (diatur lab di Schedule).');
+      updateSubmit();
     }, 400);
   }
 
   nikInput.addEventListener('input', function () {
     this.value = this.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     clearTimeout(timer);
-    found = null;
-    submit.disabled = true;
+    person = null;
+    canEnter = false;
+    updateSubmit();
     timer = setTimeout(lookup, 300);
   });
+  namaInput.addEventListener('input', updateSubmit);
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    if (!found) { if (!nikInput.value.trim()) setState('invalid', 'NIK wajib diisi.'); return; }
-    panelisLogin(found, booth);
+    if (!person) { if (!nikInput.value.trim()) setState('invalid', 'NIK wajib diisi.'); return; }
+    if (submit.disabled) return;
+    var who = person.source === 'HRIS' ? person
+      : { nik: person.nik, name: namaInput.value.trim(), source: 'Non-HRIS', username: null, info: 'Panelis non-HRIS' };
+    panelisLogin(who, booth);
     window.location.href = 'booth.html';
   });
 });

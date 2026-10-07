@@ -1,74 +1,70 @@
-/* ---------- Dummy test schedule store (design-only, localStorage-backed) ----------
- * One record = one session of a request. Session number (Sesi 1, 2, ...) is not stored:
- * it is the record's position when a request's sessions are sorted by start time.
+/* ---------- Dummy panel schedule store (design-only, localStorage-backed) ----------
+ * Schedule is only for the sensory panel: Sensory and ASLT (organoleptik). Internal / External
+ * have no schedule. One record = one panel session of a request.
  *
- * Sensory / ASLT sessions can carry panelists: [{ nik, name, source: 'HRIS' | 'Non-HRIS', ket }].
- * A session with panelists is a panel session: the PANELIS booth shows it to those panelists
- * while it runs (start–end). Non-HRIS panelists (e.g. interns) are registered right here with
- * their NIK magang; they have no HRIS record.
+ * - Sensory: fixed slots, the time cannot be changed. A record stores `slot` (1, 2, 3) and the
+ *   matching start / end. One slot can hold many requests. Panelists are open: anyone can log in
+ *   at the booth and score while the session runs.
+ * - ASLT: free time (start / end can be set and dragged). Panelists are not registered either,
+ *   but at most ASLT_PANEL_QUOTA people can score one session.
  */
-var SCHEDULE_STORAGE_KEY = 'holabsysSchedules.v2';
+var SCHEDULE_STORAGE_KEY = 'holabsysSchedules.v3';
 
 var SCHEDULE_JENIS = {
-  Internal: { color: 'primary', form: 'internalForm.html' },
-  External: { color: 'info', form: 'externalForm.html' },
-  ASLT: { color: 'warning', form: 'asltForm.html' },
-  Sensory: { color: 'success', form: 'sensoryForm.html' }
+  Sensory: { color: 'success', form: 'sensoryForm.html' },
+  ASLT: { color: 'warning', form: 'asltForm.html' }
 };
 
-/* Seed panel sessions are placed relative to the day the seed is written, so there is always
-   a running session to try in the booth: yesterday (done), now (running), tomorrow (scheduled). */
-function _schAt(dayOffset, hhmm) {
+var SENSORY_SLOTS = {
+  1: { start: '10:00', end: '12:00' },
+  2: { start: '13:00', end: '15:00' },
+  3: { start: '15:00', end: '17:00' }
+};
+function sensorySlotLabel(slot) {
+  var s = SENSORY_SLOTS[slot];
+  return s ? 'Sesi ' + slot + ' (' + s.start + '–' + s.end + ')' : '-';
+}
+var ASLT_PANEL_QUOTA = 5;
+
+/* Seeds are placed relative to the day the seed is written, so the demo always has sessions
+   yesterday (done), today and tomorrow. */
+function _schDay(dayOffset) {
   var d = new Date();
   d.setDate(d.getDate() + dayOffset);
   var p = function (n) { return String(n).padStart(2, '0'); };
-  if (!hhmm) {
-    // "now" slot: from the last full half hour minus 1 hour
-    d.setMinutes(d.getMinutes() < 30 ? 0 : 30, 0, 0);
-    d.setHours(d.getHours() - 1);
-  } else {
-    d.setHours(Number(hhmm.slice(0, 2)), Number(hhmm.slice(3, 5)), 0, 0);
-  }
-  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes());
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
 }
-function _schPlusHours(iso, h) {
-  var d = new Date(iso);
-  d.setMinutes(d.getMinutes() + h * 60);
+function _sensory(id, requestId, dayOffset, slot, catatan) {
+  var day = _schDay(dayOffset);
+  return { id: id, requestId: requestId, jenis: 'Sensory', slot: slot, start: day + 'T' + SENSORY_SLOTS[slot].start,
+    end: day + 'T' + SENSORY_SLOTS[slot].end, analis: 'Dewi Lestari', catatan: catatan || '' };
+}
+/* ASLT demo session that runs now: from the last full half hour minus 1 hour, for 4 hours */
+function _asltNow() {
+  var d = new Date();
+  d.setMinutes(d.getMinutes() < 30 ? 0 : 30, 0, 0);
+  d.setHours(d.getHours() - 1);
   var p = function (n) { return String(n).padStart(2, '0'); };
-  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + 'T' + p(d.getHours()) + ':' + p(d.getMinutes());
+  var iso = function (x) { return x.getFullYear() + '-' + p(x.getMonth() + 1) + '-' + p(x.getDate()) + 'T' + p(x.getHours()) + ':' + p(x.getMinutes()); };
+  var start = iso(d);
+  d.setHours(d.getHours() + 4);
+  return { start: start, end: iso(d) };
 }
-function _hris(nik, name) { return { nik: nik, name: name, source: 'HRIS', ket: '' }; }
-var _NOW_SLOT = _schAt(0);
+var _ASLT_NOW = _asltNow();
 
 var SEED_SCHEDULES = [
-  { id: 'SCH-0001', requestId: 'REQ-202609-0018', jenis: 'Internal', start: '2026-09-29T08:00', end: '2026-09-29T10:00', analis: 'Budi Santoso', catatan: 'Preparasi sampel & moisture' },
-  { id: 'SCH-0002', requestId: 'REQ-202609-0018', jenis: 'Internal', start: '2026-09-30T13:00', end: '2026-09-30T15:30', analis: 'Budi Santoso', catatan: 'Analisa lemak' },
-  { id: 'SCH-0003', requestId: 'REQ-202609-0021', jenis: 'Internal', start: '2026-09-29T08:30', end: '2026-09-29T11:00', analis: 'Galih Saputra', catatan: '' },
-  { id: 'SCH-0004', requestId: 'REQ-202609-0021', jenis: 'Internal', start: '2026-10-01T09:00', end: '2026-10-01T11:00', analis: 'Galih Saputra', catatan: '' },
-  { id: 'SCH-0005', requestId: 'REQ-202609-0027', jenis: 'Internal', start: '2026-09-29T10:00', end: '2026-09-29T12:00', analis: 'Dewi Lestari', catatan: '' },
-  { id: 'SCH-0006', requestId: 'REQ-202609-0027', jenis: 'Internal', start: '2026-09-29T13:00', end: '2026-09-29T15:00', analis: 'Dewi Lestari', catatan: '' },
-  { id: 'SCH-0007', requestId: 'REQ-202609-0027', jenis: 'Internal', start: '2026-10-02T08:00', end: '2026-10-02T10:00', analis: 'Dewi Lestari', catatan: 'Verifikasi ulang' },
-  { id: 'SCH-0008', requestId: 'REQ-202609-0031', jenis: 'External', start: '2026-09-29T09:00', end: '2026-09-29T10:00', analis: '', catatan: 'Pengiriman sampel ke SGS' },
-  { id: 'SCH-0009', requestId: 'REQ-202609-0031', jenis: 'External', start: '2026-10-06T14:00', end: '2026-10-06T15:00', analis: '', catatan: 'Terima hasil' },
-  { id: 'SCH-0010', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: '2026-09-29T14:00', end: '2026-09-29T16:00', analis: 'Budi Santoso', catatan: 'Tarik sampel H-28' },
-  { id: 'SCH-0011', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: '2026-10-27T14:00', end: '2026-10-27T16:00', analis: 'Budi Santoso', catatan: 'Tarik sampel H-56' },
-  { id: 'SCH-0012', requestId: 'ASLT-202609-002', jenis: 'ASLT', start: '2026-09-24T09:00', end: '2026-09-24T11:00', analis: 'Galih Saputra', catatan: '' },
-  /* Panel sessions (Sensory / ASLT organoleptik) */
-  { id: 'SCH-0013', requestId: 'SN-202609-0011', jenis: 'Sensory', start: _schAt(-1, '09:00'), end: _schAt(-1, '10:30'), analis: 'Dewi Lestari', catatan: 'Uji triangle',
-    panelists: [_hris('20180123', 'Ayu Pratiwi'), _hris('20170456', 'Bima Santoso'), _hris('20190311', 'Citra Maharani'), _hris('20160782', 'Dimas Prakoso'),
-      _hris('20200145', 'Eka Wulandari'), _hris('20210533', 'Fajar Nugroho'), _hris('20190877', 'Gita Anjani'), _hris('20220219', 'Hana Puspita')] },
-  { id: 'SCH-0014', requestId: 'SN-202609-0012', jenis: 'Sensory', start: _schAt(-1, '13:00'), end: _schAt(-1, '14:30'), analis: 'Dewi Lestari', catatan: 'Panel terlatih',
-    panelists: [_hris('20150664', 'Irfan Hakim'), _hris('20230108', 'Jihan Safitri'), _hris('20210990', 'Kevin Adiputra'), _hris('20220347', 'Laras Kusuma'), _hris('20160782', 'Dimas Prakoso')] },
-  { id: 'SCH-0017', requestId: 'SN-202609-0012', jenis: 'Sensory', start: _NOW_SLOT, end: _schPlusHours(_NOW_SLOT, 4), analis: 'Dewi Lestari', catatan: 'Panel campuran + magang',
-    panelists: [_hris('20180123', 'Ayu Pratiwi'), _hris('20170456', 'Bima Santoso'), _hris('20190311', 'Citra Maharani'), _hris('20190877', 'Gita Anjani'),
-      { nik: 'MG24090017', name: 'Nadia Rahma', source: 'Non-HRIS', ket: 'Magang QC · Universitas Brawijaya' }] },
-  { id: 'SCH-0018', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: _NOW_SLOT, end: _schPlusHours(_NOW_SLOT, 4), analis: 'Budi Santoso', catatan: 'Organoleptik H-28',
-    panelists: [_hris('20180123', 'Ayu Pratiwi'), _hris('20160782', 'Dimas Prakoso'), _hris('20200145', 'Eka Wulandari'), _hris('20210533', 'Fajar Nugroho'),
-      { nik: 'MG24090021', name: 'Rizky Pratama', source: 'Non-HRIS', ket: 'Magang R&D · IPB University' }] },
-  { id: 'SCH-0019', requestId: 'SN-202609-0009', jenis: 'Sensory', start: _schAt(1, '10:00'), end: _schAt(1, '11:30'), analis: 'Dewi Lestari', catatan: 'Uji ranking',
-    panelists: [_hris('20190877', 'Gita Anjani'), _hris('20220219', 'Hana Puspita'), _hris('20150664', 'Irfan Hakim'), _hris('20180123', 'Ayu Pratiwi')] },
-  { id: 'SCH-0015', requestId: 'REQ-202609-0025', jenis: 'Internal', start: '2026-09-22T08:00', end: '2026-09-22T12:00', analis: 'Galih Saputra', catatan: '' },
-  { id: 'SCH-0016', requestId: 'REQ-202609-0025', jenis: 'Internal', start: '2026-09-23T08:00', end: '2026-09-23T12:00', analis: 'Galih Saputra', catatan: '' }
+  /* Sensory — fixed slots, several requests may share one slot */
+  _sensory('SCH-0013', 'SN-202609-0011', -1, 1, 'Uji triangle'),
+  _sensory('SCH-0014', 'SN-202609-0012', -1, 2, ''),
+  _sensory('SCH-0017', 'SN-202609-0012', 0, 1, ''),
+  _sensory('SCH-0019', 'SN-202609-0009', 0, 1, 'Uji ranking'),
+  _sensory('SCH-0020', 'SN-202609-0012', 0, 3, 'Ulangan'),
+  _sensory('SCH-0021', 'SN-202609-0009', 1, 2, ''),
+  /* ASLT — free time, max 5 panelists per session */
+  { id: 'SCH-0010', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: '2026-09-29T14:00', end: '2026-09-29T16:00', analis: 'Budi Santoso', catatan: 'Organoleptik H-21' },
+  { id: 'SCH-0018', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: _ASLT_NOW.start, end: _ASLT_NOW.end, analis: 'Budi Santoso', catatan: 'Organoleptik H-28' },
+  { id: 'SCH-0011', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: '2026-10-27T14:00', end: '2026-10-27T16:00', analis: 'Budi Santoso', catatan: 'Organoleptik H-56' },
+  { id: 'SCH-0012', requestId: 'ASLT-202609-004', jenis: 'ASLT', start: _schDay(1) + 'T09:00', end: _schDay(1) + 'T10:30', analis: 'Galih Saputra', catatan: 'Organoleptik H-14' }
 ];
 
 function getSchedules() {
@@ -94,15 +90,16 @@ function nextScheduleId(list) {
   return 'SCH-' + String(max + 1).padStart(4, '0');
 }
 
-/* Requests from every HOLABSYS store, tagged with their jenis. */
+/* Sensory and ASLT requests that can be scheduled, tagged with their jenis. */
 function getSchedulableRequests() {
   var out = [];
   var add = function (list, jenis) {
-    list.forEach(function (r) { out.push({ id: r.id, jenis: jenis, sampel: r.sampel || '' }); });
+    list.forEach(function (r) {
+      if (r.step === 'Draft' || r.step === 'Approval') return; // only approved requests run a panel
+      out.push({ id: r.id, jenis: jenis, sampel: r.sampel || '' });
+    });
   };
-  add(getRequests(), 'Internal');
-  add(getExternalRequests(), 'External');
-  add(getAsltRequests(), 'ASLT');
   add(getSensoryRequests(), 'Sensory');
+  add(getAsltRequests(), 'ASLT');
   return out;
 }

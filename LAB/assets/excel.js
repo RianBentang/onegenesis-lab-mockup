@@ -79,11 +79,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- panel sheets: one per test, one row per panelist × code ---------- */
   function panelEntries(trx) {
-    var sesiNo = {};
-    panelSessionsForTrx(trx.id).forEach(function (s) { sesiNo[s.id] = s.sesiNo; });
+    /* Sesi column: session date + Sesi label (Sensory slot / ASLT order); rows ordered by session, then time */
+    var info = {};
+    panelSessionsForTrx(trx.id).forEach(function (s) {
+      info[s.id] = { label: s.start.slice(8, 10) + '/' + s.start.slice(5, 7) + ' ' + s.sesiLabel.replace(/ \(.*\)$/, ''), start: s.start };
+    });
     return panelScoresForTrx(trx.id).map(function (e) {
-      return Object.assign({ sesi: sesiNo[e.scheduleId] ? 'Sesi ' + sesiNo[e.scheduleId] : e.scheduleId }, e);
-    }).sort(function (a, b) { return a.sesi < b.sesi ? -1 : (a.sesi > b.sesi ? 1 : (a.at < b.at ? -1 : 1)); });
+      var i = info[e.scheduleId];
+      return Object.assign({ sesi: i ? i.label : e.scheduleId, sesiStart: i ? i.start : '' }, e);
+    }).sort(function (a, b) { return a.sesiStart < b.sesiStart ? -1 : (a.sesiStart > b.sesiStart ? 1 : (a.at < b.at ? -1 : 1)); });
   }
 
   function panelSheet(trx, t, entries, id, order) {
@@ -100,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
       put(rr, 0, cell(e.sesi)); put(rr, 1, cell(e.booth || ''));
       put(rr, 2, textCell(e.nik)); put(rr, 3, cell(e.name));
     }
-    var cols, widths = { 0: 70, 1: 60, 2: 110, 3: 160, 4: 100 };
+    var cols, widths = { 0: 100, 1: 60, 2: 110, 3: 160, 4: 100 };
 
     if (t.type === 'triangle') {
       cols = PANEL_BASE_HEADER.concat(['Kode Dipilih', 'Benar (1/0)']);

@@ -36,6 +36,12 @@
                     <div class="invalid-feedback" id="loginNikFeedback"></div>
                     <div class="form-text d-none" id="loginNikChecking"><span class="spinner-border spinner-border-sm me-1 align-middle"></span>Mencari di HRIS…</div>
                   </div>
+                  <!-- Not in HRIS (e.g. intern): the person gives a name and scores as non-HRIS -->
+                  <div class="col-12 d-none" id="nonHrisWrap">
+                    <label class="form-label text-default" for="loginNama">Nama Lengkap</label>
+                    <input type="text" class="form-control" id="loginNama" placeholder="NIK tidak ada di HRIS, isi nama Anda" autocomplete="name" />
+                    <div class="form-text">Untuk panelis non-HRIS, misalnya magang.</div>
+                  </div>
                   <!-- HRIS lookup result: shown once the NIK is found -->
                   <div class="col-12 d-none" id="hrisResult">
                     <div class="d-flex align-items-center gap-3 border rounded-1 p-3 bg-light">
@@ -55,7 +61,7 @@
               </form>
 
               <div class="alert alert-primary-transparent mt-4 mb-0 py-2 fs-12">
-                <i class="ri-information-line me-1"></i>NIK demo: <span class="fw-semibold">20180123</span> (2 sesi berjalan), <span class="fw-semibold">MG24090017</span> (magang, non-HRIS), <span class="fw-semibold">20220347</span> (tidak ada sesi berjalan), <span class="fw-semibold">20140219</span> (bukan panelis).<br /><i class="ri-tablet-line me-1"></i>Mockup: booth ikut tablet, simulasikan tablet lain dengan <span class="fw-semibold text-nowrap">?booth=1</span> s.d. <span class="fw-semibold text-nowrap">?booth=5</span> di URL.
+                <i class="ri-information-line me-1"></i>Panelis tidak perlu didaftarkan: siapa saja bisa masuk selama ada sesi yang berjalan. NIK demo: <span class="fw-semibold">20180123</span> (karyawan HRIS), <span class="fw-semibold">MG24100005</span> (non-HRIS, isi nama).<br /><i class="ri-tablet-line me-1"></i>Mockup: booth ikut tablet, simulasikan tablet lain dengan <span class="fw-semibold text-nowrap">?booth=1</span> s.d. <span class="fw-semibold text-nowrap">?booth=5</span> di URL.
               </div>
             </div>
           </div>
