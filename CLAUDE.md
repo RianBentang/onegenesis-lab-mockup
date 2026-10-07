@@ -32,6 +32,9 @@ map for migrating legacy pages.
   it initialises them. Multi-selects (`<select multiple>`) stay on TomSelect.
 - Mockup-only page overrides go in `LAB/assets/lab.css`, and only when no theme class fits.
 - Dummy data lives in `LAB/assets/dummy-*.js`; there is no backend.
+- **ASLT & Sensory** is a plain request list like Internal / External: tabs Sensory and ASLT, one
+  Request List card (status filter + search, doc status badges), one create button in the page
+  header that follows the active tab (`?tab=aslt` opens the ASLT tab).
 - **External** requests: Draft → approval → Fully Approved with workflow "Waiting for Sample
   Delivery" → Lab Admin presses **Confirm Delivery** → Confirmed. That is the end: External never
   goes to Excel or Report (the vendor lab issues its own COA), and has no tabs besides Request List.
@@ -44,8 +47,7 @@ map for migrating legacy pages.
   one slot can hold many requests. ASLT sessions have free times, draggable) → **booth** (panelists
   are never registered: anyone logs in by NIK while a session runs; a NIK not in HRIS, e.g. an
   intern, gives a name and scores as non-HRIS; an ASLT session takes at most 5 scores; the booth
-  is fixed per tablet 1-5, the mockup uses `?booth=N`) → **ASLT & Sensory → Sesi Panelis** (list
-  of sessions + who scored) → **Excel** (Tarik Data: one sheet per panel test, one row per
+  is fixed per tablet 1-5, the mockup uses `?booth=N`) → **Excel** (Tarik Data: one sheet per panel test, one row per
   panelist × sample code, statistics block) → Push Data → **Report** Draft. HRIS is dummy
   (`LAB/assets/dummy-hris.js`).
 

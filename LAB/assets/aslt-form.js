@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', function () {
       updateAsltRequest(docNoVal, { step: 'Draft', approvalIdx: 0 });
       if (reasonModal) reasonModal.hide();
       showToast('Dokumen ' + actionLabel + ': "' + reason + '"');
-      setTimeout(function () { window.location.href = 'asltAndSensory.html'; }, 1200);
+      setTimeout(function () { window.location.href = 'asltAndSensory.html?tab=aslt'; }, 1200);
     });
   }
 
@@ -308,7 +308,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   var formActionButtons = document.getElementById('formActionButtons');
-  var BACK_BTN_HTML = '<a href="asltAndSensory.html" class="btn btn-sm bg-white d-inline-flex align-items-center gap-1"><i class="ri-arrow-left-line"></i> Back</a>';
+  var BACK_BTN_HTML = '<a href="asltAndSensory.html?tab=aslt" class="btn btn-sm bg-white d-inline-flex align-items-center gap-1"><i class="ri-arrow-left-line"></i> Back</a>';
 
   function renderActionButtons(mode) {
     if (mode === 'bsu') {
@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function () {
         record.approvalIdx = 0;
         updateAsltRequest(docNoVal, record);
         showToast('Pengajuan ASLT "' + docNoVal + '" berhasil dikirim untuk Approve Admin.');
-        setTimeout(function () { window.location.href = 'asltAndSensory.html'; }, 1200);
+        setTimeout(function () { window.location.href = 'asltAndSensory.html?tab=aslt'; }, 1200);
       } else if (action === 'return') {
         openReasonModal('return');
       } else if (action === 'reject') {
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', function () {
           timepoint: 'H-0 (Initial)'
         });
         showToast('Disetujui oleh Lab Administrator. Batch ASLT masuk Cek Fiskim Initial.');
-        setTimeout(function () { window.location.href = 'asltAndSensory.html'; }, 1200);
+        setTimeout(function () { window.location.href = 'asltAndSensory.html?tab=aslt'; }, 1200);
       }
     });
   }

@@ -106,7 +106,6 @@ function panelStatusOf(sch, now) {
   if (n >= sch.end) return 'Selesai';
   return 'Berlangsung';
 }
-var PANEL_STATUS_BADGE = { Terjadwal: 'bg-info-transparent', Berlangsung: 'bg-success-transparent', Selesai: 'bg-secondary-transparent' };
 
 /* Every Sensory / ASLT schedule session, sorted by start:
    [{ id, sesiLabel, schedule, start, end, status, quota (ASLT) | null, trx }]
