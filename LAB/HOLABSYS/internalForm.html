@@ -44,44 +44,42 @@
         </div>
 
         <!-- ── SpkForm: Document Info Bar ── -->
-        <div class="card custom-card no-print">
-          <div class="card custom-card d-flex flex-row align-items-center justify-content-between flex-wrap gap-2 p-2 mb-3">
-            <div class="d-flex align-items-center flex-wrap gap-2">
-              <!-- Doc status + workflow badge — rendered by docStatusCardHtml() -->
-              <span id="docStatusBadges" class="d-inline-flex align-items-center flex-wrap gap-2">
-                <span class="badge bg-secondary-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1">
-                  <i class="ri-file-add-line"></i> New
-                </span>
+        <div class="card custom-card no-print d-flex flex-row align-items-center justify-content-between flex-wrap gap-2 p-2 mb-3">
+          <div class="d-flex align-items-center flex-wrap gap-2">
+            <!-- Doc status + workflow badge — rendered by docStatusCardHtml() -->
+            <span id="docStatusBadges" class="d-inline-flex align-items-center flex-wrap gap-2">
+              <span class="badge bg-secondary-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1">
+                <i class="ri-file-add-line"></i> New
               </span>
-              <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
-              <div class="d-flex flex-column gap-1 lh-1">
-                <span class="text-uppercase text-muted fs-10">No. ID Transaksi</span>
-                <span class="fs-13 text-heading text-nowrap font-monospace" id="docNoValue">REQ-202609-XXXX</span>
-              </div>
-              <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
-              <div class="d-flex flex-column gap-1 lh-1">
-                <span class="text-uppercase text-muted fs-10">Tanggal Pengajuan</span>
-                <span class="fs-13 text-heading text-nowrap font-monospace" id="docDateValue">--</span>
-              </div>
-              <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
-              <div class="d-flex flex-column gap-1 lh-1">
-                <span class="text-uppercase text-muted fs-10">No. SPK</span>
-                <span class="fs-13 text-heading text-nowrap font-monospace" id="spkNoValue">Belum Terbit</span>
-              </div>
+            </span>
+            <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+            <div class="d-flex flex-column gap-1 lh-1">
+              <span class="text-uppercase text-muted fs-10">No. ID Transaksi</span>
+              <span class="fs-13 text-heading text-nowrap font-monospace" id="docNoValue">REQ-202609-XXXX</span>
             </div>
-            <div class="d-flex align-items-center gap-2 flex-shrink-0 flex-wrap justify-content-end">
-              <button type="button" class="btn btn-sm btn-link text-start p-1 text-decoration-none" title="Lihat detail approval" data-bs-toggle="offcanvas" data-bs-target="#approvalOffcanvas">
-                <div class="d-flex flex-column gap-1 lh-1">
-                  <span class="text-uppercase text-muted fs-10">Last Approver</span>
-                  <span class="fs-13 text-heading text-nowrap d-flex align-items-center gap-1">
-                    <span id="lastApproverValue">&ndash;</span> <i class="ri-arrow-right-s-line text-muted"></i>
-                  </span>
-                </div>
-              </button>
-              <button type="button" class="btn btn-sm btn-light text-muted fw-semibold d-inline-flex align-items-center gap-1" data-bs-toggle="offcanvas" data-bs-target="#historyOffcanvas">
-                <i class="ri-history-line"></i> Document History
-              </button>
+            <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+            <div class="d-flex flex-column gap-1 lh-1">
+              <span class="text-uppercase text-muted fs-10">Tanggal Pengajuan</span>
+              <span class="fs-13 text-heading text-nowrap font-monospace" id="docDateValue">--</span>
             </div>
+            <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+            <div class="d-flex flex-column gap-1 lh-1">
+              <span class="text-uppercase text-muted fs-10">No. SPK</span>
+              <span class="fs-13 text-heading text-nowrap font-monospace" id="spkNoValue">Belum Terbit</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-shrink-0 flex-wrap justify-content-end">
+            <button type="button" class="btn btn-sm btn-link text-start p-1 text-decoration-none" title="Lihat detail approval" data-bs-toggle="offcanvas" data-bs-target="#approvalOffcanvas">
+              <div class="d-flex flex-column gap-1 lh-1">
+                <span class="text-uppercase text-muted fs-10">Last Approver</span>
+                <span class="fs-13 text-heading text-nowrap d-flex align-items-center gap-1">
+                  <span id="lastApproverValue">&ndash;</span> <i class="ri-arrow-right-s-line text-muted"></i>
+                </span>
+              </div>
+            </button>
+            <button type="button" class="btn btn-sm btn-light text-muted fw-semibold d-inline-flex align-items-center gap-1" data-bs-toggle="offcanvas" data-bs-target="#historyOffcanvas">
+              <i class="ri-history-line"></i> Document History
+            </button>
           </div>
         </div>
 
