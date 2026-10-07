@@ -34,7 +34,11 @@ map for migrating legacy pages.
 - Dummy data lives in `LAB/assets/dummy-*.js`; there is no backend.
 - **ASLT & Sensory** is a plain request list like Internal / External: tabs Sensory and ASLT, one
   Request List card (status filter + search, doc status badges), one create button in the page
-  header that follows the active tab (`?tab=aslt` opens the ASLT tab).
+  header that follows the active tab (`?tab=aslt` opens the ASLT tab). Their forms share
+  `LAB/assets/request-approval.js`: same approval chain as Internal (Tipe + Tujuan), Return to
+  Edit / Reject, doc status badges; after the last approval the doc is Fully Approved with
+  workflow "Waiting for Schedule" (step `Penjadwalan`); saving it in Schedule makes it Confirmed
+  (step `Berjalan`), and only then Excel can pull it.
 - **External** requests: Draft → approval → Fully Approved with workflow "Waiting for Sample
   Delivery" → Lab Admin presses **Confirm Delivery** → Confirmed. That is the end: External never
   goes to Excel or Report (the vendor lab issues its own COA), and has no tabs besides Request List.
@@ -44,7 +48,8 @@ map for migrating legacy pages.
   statistics) lives in `LAB/assets/dummy-panel.js`, shared by both apps. Panel flow:
   **Schedule** (only Sensory and ASLT have a schedule, one tab each; Internal / External have none.
   Sensory sessions use fixed slots: Sesi 1 10:00-12:00, Sesi 2 13:00-15:00, Sesi 3 15:00-17:00, and
-  one slot can hold many requests. ASLT sessions have free times, draggable) → **booth** (panelists
+  one slot can hold many requests, shown as one calendar box per session whose full-screen detail
+  lists the requests. ASLT sessions have free times, draggable) → **booth** (panelists
   are never registered: anyone logs in by NIK while a session runs; a NIK not in HRIS, e.g. an
   intern, gives a name and scores as non-HRIS; an ASLT session takes at most 5 scores; the booth
   is fixed per tablet 1-5, the mockup uses `?booth=N`) → **Excel** (Tarik Data: one sheet per panel test, one row per

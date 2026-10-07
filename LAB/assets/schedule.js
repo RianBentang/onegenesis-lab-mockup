@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   var scheduleModal = new bootstrap.Modal(document.getElementById('scheduleModal'));
   var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-  var detailOffcanvas = new bootstrap.Offcanvas(document.getElementById('detailOffcanvas'));
+  var detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
   var toast = new bootstrap.Toast(document.getElementById('scheduleToast'), { delay: 2500 });
 
   var sessionHead = document.getElementById('sessionHead');
@@ -173,20 +173,28 @@ document.addEventListener('DOMContentLoaded', function () {
     showToast(s.requestId + ' dipindah ke ' + fmtDate(s.start) + ' ' + fmtTime(s.start) + '–' + fmtTime(s.end));
   }
 
-  /* ---------- detail offcanvas ----------
-     ASLT: one schedule record. Sensory: one session (date + slot) with every request in it,
-     listed like the old app (Nomor Pengajuan · Kode · Nama Sampel · Jenis Sampel · Kode Batch). */
-  var detailEl = document.getElementById('detailOffcanvas');
+  /* ---------- detail: full-screen page, like a Google Calendar event ----------
+     Top bar: close · Atur Jadwal / Tambah Pengajuan · delete. Title with the calendar colour,
+     then icon rows (time, panel, analis, notes). ASLT: one schedule record. Sensory: one session
+     (date + slot) with every request in it, listed like the old app (Nomor Pengajuan · Kode ·
+     Nama Sampel · Jenis Sampel · Kode Batch). */
   var detailSlotStart = null;
-  function detailRow(label, value) {
-    return '<div class="mb-3"><div class="text-uppercase text-muted fs-10 mb-1">' + label + '</div><div class="fs-13 text-heading">' + value + '</div></div>';
+  function iconRow(icon, html) {
+    return '<div class="d-flex align-items-start gap-3 mb-3"><i class="' + icon + ' fs-18 text-muted lh-1 mt-1" style="width: 20px"></i>' +
+      '<div class="flex-fill fs-14">' + html + '</div></div>';
   }
-  function setDetailMode(slotMode) {
-    detailEl.style.width = slotMode ? '760px' : '390px';
+  function setDetailHead(jenis, title, sub, slotMode) {
+    document.getElementById('detailColor').className = 'rounded-1 flex-shrink-0 mt-2 bg-' + SCHEDULE_JENIS[jenis].color;
+    document.getElementById('detailTitle').textContent = title;
+    document.getElementById('detailDocNo').innerHTML = sub;
     document.getElementById('btnDetailDelete').classList.toggle('d-none', slotMode);
     document.getElementById('btnDetailEdit').innerHTML = slotMode
-      ? '<i class="ri-add-line me-1"></i><span>Tambah Pengajuan ke Sesi Ini</span>'
-      : '<i class="ri-edit-line me-1"></i><span>Atur Jadwal</span>';
+      ? '<i class="ri-add-line align-middle me-1"></i>Tambah Pengajuan ke Sesi Ini'
+      : '<i class="ri-edit-line align-middle me-1"></i>Atur Jadwal';
+  }
+  function whenLine(start, end) {
+    return new Date(start).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) +
+      ' · ' + fmtTime(start) + ' – ' + fmtTime(end);
   }
 
   function openDetail(id) {
@@ -194,45 +202,39 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!s) return;
     detailScheduleId = id;
     detailSlotStart = null;
-    setDetailMode(false);
     var req = findRequest(s.requestId);
     var meta = SCHEDULE_JENIS[s.jenis];
     var all = sessionsOf(s.requestId);
-    document.getElementById('detailTitle').textContent = 'Detail Jadwal';
-    document.getElementById('detailDocNo').textContent = s.requestId;
+    setDetailHead(s.jenis, s.requestId + ' · ' + sessionLabel(s), esc(whenLine(s.start, s.end)), false);
     var list = all.map(function (x) {
       var cur = x.id === s.id;
-      return '<li class="d-flex align-items-center justify-content-between rounded-1 px-2 py-1 mb-1' + (cur ? ' bg-primary-transparent' : ' bg-light') + '">' +
-        '<span class="fs-12 fw-medium">' + sessionLabel(x) + '</span>' +
-        '<span class="fs-12 text-muted">' + fmtDate(x.start) + ' · ' + fmtTime(x.start) + '–' + fmtTime(x.end) + '</span></li>';
+      return '<li class="d-flex align-items-center justify-content-between rounded-1 px-3 py-2 mb-1' + (cur ? ' bg-primary-transparent' : ' bg-light') + '">' +
+        '<span class="fw-medium">' + sessionLabel(x) + '</span>' +
+        '<span class="text-muted fs-13">' + fmtDate(x.start) + ' · ' + fmtTime(x.start) + '–' + fmtTime(x.end) + '</span></li>';
     }).join('');
 
     document.getElementById('detailBody').innerHTML =
-      '<div class="d-flex align-items-center gap-2 mb-3">' +
-        '<span class="badge bg-' + meta.color + '-transparent">' + esc(s.jenis) + '</span>' +
-        '<span class="fs-13 fw-semibold">' + sessionLabel(s) + ' dari ' + all.length + '</span>' +
-      '</div>' +
-      detailRow('Sampel', esc(req ? req.sampel : '-')) +
-      detailRow('Waktu', fmtDate(s.start) + '<br />' + fmtTime(s.start) + ' – ' + fmtTime(s.end)) +
-      detailRow('Panelis', 'Maks. ' + ASLT_PANEL_QUOTA + ' panelis, tanpa pendaftaran') +
-      detailRow('Analis', esc(s.analis || '-')) +
-      detailRow('Catatan', esc(s.catatan || '-')) +
-      '<div class="text-uppercase text-muted fs-10 mb-1">Semua Sesi Pengajuan Ini</div>' +
-      '<ul class="list-unstyled mb-3">' + list + '</ul>' +
-      '<a href="' + meta.form + '?docId=' + encodeURIComponent(s.requestId) + '" class="text-primary fw-medium fs-12">' +
-        '<i class="ri-external-link-line me-1"></i>Buka Pengajuan</a>';
-    detailOffcanvas.show();
+      '<div class="row g-4"><div class="col-lg-7">' +
+        iconRow('ri-flask-line', '<span class="badge bg-' + meta.color + '-transparent me-2">' + esc(s.jenis) + '</span>' + esc(req ? req.sampel : '-') +
+          '<div class="mt-1"><a href="' + meta.form + '?docId=' + encodeURIComponent(s.requestId) + '" class="fs-13 text-primary"><i class="ri-external-link-line me-1"></i>Buka pengajuan ' + esc(s.requestId) + '</a></div>') +
+        iconRow('ri-time-line', esc(whenLine(s.start, s.end)) + '<div class="fs-12 text-muted">Bisa digeser / diubah durasinya di kalender</div>') +
+        iconRow('ri-group-line', 'Maks. ' + ASLT_PANEL_QUOTA + ' panelis per sesi<div class="fs-12 text-muted">Tanpa pendaftaran, siapa saja bisa menilai di booth selama sesi berjalan</div>') +
+        iconRow('ri-user-line', 'Analis: ' + esc(s.analis || '-')) +
+        iconRow('ri-file-text-line', esc(s.catatan || 'Tidak ada catatan')) +
+      '</div><div class="col-lg-5">' +
+        '<div class="fw-semibold mb-2">Semua sesi pengajuan ini</div>' +
+        '<ul class="list-unstyled mb-0">' + list + '</ul>' +
+      '</div></div>';
+    detailModal.show();
   }
 
   function openSlotDetail(start) {
     var items = schedules.filter(function (x) { return x.jenis === 'Sensory' && x.start === start; });
-    if (!items.length) { detailOffcanvas.hide(); return; }
+    if (!items.length) { detailModal.hide(); return; }
     detailSlotStart = start;
     detailScheduleId = null;
-    setDetailMode(true);
     var slot = items[0].slot;
-    document.getElementById('detailTitle').textContent = sensorySlotLabel(slot);
-    document.getElementById('detailDocNo').textContent = fmtDate(start) + ' · ' + items.length + ' pengajuan';
+    setDetailHead('Sensory', sensorySlotLabel(slot), esc(whenLine(start, items[0].end)) + ' · ' + items.length + ' pengajuan', true);
 
     var rows = [];
     items.forEach(function (s) {
@@ -240,50 +242,49 @@ document.addEventListener('DOMContentLoaded', function () {
       var samples = sensorySampleRows(rec);
       if (!samples.length) samples = [{ jenis: '-', kode: '-' }];
       samples.forEach(function (smp, i) {
+        var span = ' rowspan="' + samples.length + '"';
         rows.push('<tr>' +
-          (i === 0 ? '<td rowspan="' + samples.length + '"><a href="sensoryForm.html?docId=' + encodeURIComponent(s.requestId) + '" class="font-monospace fw-medium text-primary">' + esc(s.requestId) + '</a>' +
+          (i === 0 ? '<td' + span + '><a href="sensoryForm.html?docId=' + encodeURIComponent(s.requestId) + '" class="font-monospace fw-medium text-primary">' + esc(s.requestId) + '</a>' +
             (s.catatan ? '<div class="fs-11 text-muted">' + esc(s.catatan) + '</div>' : '') + '</td>' : '') +
           '<td class="font-monospace fw-semibold">' + esc(smp.kode) + '</td>' +
-          (i === 0 ? '<td rowspan="' + samples.length + '">' + esc(rec.sampel || '-') + '</td>' : '') +
+          (i === 0 ? '<td' + span + '>' + esc(rec.sampel || '-') + '</td>' : '') +
           '<td>' + esc(smp.jenis) + '</td>' +
-          (i === 0 ? '<td rowspan="' + samples.length + '" class="font-monospace fs-12 text-nowrap">' + esc(rec.batch || '-') + '</td>' +
-            '<td rowspan="' + samples.length + '" class="text-nowrap">' +
+          (i === 0 ? '<td' + span + ' class="font-monospace fs-12 text-nowrap">' + esc(rec.batch || '-') + '</td>' +
+            '<td' + span + ' class="text-nowrap">' +
               '<button type="button" class="btn btn-icon btn-sm btn-primary-light btn-wave me-1" data-slot-edit="' + esc(s.requestId) + '" title="Atur jadwal pengajuan"><i class="ri-edit-line"></i></button>' +
               '<button type="button" class="btn btn-icon btn-sm btn-danger-light btn-wave" data-slot-remove="' + esc(s.id) + '" title="Keluarkan dari sesi"><i class="ri-delete-bin-line"></i></button>' +
             '</td>' : '') +
           '</tr>');
       });
     });
+    var analis = items.map(function (x) { return x.analis; }).filter(function (a, i, arr) { return a && arr.indexOf(a) === i; }).join(', ');
 
     document.getElementById('detailBody').innerHTML =
-      '<div class="d-flex flex-wrap align-items-center gap-2 mb-3">' +
-        '<span class="badge bg-success-transparent">Sensory</span>' +
-        '<span class="fs-13 fw-semibold">' + fmtDate(start) + ' · ' + fmtTime(start) + '–' + fmtTime(items[0].end) + '</span>' +
-        '<span class="badge bg-light text-muted">jam tetap</span>' +
-      '</div>' +
-      '<p class="fs-12 text-muted mb-3">Panelis terbuka untuk siapa saja, tanpa pendaftaran. Analis: ' +
-        esc(items.map(function (x) { return x.analis; }).filter(function (a, i, arr) { return a && arr.indexOf(a) === i; }).join(', ') || '-') + '.</p>' +
-      '<div class="table-responsive"><table class="table table-sm table-bordered align-middle mb-0">' +
-        '<thead><tr><th>Nomor Pengajuan</th><th>Kode</th><th>Nama Sampel</th><th>Jenis Sampel</th><th>Kode Batch</th><th style="width: 1%"></th></tr></thead>' +
-        '<tbody>' + rows.join('') + '</tbody></table></div>';
-    detailOffcanvas.show();
+      iconRow('ri-time-line', esc(whenLine(start, items[0].end)) + '<div class="fs-12 text-muted">Jam sesi Sensory tetap</div>') +
+      iconRow('ri-group-line', 'Panelis terbuka untuk siapa saja<div class="fs-12 text-muted">Tanpa pendaftaran, login di booth selama sesi berjalan</div>') +
+      iconRow('ri-user-line', 'Analis: ' + esc(analis || '-')) +
+      iconRow('ri-list-check-2', '<div class="fw-semibold mb-2">Pengajuan di sesi ini</div>' +
+        '<div class="table-responsive"><table class="table table-bordered align-middle mb-0">' +
+          '<thead><tr><th>Nomor Pengajuan</th><th>Kode</th><th>Nama Sampel</th><th>Jenis Sampel</th><th>Kode Batch</th><th style="width: 1%"></th></tr></thead>' +
+          '<tbody>' + rows.join('') + '</tbody></table></div>');
+    detailModal.show();
   }
 
   document.getElementById('detailBody').addEventListener('click', function (e) {
     var edit = e.target.closest('[data-slot-edit]');
-    if (edit) { detailOffcanvas.hide(); openModal(edit.getAttribute('data-slot-edit'), null); return; }
+    if (edit) { detailModal.hide(); openModal(edit.getAttribute('data-slot-edit'), null); return; }
     var rm = e.target.closest('[data-slot-remove]');
     if (rm) {
       detailScheduleId = rm.getAttribute('data-slot-remove');
       var s = findSchedule(detailScheduleId);
       document.getElementById('deleteText').textContent = 'Keluarkan ' + s.requestId + ' dari ' + sensorySlotLabel(s.slot) + ', ' + fmtDate(s.start) + '?';
-      detailOffcanvas.hide();
+      detailModal.hide();
       deleteModal.show();
     }
   });
 
   document.getElementById('btnDetailEdit').addEventListener('click', function () {
-    detailOffcanvas.hide();
+    detailModal.hide();
     if (detailSlotStart) {
       var first = schedules.filter(function (x) { return x.start === detailSlotStart; })[0];
       openModal(null, { date: detailSlotStart.slice(0, 10), slot: first ? first.slot : 1 });
@@ -295,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('btnDetailDelete').addEventListener('click', function () {
     var s = findSchedule(detailScheduleId);
     document.getElementById('deleteText').textContent = 'Hapus ' + sessionLabel(s) + ' ' + s.requestId + ' (' + fmtDate(s.start) + ' ' + fmtTime(s.start) + ')?';
-    detailOffcanvas.hide();
+    detailModal.hide();
     deleteModal.show();
   });
 

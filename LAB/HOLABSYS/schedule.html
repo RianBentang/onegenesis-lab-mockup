@@ -127,19 +127,30 @@
       </div>
     </div>
 
-    <!-- ── Offcanvas: Detail Jadwal ── -->
-    <div class="offcanvas offcanvas-end" tabindex="-1" id="detailOffcanvas" style="width: 390px;">
-      <div class="offcanvas-header">
-        <div>
-          <h6 class="mb-0 fw-semibold"><i class="ri-calendar-event-line text-primary me-1"></i> <span id="detailTitle">Detail Jadwal</span></h6>
-          <span class="fs-11 text-muted" id="detailDocNo">-</span>
+    <!-- ── Modal (fullscreen): Detail Jadwal, laid out like a Google Calendar event page ── -->
+    <div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+          <!-- Top bar (Google Calendar event page): close on the left, actions on the right -->
+          <div class="d-flex align-items-center gap-2 border-bottom py-2 px-3">
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal" title="Tutup (Esc)"><i class="ri-close-line align-middle"></i> Tutup</button>
+            <span class="flex-fill"></span>
+            <button type="button" id="btnDetailDelete" class="btn btn-sm btn-danger-light" title="Hapus sesi"><i class="ri-delete-bin-line align-middle me-1"></i>Hapus</button>
+            <button type="button" id="btnDetailEdit" class="btn btn-sm btn-primary"><i class="ri-edit-line align-middle me-1"></i>Atur Jadwal</button>
+          </div>
+          <div class="modal-body py-4">
+            <div class="container-lg">
+              <div class="d-flex align-items-start gap-3 mb-4">
+                <span class="rounded-1 flex-shrink-0 mt-2" id="detailColor" style="width: 18px; height: 18px;"></span>
+                <div>
+                  <h4 class="fw-semibold mb-1" id="detailTitle">Detail Jadwal</h4>
+                  <div class="text-muted" id="detailDocNo">-</div>
+                </div>
+              </div>
+              <div id="detailBody"></div>
+            </div>
+          </div>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body" id="detailBody"></div>
-      <div class="offcanvas-footer d-flex gap-2 p-3 border-top">
-        <button type="button" id="btnDetailDelete" class="btn btn-danger-light btn-sm btn-wave d-inline-flex align-items-center"><i class="ri-delete-bin-line me-1"></i><span>Hapus Sesi</span></button>
-        <button type="button" id="btnDetailEdit" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center ms-auto"><i class="ri-edit-line me-1"></i><span>Atur Jadwal</span></button>
       </div>
     </div>
 
