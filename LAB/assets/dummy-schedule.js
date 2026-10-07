@@ -95,8 +95,9 @@ function getSchedulableRequests() {
   var out = [];
   var add = function (list, jenis) {
     list.forEach(function (r) {
-      if (r.step === 'Draft' || r.step === 'Approval') return; // only approved requests run a panel
-      out.push({ id: r.id, jenis: jenis, sampel: r.sampel || '' });
+      // only Fully Approved (Waiting for Schedule) or Confirmed requests run a panel
+      if (r.step !== 'Penjadwalan' && r.step !== 'Berjalan') return;
+      out.push({ id: r.id, jenis: jenis, sampel: r.sampel || '', waiting: r.step === 'Penjadwalan' });
     });
   };
   add(getSensoryRequests(), 'Sensory');

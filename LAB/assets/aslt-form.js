@@ -44,8 +44,11 @@ function initSelect2Aslt(id, placeholder) {
 function generateAsltDocNo() {
   var now = new Date();
   var ym = now.getFullYear().toString() + String(now.getMonth() + 1).padStart(2, '0');
-  var seq = String(Math.floor(Math.random() * 90) + 10);
-  return 'ASLT-' + ym + '-0' + seq;
+  /* Next free number of this month (never reuses an existing No. ID) */
+  var prefix = 'ASLT-' + ym + '-';
+  var max = 0;
+  getAsltRequests().forEach(function (r) { if (r.id.indexOf(prefix) === 0) max = Math.max(max, parseInt(r.id.slice(prefix.length), 10) || 0); });
+  return prefix + String(max + 1).padStart(3, '0');
 }
 
 function formatDateIDAslt(date) {
@@ -106,6 +109,9 @@ document.addEventListener('DOMContentLoaded', function () {
     window.jQuery('#kategoriPangan').val(existingRecord.kategoriPangan).trigger('change');
     window.jQuery('#kategoriAslt').val(existingRecord.kategori).trigger('change');
     window.jQuery('#jenisKemasan').val(existingRecord.jenisKemasan).trigger('change');
+    [['tujuanAnalisa', 'tujuan'], ['alamatPelanggan', 'alamatPelanggan'], ['alamatPabrik', 'alamatPabrik']].forEach(function (m) {
+      if (existingRecord[m[1]]) window.jQuery('#' + m[0]).val(existingRecord[m[1]]).trigger('change');
+    });
 
     var idMap = { namaSampel: 'sampel', kodeBatch: 'batch', catatanTambahan: 'catatanTambahan', alasanUrgent: 'alasanUrgent' };
     Object.keys(idMap).forEach(function (id) {
@@ -211,12 +217,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  /* =====================================================================
-     Role-based approval simulation — 1-step chain (Request → Approve Admin),
-     per the "Flow proses" diagram: ASLT & Sensory route straight to ADM,
-     unlike Internal/External's BSU→FRA→MGU→HOL→HOR chain.
-     ===================================================================== */
-
   function showToast(message) {
     var container = document.getElementById('appToastContainer');
     if (!container) { alert(message); return; }
@@ -235,62 +235,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  var APPROVAL_CHAIN = ['ADM'];
-
-  function renderApprovalRow(role, levelLabel, statusLabel, pending) {
-    var av = (typeof initials === 'function') ? initials(role.name) : role.code;
-    // SpkForm approval offcanvas item
-    return '<div class="d-flex align-items-start gap-2 p-3 rounded mb-2 ' + (pending ? 'bg-light' : 'bg-primary-transparent') + '">' +
-      '<span class="avatar avatar-md avatar-rounded bg-primary-transparent text-primary flex-shrink-0 fs-12 fw-semibold">' + av + '</span>' +
-      '<div class="flex-fill min-w-0">' +
-      '<div class="text-uppercase text-muted fs-10">' + levelLabel + '</div>' +
-      '<div class="fs-13 fw-semibold">' + role.name + '</div>' +
-      '<div class="fs-11 text-muted">' + role.code + ' · ' + role.label + '</div>' +
-      '</div>' +
-      '<span class="badge ' + (pending ? 'bg-warning-transparent' : 'bg-success-transparent') + ' align-self-center">' + statusLabel + '</span>' +
-      '</div>';
-  }
-
-  function renderApprovalList(containerId, approvedCount) {
-    var container = document.getElementById(containerId);
-    if (!container) return;
-    var html = renderApprovalRow(findRole('BSU'), 'Creator', 'Creator', false);
-    APPROVAL_CHAIN.forEach(function (code, i) {
-      var isApproved = i < approvedCount;
-      html += renderApprovalRow(findRole(code), 'Approve Admin', isApproved ? 'Approved' : 'Pending', !isApproved);
-    });
-    container.innerHTML = html;
-  }
-
-  var reasonModalEl = document.getElementById('reasonModal');
-  var reasonModal = (window.bootstrap && reasonModalEl) ? new window.bootstrap.Modal(reasonModalEl) : null;
-  var reasonModalTitle = document.getElementById('reasonModalTitle');
-  var reasonModalTextarea = document.getElementById('reasonModalTextarea');
-  var reasonModalError = document.getElementById('reasonModalError');
-  var pendingReasonAction = null;
-
-  function openReasonModal(action) {
-    pendingReasonAction = action;
-    reasonModalTitle.textContent = action === 'reject' ? 'Alasan Reject' : 'Alasan Return to Edit';
-    reasonModalTextarea.value = '';
-    reasonModalError.style.display = 'none';
-    if (reasonModal) reasonModal.show();
-  }
-
-  var reasonModalConfirm = document.getElementById('reasonModalConfirm');
-  if (reasonModalConfirm) {
-    reasonModalConfirm.addEventListener('click', function () {
-      var reason = reasonModalTextarea.value.trim();
-      if (!reason) { reasonModalError.style.display = 'block'; return; }
-      var actionLabel = pendingReasonAction === 'reject' ? 'Ditolak' : 'Dikembalikan untuk Edit';
-      var docNoVal = docNoEl ? docNoEl.textContent : '';
-      updateAsltRequest(docNoVal, { step: 'Draft', approvalIdx: 0 });
-      if (reasonModal) reasonModal.hide();
-      showToast('Dokumen ' + actionLabel + ': "' + reason + '"');
-      setTimeout(function () { window.location.href = 'asltAndSensory.html?tab=aslt'; }, 1200);
-    });
-  }
-
   function setFormLocked(locked) {
     document.querySelectorAll('#asltForm input, #asltForm select, #asltForm textarea').forEach(function (el) { el.disabled = locked; });
     if (window.jQuery) {
@@ -307,24 +251,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (dz) dz.classList.toggle('disabled', locked);
   }
 
-  var formActionButtons = document.getElementById('formActionButtons');
-  var BACK_BTN_HTML = '<a href="asltAndSensory.html?tab=aslt" class="btn btn-sm bg-white d-inline-flex align-items-center gap-1"><i class="ri-arrow-left-line"></i> Back</a>';
-
-  function renderActionButtons(mode) {
-    if (mode === 'bsu') {
-      formActionButtons.innerHTML = BACK_BTN_HTML +
-        '<button type="button" data-action="save-draft" class="btn btn-sm btn-warning btn-wave d-inline-flex align-items-center gap-1 text-white"><i class="ri-save-3-line"></i> Save Draft</button>' +
-        '<button type="button" data-action="submit" class="btn btn-sm btn-success btn-wave d-inline-flex align-items-center gap-1"><i class="ri-send-plane-fill"></i> Submit</button>';
-    } else if (mode === 'approver') {
-      formActionButtons.innerHTML = BACK_BTN_HTML +
-        '<button type="button" data-action="return" class="btn btn-sm btn-warning d-inline-flex align-items-center gap-1 text-white"><i class="ri-arrow-go-back-line"></i> Return to Edit</button>' +
-        '<button type="button" data-action="reject" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1"><i class="ri-close-circle-line"></i> Reject</button>' +
-        '<button type="button" data-action="approve" class="btn btn-sm btn-primary btn-wave d-inline-flex align-items-center gap-1"><i class="ri-checkbox-circle-line"></i> Approve</button>';
-    } else {
-      formActionButtons.innerHTML = BACK_BTN_HTML;
-    }
-  }
-
   function collectFormValues() {
     var val = function (id) { var el = document.getElementById(id); return el ? el.value : ''; };
     return {
@@ -332,6 +258,9 @@ document.addEventListener('DOMContentLoaded', function () {
       tanggal: docDateEl ? docDateEl.textContent : formatDateIDAslt(new Date()),
       tipe: val('tipePengajuan'),
       alasanUrgent: val('alasanUrgent'),
+      tujuan: val('tujuanAnalisa'),
+      alamatPelanggan: val('alamatPelanggan'),
+      alamatPabrik: val('alamatPabrik'),
       pemohon: findRole(localStorage.getItem('holabsysRole')).name,
       departemen: val('departemenPemohon'),
       sampel: val('namaSampel'),
@@ -342,72 +271,29 @@ document.addEventListener('DOMContentLoaded', function () {
       batch: val('kodeBatch'),
       prod: val('tanggalProduksi'),
       catatanTambahan: val('catatanTambahan'),
-      suhuChamber: '– (menunggu Approve Admin)',
+      suhuChamber: (existingRecord && existingRecord.suhuChamber) || '– (ditentukan lab)',
       kemasan: val('spesifikasiKemasan'),
       param: ts ? ts.getValue().map(function (v) { var f = MASTER_PARAMETER_ASLT.find(function (p) { return p.value === v; }); return f ? f.text : v; }).join(', ') : '',
-      timepoint: 'Belum Dimulai',
+      timepoint: (existingRecord && existingRecord.timepoint) || 'Belum Dimulai',
       rejection: val('perkiraanRejection'),
-      step: 'Draft',
-      approvalIdx: 0,
-      status: 'Menunggu Approve Admin'
+      status: (existingRecord && existingRecord.status) || 'Menunggu Approval'
     };
   }
 
-  if (formActionButtons) {
-    formActionButtons.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-action]');
-      if (!btn) return;
-      var action = btn.dataset.action;
-      var docNoVal = docNoEl ? docNoEl.textContent : '';
-
-      if (action === 'save-draft') {
-        updateAsltRequest(docNoVal, collectFormValues());
-        showToast('Draf pengajuan ASLT "' + docNoVal + '" disimpan.');
-      } else if (action === 'submit') {
-        var form = document.getElementById('asltForm');
-        if (form.checkValidity() === false) { form.reportValidity(); return; }
-        if (!files.length) { showToast('Lampiran Dokumen (Klausul ASLT) wajib diunggah.'); return; }
-        var record = collectFormValues();
-        record.step = 'Approval';
-        record.approvalIdx = 0;
-        updateAsltRequest(docNoVal, record);
-        showToast('Pengajuan ASLT "' + docNoVal + '" berhasil dikirim untuk Approve Admin.');
-        setTimeout(function () { window.location.href = 'asltAndSensory.html?tab=aslt'; }, 1200);
-      } else if (action === 'return') {
-        openReasonModal('return');
-      } else if (action === 'reject') {
-        openReasonModal('reject');
-      } else if (action === 'approve') {
-        updateAsltRequest(docNoVal, {
-          step: 'Berjalan',
-          approvalIdx: 1,
-          status: 'Cek Fiskim Initial',
-          timepoint: 'H-0 (Initial)'
-        });
-        showToast('Disetujui oleh Lab Administrator. Batch ASLT masuk Cek Fiskim Initial.');
-        setTimeout(function () { window.location.href = 'asltAndSensory.html?tab=aslt'; }, 1200);
-      }
-    });
-  }
-
-  function refreshFormState() {
-    var role = findRole(localStorage.getItem('holabsysRole'));
-    var isBSU = role.code === 'BSU';
-    var idx = APPROVAL_CHAIN.indexOf(role.code);
-    var isAuthorized = !isBSU && idx > -1 && (!existingRecord || existingRecord.step === 'Approval');
-
-    setFormLocked(!isBSU);
-    renderActionButtons(isBSU ? 'bsu' : (isAuthorized ? 'approver' : 'back-only'));
-
-    var approvedCount = isAuthorized ? idx : (existingRecord && existingRecord.step === 'Berjalan' ? 1 : 0);
-
-    var lastApproverEl = document.getElementById('lastApproverValue');
-    if (lastApproverEl) lastApproverEl.textContent = approvedCount ? findRole(APPROVAL_CHAIN[0]).label : '–';
-
-    renderApprovalList('approvalOffcanvasBody', approvedCount);
-    renderApprovalList('historyOffcanvasBody', approvedCount);
-  }
-
-  document.addEventListener('holabsys:rolechange', refreshFormState);
-  refreshFormState();
+  /* ---------- Approval flow: shared with Sensory (request-approval.js) ---------- */
+  setupRequestApproval({
+    label: 'ASLT',
+    formId: 'asltForm',
+    listUrl: 'asltAndSensory.html?tab=aslt',
+    docNo: function () { return docNoEl ? docNoEl.textContent : ''; },
+    getRecord: getAsltRequestById,
+    update: updateAsltRequest,
+    collect: collectFormValues,
+    validate: function () {
+      return files.length || (existingRecord && existingRecord.step && existingRecord.step !== 'Draft') ? '' : 'Lampiran Dokumen (Klausul ASLT) wajib diunggah.';
+    },
+    setLocked: setFormLocked,
+    toast: showToast,
+    onApproved: function () { return { status: 'Cek Fiskim Initial', timepoint: 'H-0 (Initial)' }; }
+  });
 });

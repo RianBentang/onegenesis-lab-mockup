@@ -100,7 +100,8 @@ function addRequest(record) {
    Between Fully Approved and Confirmed the doc runs its workflow; the pending step is shown
    as an extra workflow badge ("Waiting for …"): Kaji Ulang & SPK, then Labeling. When the
    label is handed to the analyst the doc is Confirmed.
-   External requests use the same statuses; their one workflow step is Sample Delivery. */
+   External requests use the same statuses; their one workflow step is Sample Delivery.
+   Sensory / ASLT: one workflow step, Penjadwalan ("Waiting for Schedule"). */
 var DOC_STATUS = {
   'New': { cls: 'bg-secondary-transparent', icon: 'ri-file-add-line' },
   'Draft': { cls: 'bg-secondary-transparent', icon: 'ri-draft-line' },
@@ -116,7 +117,8 @@ var DOC_STATUS = {
 var DOC_WORKFLOW = {
   'Review & SPK': 'Waiting for Kaji Ulang & SPK',
   'Labeling': 'Waiting for Labeling',
-  'Sample Delivery': 'Waiting for Sample Delivery' // External: Lab Admin confirms the sample was sent
+  'Sample Delivery': 'Waiting for Sample Delivery', // External: Lab Admin confirms the sample was sent
+  'Penjadwalan': 'Waiting for Schedule' // Sensory / ASLT: the request still has to be put in Schedule
 };
 
 /* Returns { status, workflow } — workflow is null or the pending workflow step label */

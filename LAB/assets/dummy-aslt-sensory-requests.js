@@ -1,6 +1,6 @@
 /* ---------- Shared dummy ASLT & Sensory request stores (design-only, localStorage-backed) ---------- */
-var ASLT_STORAGE_KEY = 'holabsysAsltRequests';
-var SENSORY_STORAGE_KEY = 'holabsysSensoryRequests';
+var ASLT_STORAGE_KEY = 'holabsysAsltRequests.v2';
+var SENSORY_STORAGE_KEY = 'holabsysSensoryRequests.v2';
 
 var SEED_ASLT_REQUESTS = [
   {
@@ -52,7 +52,7 @@ var SEED_ASLT_REQUESTS = [
   },
   {
     id: 'ASLT-202609-005', tanggal: '12-09-2026', tipe: 'Normal', alasanUrgent: '',
-    pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Berjalan', approvalIdx: 1,
+    pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Approval', approvalIdx: 0, tujuan: 'R&D Trial',
     sampel: 'Slai O Lai Blueberry Biskuit 32g', kategori: 'Trial',
     suhuChamber: '35°C, 45°C',
     kemasan: 'Plastik Flow Pack',
@@ -63,7 +63,7 @@ var SEED_ASLT_REQUESTS = [
   },
   {
     id: 'ASLT-202609-006', tanggal: '14-09-2026', tipe: 'Normal', alasanUrgent: '',
-    pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Berjalan', approvalIdx: 1,
+    pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Penjadwalan', approvalIdx: 1, tujuan: 'Routine QC',
     sampel: 'WCG Wafer Cone Chocolate 120g', kategori: 'Re-ASLT',
     suhuChamber: '25°C, 45°C',
     kemasan: 'Pouch Alufo',
@@ -75,6 +75,19 @@ var SEED_ASLT_REQUESTS = [
 ];
 
 var SEED_SENSORY_REQUESTS = [
+  {
+    id: 'SN-202610-0014', tanggal: '06-10-2026', tipe: 'Urgent', alasanUrgent: 'Keluhan pelanggan, perlu cek pembeda segera.', tujuan: 'Customer Complaint',
+    pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Approval', approvalIdx: 1,
+    jenis: 'Uji Triangle', params: ['triangle'], sampel: 'Kacang Panggang Rasa BBQ', batch: 'B2610-02A',
+    jenisSampel: ['Rosta ORC', 'Rosta BBQ Sapi'], blindCodes: [], suhuWadah: 'Ambient · Cawan Plastik', status: 'Menunggu Approval'
+  },
+  {
+    id: 'SN-202610-0013', tanggal: '05-10-2026', tipe: 'Normal', alasanUrgent: '', tujuan: 'Routine QC',
+    pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Penjadwalan', approvalIdx: 1,
+    jenis: 'Uji Sensori Internal - Afektif Rating', params: ['internal-rating'], sampel: 'Minuman Hot Chocolate', batch: '3UNR240127 2447',
+    jenisSampel: ['Beng Beng Drink', 'Chocodrink', 'DRINK5'], blindCodes: ['198', '465', '210'],
+    panel: { codes: ['198', '465', '210'], oddCode: null }, suhuWadah: 'Hot · Cup Kertas', status: 'Menunggu Jadwal'
+  },
   {
     id: 'SN-202609-0012', tanggal: '23-09-2026', tipe: 'Normal', alasanUrgent: '',
     pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Berjalan', approvalIdx: 1,
@@ -201,4 +214,22 @@ function sensorySampleRows(record) {
   var jenis = Array.isArray(record.jenisSampel) ? record.jenisSampel : (record.jenisSampel ? [record.jenisSampel] : []);
   if (!jenis.length) return codes.map(function (c) { return { jenis: '-', kode: c }; });
   return jenis.map(function (j, i) { return { jenis: j, kode: codes[i] || '-' }; });
+}
+
+/* ---------- Document flow (same statuses as Internal / External) ----------
+   Draft → Approval (chain below) → 'Penjadwalan' = Fully Approved, workflow "Waiting for Schedule"
+   → the request is put in Schedule → 'Berjalan' = Confirmed: the panel runs and Excel can pull it.
+   Return to Edit → Draft (returned), Reject → 'Rejected'. */
+function panelRequestApprovalChain(tipe, tujuan) {
+  var mdP5 = tujuan === 'Pendaftaran MD (BPOM)' || tujuan === 'Pengujian P5';
+  if (tipe === 'Urgent') return mdP5 ? ['MGU', 'HOL', 'HOR', 'FRA', 'ADM'] : ['MGU', 'HOL', 'HOR', 'ADM'];
+  return mdP5 ? ['FRA', 'ADM'] : ['ADM'];
+}
+
+/* Called by Schedule when a session is saved for the request: Waiting for Schedule → Confirmed */
+function markPanelRequestScheduled(jenis, id) {
+  var get = jenis === 'ASLT' ? getAsltRequestById : getSensoryRequestById;
+  var update = jenis === 'ASLT' ? updateAsltRequest : updateSensoryRequest;
+  var r = get(id);
+  if (r && r.step === 'Penjadwalan') update(id, { step: 'Berjalan', scheduledAt: new Date().toISOString() });
 }

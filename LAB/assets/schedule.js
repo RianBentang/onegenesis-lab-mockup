@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function fillRequestOptions() {
     $request.html('<option></option>' + requests.filter(function (r) { return r.jenis === activeJenis; }).map(function (r) {
-      return '<option value="' + esc(r.id) + '">' + esc(r.id) + ' — ' + esc(r.sampel) + '</option>';
+      return '<option value="' + esc(r.id) + '">' + esc(r.id) + ' — ' + esc(r.sampel) + (r.waiting ? ' (Waiting for Schedule)' : '') + '</option>';
     }).join(''));
   }
   $request.select2({ width: '100%', placeholder: 'Pilih pengajuan', allowClear: true, dropdownParent: $('#scheduleModal') });
@@ -460,6 +460,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (jenis === 'Sensory') rec.slot = r.slot; else delete rec.slot;
     });
     persist();
+    /* Scheduling a Fully Approved request confirms it (Waiting for Schedule → Confirmed) */
+    markPanelRequestScheduled(jenis, requestId);
     scheduleModal.hide();
     showToast('Jadwal ' + requestId + ' disimpan (' + rows.length + ' sesi)');
   });
@@ -469,4 +471,18 @@ document.addEventListener('DOMContentLoaded', function () {
     tabsNav.querySelectorAll('.nav-link').forEach(function (t) { t.classList.toggle('active', t.dataset.jenis === activeJenis); });
     applyTab();
   });
+
+  /* schedule.html?jenis=Sensory&request=SN-... (Jadwalkan from a Fully Approved request) */
+  var qJenis = /[?&]jenis=(Sensory|ASLT)/.exec(location.search);
+  var qRequest = /[?&]request=([^&]+)/.exec(location.search);
+  if (qJenis) {
+    activeJenis = qJenis[1];
+    tabsNav.querySelectorAll('.nav-link').forEach(function (t) { t.classList.toggle('active', t.dataset.jenis === activeJenis); });
+    applyTab();
+  }
+  if (qRequest && findRequest(decodeURIComponent(qRequest[1]))) {
+    var qId = decodeURIComponent(qRequest[1]);
+    if (sessionsOf(qId).length) openModal(qId, null);
+    else { openModal(null, null); $request.val(qId).trigger('change'); }
+  }
 });
