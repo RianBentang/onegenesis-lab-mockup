@@ -197,7 +197,7 @@
                     <h6 class="fw-semibold mb-0">4. Parameter Uji</h6>
                   </div>
                   <div class="row g-3">
-                    <div class="col-12 col-md-6">
+                    <div class="col-12">
                       <label class="form-label">Parameter Uji <span class="text-danger">*</span></label>
                       <!-- SpkSelect2 -->
                       <select id="parameterUji" class="form-select" required></select>
@@ -207,6 +207,22 @@
                       <!-- TomSelect multi, free text (create): one tag per jenis sampel -->
                       <select id="jenisSampel" multiple placeholder="Ketik jenis sampel, lalu Enter..."></select>
                       <div class="form-text">Bisa lebih dari satu, isi bebas. Ketik lalu tekan Enter atau koma untuk menambah.</div>
+                    </div>
+                    <div class="col-12" id="atributTableWrap" style="display:none;">
+                      <!-- Atribut & Ketepatan per jenis sampel: Atribut options follow the Parameter Uji,
+                           Ketepatan options follow the chosen atribut; both multi (TomSelect) -->
+                      <div class="table-responsive rounded border">
+                        <table class="table table-sm align-middle mb-0">
+                          <thead>
+                            <tr>
+                              <th style="width: 22%">Jenis Sampel</th>
+                              <th style="width: 34%">Atribut <span class="text-danger">*</span></th>
+                              <th>Ketepatan <span class="text-danger">*</span></th>
+                            </tr>
+                          </thead>
+                          <tbody id="atributTableBody"></tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
                 </div>
