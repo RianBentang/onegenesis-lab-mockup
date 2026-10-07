@@ -80,7 +80,8 @@ var SEED_SENSORY_REQUESTS = [
     pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Berjalan', approvalIdx: 1,
     jenis: 'Uji Sensori Internal - Afektif Rating',
     sampel: 'Chocolatos Wafer Stick Formula Baru',
-    blindCodes: ['842', '319', '571'],
+    blindCodes: ['842', '319', '571'], batch: 'B2609-14A',
+    jenisSampel: ['Formula Baru A', 'Formula Baru B', 'Kontrol (Existing)'],
     sesi: 'Sesi 1 (15 Panelis)',
     suhuWadah: 'Ambient · Cawan Plastik',
     status: 'Sesi Aktif',
@@ -91,7 +92,8 @@ var SEED_SENSORY_REQUESTS = [
     pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Berjalan', approvalIdx: 1,
     jenis: 'Uji Triangle',
     sampel: 'Maco Chocolate Wafer vs Kompetitor X',
-    blindCodes: ['204', '791', '204'],
+    blindCodes: ['204', '791', '204'], batch: 'B2609-10C',
+    jenisSampel: ['Maco Chocolate Wafer', 'Kompetitor X'],
     sesi: 'Sesi 2 (12 Panelis)',
     suhuWadah: 'Ambient · Piring Kaca',
     status: 'Selesai (Poin 3 Valid)',
@@ -102,7 +104,8 @@ var SEED_SENSORY_REQUESTS = [
     pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Berjalan', approvalIdx: 1,
     jenis: 'Quality Monitoring',
     sampel: 'Pilus Rasa Mie Goreng (LAB-QM)',
-    blindCodes: ['112', '449'],
+    blindCodes: ['112', '449'], batch: '2 SMD 220427 054',
+    jenisSampel: ['PGMF', 'GF2'],
     sesi: 'Sesi Rutin QA (8 Panelis)',
     suhuWadah: 'Ambient · Cawan Plastik',
     status: 'Selesai',
@@ -114,7 +117,8 @@ var SEED_SENSORY_REQUESTS = [
     pemohon: 'Marsya Valentina', departemen: 'Quality Assurance', step: 'Berjalan', approvalIdx: 1,
     jenis: 'Uji Sensori Internal - Afektif Ranking',
     sampel: 'Gery Saluut Sweet Cheese vs 3 Variasi Rasa',
-    blindCodes: ['633', '902', '158'],
+    blindCodes: ['633', '902', '158'], batch: 'B2609-03B',
+    jenisSampel: ['Sweet Cheese Original', 'Variasi Keju Plus', 'Variasi Less Sugar'],
     sesi: 'Sesi 1 (20 Panelis)',
     suhuWadah: 'Ambient · Cawan Plastik',
     status: 'Selesai'
@@ -186,4 +190,15 @@ function addSensoryRequest(record) {
   list.push(record);
   _sensoryStore.saveAll(list);
   return record;
+}
+
+/* Sample rows of a sensory request, as listed per session in Schedule (like the old app):
+   one row per jenis sampel with its 3-digit blind code → [{ jenis, kode }] */
+function sensorySampleRows(record) {
+  if (!record) return [];
+  var codes = (record.panel && record.panel.codes && record.panel.codes.length ? record.panel.codes : (record.blindCodes || []))
+    .filter(function (c, i, a) { return a.indexOf(c) === i; });
+  var jenis = Array.isArray(record.jenisSampel) ? record.jenisSampel : (record.jenisSampel ? [record.jenisSampel] : []);
+  if (!jenis.length) return codes.map(function (c) { return { jenis: '-', kode: c }; });
+  return jenis.map(function (j, i) { return { jenis: j, kode: codes[i] || '-' }; });
 }

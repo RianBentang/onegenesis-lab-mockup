@@ -75,7 +75,7 @@ function panelTrxFor(source, record) {
   if (!record) return null;
   var panel = record.panel || {};
   var blind = (record.blindCodes || []).filter(function (c, i, a) { return a.indexOf(c) === i; });
-  var codes = panel.codes && panel.codes.length ? panel.codes : (blind.length >= 2 ? blind : panelGenerateCodes(3, record.id));
+  var codes = panel.codes && panel.codes.length ? panel.codes : (blind.length >= 2 ? blind : panelGenerateCodes(Array.isArray(record.jenisSampel) && record.jenisSampel.length >= 2 ? record.jenisSampel.length : 3, record.id));
   var tests;
   if (source === 'aslt') {
     tests = [{ param: 'organoleptik', type: 'rating', label: PANEL_PARAM_LABEL.organoleptik, atribut: ASLT_ORGANOLEPTIK_ATRIBUT.slice(), ketepatan: [] }];
