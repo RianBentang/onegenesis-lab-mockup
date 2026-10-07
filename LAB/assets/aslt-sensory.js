@@ -2,7 +2,7 @@
    Same layout as the Internal / External request lists: tabs (Sensory / ASLT) + one Request List
    card with status filter and search. Status uses the shared doc status badges (getDocStatus /
    docStatusBadgesHtml, dummy-requests.js). One create button in the page header, following the
-   active tab. Open with ?tab=aslt to land on the ASLT tab (the ASLT form's Back link does). */
+   active tab (label stays "Buat Pengajuan Baru"). Open with ?tab=aslt to land on the ASLT tab (the ASLT form's Back link does). */
 
 function aslRowMatchesQuery(fields, query) {
   var q = query.trim().toLowerCase();
@@ -12,12 +12,12 @@ function aslRowMatchesQuery(fields, query) {
 
 var ASLT_SENSORY_TABS = {
   sensory: {
-    form: 'sensoryForm.html', create: 'Buat Pengajuan Sensory', jenisHead: 'Jenis Pengujian',
+    form: 'sensoryForm.html', jenisHead: 'Jenis Pengujian',
     list: function () { return getSensoryRequests(); },
     jenis: function (r) { return r.jenis || '-'; }
   },
   aslt: {
-    form: 'asltForm.html', create: 'Buat Pengajuan ASLT', jenisHead: 'Kategori',
+    form: 'asltForm.html', jenisHead: 'Kategori',
     list: function () { return getAsltRequests(); },
     jenis: function (r) { return r.kategori || '-'; }
   }
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('countSensory').textContent = getSensoryRequests().length;
     document.getElementById('countAslt').textContent = getAsltRequests().length;
     document.getElementById('listActionButtons').innerHTML =
-      '<a href="' + cfg.form + '" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center"><i class="ri-add-line me-1 align-middle"></i>' + cfg.create + '</a>';
+      '<a href="' + cfg.form + '" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center"><i class="ri-add-line me-1 align-middle"></i>Buat Pengajuan Baru</a>';
   }
 
   function showTab(tab) {
