@@ -77,6 +77,8 @@
       return matchSearch && matchKota;
     });
 
+    var countEl = document.getElementById('countList'); // tab badge in the card header
+    if (countEl) countEl.textContent = filtered.length;
     tbody.innerHTML = filtered.map(function (item, idx) {
       var paramBadges = item.params.map(function (p) {
         return '<span class="badge bg-light text-dark border me-1 mb-1 font-monospace" style="font-size:0.75rem;">' + p + '</span>';

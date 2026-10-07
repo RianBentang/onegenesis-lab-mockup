@@ -127,6 +127,9 @@
       return !searchVal || item.nama.toLowerCase().includes(searchVal) || item.role.toLowerCase().includes(searchVal) || item.dept.toLowerCase().includes(searchVal);
     });
 
+    var countEl = document.getElementById('countTtd'); // tab badge in the card header
+    if (countEl) countEl.textContent = filtered.length;
+
     tbody.innerHTML = filtered.map(function (item, idx) {
       var badgeCls = getBadgeClass(item.role);
       var statusBadge = item.status === 'Active'
@@ -155,6 +158,9 @@
   function renderAuditLogs() {
     var tbody = document.getElementById('auditTableBody');
     if (!tbody) return;
+
+    var countEl = document.getElementById('countAudit');
+    if (countEl) countEl.textContent = AUDIT_LOGS.length;
 
     tbody.innerHTML = AUDIT_LOGS.map(function (log) {
       return '<tr>' +
@@ -197,6 +203,11 @@
 
     // Search filter
     document.getElementById('searchTtdInput')?.addEventListener('input', renderTable);
+
+    // The search in the card header only applies to the Spesimen TTD tab
+    document.getElementById('sigTab')?.addEventListener('shown.bs.tab', function (e) {
+      document.getElementById('sigFilters')?.classList.toggle('d-none', e.target.id !== 'tab-specimen-btn');
+    });
 
     // QR controls
     document.getElementById('qrTypeSelect')?.addEventListener('change', function () {

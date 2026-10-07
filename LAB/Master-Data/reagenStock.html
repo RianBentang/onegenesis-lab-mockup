@@ -27,10 +27,10 @@
               </ol>
             <h1 class="page-title fw-medium fs-18 mb-0">Reagen & Stok</h1>
           </div>
-          <div class="d-flex flex-wrap gap-2 align-items-center">
-            <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" id="btnAddNewItem">
-              <i class="ri-add-line"></i> Tambah Item
-            </button>
+          <div class="btn-list spk-page-header-actions-host">
+            <div class="spk-page-header-actions-card">
+              <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center" id="btnAddNewItem"><i class="ri-add-line me-1 align-middle"></i>Tambah Item</button>
+            </div>
           </div>
         </div>
 
@@ -101,63 +101,59 @@
           </div>
         </div>
 
-        <!-- Main Card with Segmented Tabs -->
-        <div class="card custom-card mb-3 overflow-hidden">
-            <div class="card-body p-0">
-              <div class="border-bottom">
-                <ul class="nav nav-tabs tab-style-2 mb-0 d-flex flex-nowrap" role="tablist" data-tabgroup="reagen">
-                  <li class="nav-item" role="presentation">
-                    <a class="nav-link active" href="#!" role="tab" data-tab="master">
-                      <i class="ri-flask-line me-1 align-middle"></i>Master Stok
-                      <span class="badge bg-primary-transparent rounded-pill ms-1" id="countMaster">8</span>
-                    </a>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <a class="nav-link" href="#!" role="tab" data-tab="log">
-                      <i class="ri-file-list-3-line me-1 align-middle"></i>Log Pemakaian
-                      <span class="badge bg-primary-transparent rounded-pill ms-1" id="countLog">6</span>
-                    </a>
-                  </li>
-                  <li class="nav-item" role="presentation">
-                    <a class="nav-link" href="#!" role="tab" data-tab="stockopname">
-                      <i class="ri-checkbox-multiple-line me-1 align-middle"></i>Stock Opname
-                      <span class="badge bg-primary-transparent rounded-pill ms-1" id="countSo">5</span>
-                    </a>
-                  </li>
-                </ul>
+        <!-- Tabs in the card header (nav-tabs tab-style-2) + per-tab filters, same layout as the request lists.
+             The filter groups carry data-group/data-pane, so the tab switch shows only the active tab's filters. -->
+        <div class="card custom-card">
+          <div class="card-header p-0 d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 border-bottom">
+            <ul class="nav nav-tabs tab-style-2 mb-0 border-0 d-flex flex-nowrap px-3" role="tablist" data-tabgroup="reagen">
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link active" href="#!" role="tab" data-tab="master">
+                    <i class="ri-flask-line me-1 align-middle"></i>Master Stok
+                    <span class="badge bg-primary-transparent rounded-pill ms-1" id="countMaster">8</span>
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" href="#!" role="tab" data-tab="log">
+                    <i class="ri-file-list-3-line me-1 align-middle"></i>Log Pemakaian
+                    <span class="badge bg-primary-transparent rounded-pill ms-1" id="countLog">6</span>
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" href="#!" role="tab" data-tab="stockopname">
+                    <i class="ri-checkbox-multiple-line me-1 align-middle"></i>Stock Opname
+                    <span class="badge bg-primary-transparent rounded-pill ms-1" id="countSo">5</span>
+                  </a>
+                </li>
+            </ul>
+            <div data-group="reagen" data-pane="master"><div class="d-flex align-items-center flex-wrap gap-2 px-3 pb-2 pb-md-0">
+              <div style="width: 170px;">
+                <select class="form-select form-select-sm" id="filterLab">
+                  <option value="">Semua Lab</option>
+                  <option value="Fisika Kimia">Fisika Kimia</option>
+                  <option value="Mikrobiologi">Mikrobiologi</option>
+                  <option value="Sensori">Sensori</option>
+                  <option value="ASLT">ASLT</option>
+                </select>
               </div>
-            </div>
+              <div style="width: 150px;">
+                <select class="form-select form-select-sm" id="filterStatus">
+                  <option value="">Semua Status</option>
+                  <option value="Aman">Aman</option>
+                  <option value="Menipis">Menipis</option>
+                  <option value="Habis">Habis</option>
+                </select>
+              </div>
+              <input type="text" class="form-control form-control-sm" id="searchMaster" placeholder="Cari kode, nama, kegunaan..." style="width: 300px;" />
+            </div></div>
+            <div class="d-none" data-group="reagen" data-pane="log"><div class="d-flex align-items-center flex-wrap gap-2 px-3 pb-2 pb-md-0">
+              <input type="text" class="form-control form-control-sm" id="searchLog" placeholder="Cari reagen, SPK, atau PIC..." style="width: 300px;" />
+            </div></div>
           </div>
 
-        <div class="card custom-card">
-
           <!-- TAB 1: MASTER STOK -->
-          <div data-group="reagen" data-pane="master" id="pane-master">
-            <div class="p-3 border-bottom d-flex flex-wrap gap-2 align-items-center justify-content-between">
-              <div class="d-flex flex-wrap gap-2 align-items-center flex-grow-1">
-                <div style="width: 320px; max-width: 100%"><input type="text" class="form-control form-control-sm w-100" id="searchMaster" placeholder="Cari kode, nama, kegunaan..." /></div>
-                <div style="width: 170px;">
-                  <select class="form-select form-select-sm" id="filterLab">
-                    <option value="">Semua Lab</option>
-                    <option value="Fisika Kimia">Fisika Kimia</option>
-                    <option value="Mikrobiologi">Mikrobiologi</option>
-                    <option value="Sensori">Sensori</option>
-                    <option value="ASLT">ASLT</option>
-                  </select>
-                </div>
-                <div style="width: 150px;">
-                  <select class="form-select form-select-sm" id="filterStatus">
-                    <option value="">Semua Status</option>
-                    <option value="Aman">Aman</option>
-                    <option value="Menipis">Menipis</option>
-                    <option value="Habis">Habis</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
+          <div class="card-body" data-group="reagen" data-pane="master" id="pane-master">
             <div class="table-responsive">
-              <table class="table table-hover text-nowrap mb-0">
+              <table class="table table-hover text-nowrap border mb-0">
                 <thead>
                   <tr>
                     <th style="width: 1%">Aksi</th>
@@ -177,16 +173,10 @@
           </div>
 
           <!-- TAB 2: LOG PEMAKAIAN -->
-          <div class="d-none" data-group="reagen" data-pane="log" id="pane-log">
-            <div class="p-3 border-bottom d-flex flex-wrap gap-2 align-items-center justify-content-between">
-              <div style="width: 320px; max-width: 100%"><input type="text" class="form-control form-control-sm w-100" id="searchLog" placeholder="Cari reagen, SPK, atau PIC..." /></div>
-              <div class="text-muted fs-12">
-                <i class="ri-information-line me-1"></i> Auto-deduct mencatat pemotongan bahan saat push data pengujian.
-              </div>
-            </div>
-
+          <div class="card-body d-none" data-group="reagen" data-pane="log" id="pane-log">
+            <div class="text-muted fs-12 mb-2"><i class="ri-information-line me-1"></i>Auto-deduct mencatat pemotongan bahan saat push data pengujian.</div>
             <div class="table-responsive">
-              <table class="table table-hover text-nowrap mb-0">
+              <table class="table table-hover text-nowrap border mb-0">
                 <thead>
                   <tr>
                     <th>Tanggal &amp; Waktu</th>

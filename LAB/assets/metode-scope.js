@@ -38,6 +38,8 @@
       return matchSearch && matchLab && matchScope;
     });
 
+    var countEl = document.getElementById('countList'); // tab badge in the card header
+    if (countEl) countEl.textContent = filtered.length;
     tbody.innerHTML = filtered.map(function (item, idx) {
       var scopeBadge = item.scope
         ? '<span class="badge bg-success-transparent"><i class="ri-check-line"></i> In-Scope (KAN)</span>'

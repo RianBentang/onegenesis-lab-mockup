@@ -27,6 +27,11 @@
               </ol>
               <h1 class="page-title fw-medium fs-18 mb-0">Master Tanda Tangan &amp; Barcode / QR</h1>
             </div>
+            <div class="btn-list spk-page-header-actions-host">
+              <div class="spk-page-header-actions-card">
+                <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalAddTtd"><i class="ri-add-line me-1 align-middle"></i>Tambah Spesimen TTD</button>
+              </div>
+            </div>
           </div>
 
         <!-- KPI Cards -->
@@ -101,69 +106,66 @@
           </div>
         </div>
 
-        <!-- Tab Nav -->
-        <ul class="nav nav-tabs tab-style-2 mb-3" id="sigTab" role="tablist">
-          <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="tab-specimen-btn" data-bs-toggle="tab" data-bs-target="#tab-specimen" type="button" role="tab">
-              <i class="ri-quill-pen-line me-1"></i> Spesimen Tanda Tangan Digital
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-qrcode-btn" data-bs-toggle="tab" data-bs-target="#tab-qrcode" type="button" role="tab">
-              <i class="ri-qr-code-line me-1"></i> Konfigurasi Barcode &amp; QR Code
-            </button>
-          </li>
-          <li class="nav-item" role="presentation">
-            <button class="nav-link" id="tab-audit-btn" data-bs-toggle="tab" data-bs-target="#tab-audit" type="button" role="tab">
-              <i class="ri-history-line me-1"></i> Audit Trail &amp; Log Keabsahan
-            </button>
-          </li>
-        </ul>
-
-        <!-- Tab Content -->
-        <div class="tab-content" id="sigTabContent">
-          <!-- TAB 1: Spesimen TTD -->
-          <div class="tab-pane fade show active" id="tab-specimen" role="tabpanel">
-            <div class="card custom-card">
-              <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-2">
-                  <div class="card-title">Daftar Spesimen &amp; Otoritas Penandatangan</div>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                  <input type="text" id="searchTtdInput" class="form-control form-control-sm" placeholder="Cari nama / role..." style="width: 220px;" />
-                  <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalAddTtd">
-                    <i class="ri-add-line"></i> Tambah Spesimen TTD
-                  </button>
-                </div>
-              </div>
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                  <thead class="table-light">
-                    <tr>
-                      <th style="width: 50px;">No</th>
-                      <th>Pemegang Otoritas</th>
-                      <th>Peran / Role</th>
-                      <th>Departemen</th>
-                      <th style="width: 180px;">Pratinjau Tanda Tangan</th>
-                      <th>Token Hash / Sertifikat</th>
-                      <th>Masa Berlaku</th>
-                      <th>Status</th>
-                      <th style="width: 120px;" class="text-center">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody id="ttdTableBody">
-                    <!-- Populated by JS -->
-                  </tbody>
-                </table>
+        <!-- One card: tabs + filters in the header (nav-tabs tab-style-2), same layout as the request lists -->
+        <div class="card custom-card">
+          <div class="card-header p-0 d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 border-bottom">
+            <ul class="nav nav-tabs tab-style-2 mb-0 border-0 d-flex flex-nowrap px-3" id="sigTab" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link active" id="tab-specimen-btn" data-bs-toggle="tab" data-bs-target="#tab-specimen" type="button" role="tab">
+                <i class="ri-quill-pen-line me-1 align-middle"></i>Spesimen TTD
+                <span class="badge bg-primary-transparent rounded-pill ms-1" id="countTtd">0</span>
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-qrcode-btn" data-bs-toggle="tab" data-bs-target="#tab-qrcode" type="button" role="tab">
+                <i class="ri-qr-code-line me-1 align-middle"></i>Barcode &amp; QR Code
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" id="tab-audit-btn" data-bs-toggle="tab" data-bs-target="#tab-audit" type="button" role="tab">
+                <i class="ri-history-line me-1 align-middle"></i>Audit Trail
+                <span class="badge bg-primary-transparent rounded-pill ms-1" id="countAudit">0</span>
+              </button>
+            </li>
+            </ul>
+            <div id="sigFilters">
+              <div class="d-flex align-items-center flex-wrap gap-2 px-3 pb-2 pb-md-0">
+                <input type="text" id="searchTtdInput" class="form-control form-control-sm" placeholder="Cari nama / role..." style="width: 300px;" />
               </div>
             </div>
           </div>
 
-          <!-- TAB 2: Konfigurasi QR Code -->
-          <div class="tab-pane fade" id="tab-qrcode" role="tabpanel">
+          <div class="tab-content" id="sigTabContent">
+            <!-- TAB 1: Spesimen TTD -->
+            <div class="tab-pane fade show active p-0" id="tab-specimen" role="tabpanel">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover text-nowrap border align-middle mb-0">
+                    <thead>
+                        <tr>
+                          <th style="width: 50px;">No</th>
+                          <th>Pemegang Otoritas</th>
+                          <th>Peran / Role</th>
+                          <th>Departemen</th>
+                          <th style="width: 180px;">Pratinjau Tanda Tangan</th>
+                          <th>Token Hash / Sertifikat</th>
+                          <th>Masa Berlaku</th>
+                          <th>Status</th>
+                          <th style="width: 120px;" class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ttdTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- TAB 2: Konfigurasi QR Code -->
+            <div class="tab-pane fade p-0" id="tab-qrcode" role="tabpanel">
+              <div class="card-body">
             <div class="row g-3">
               <div class="col-12 col-lg-5">
-                <div class="card custom-card h-100">
+                <div class="card custom-card h-100 mb-0 shadow-none border">
                   <div class="card-header">
                     <div class="card-title">Generator &amp; Pengaturan Template QR Code</div>
                   </div>
@@ -208,7 +210,7 @@
               </div>
 
               <div class="col-12 col-lg-7">
-                <div class="card custom-card h-100">
+                <div class="card custom-card h-100 mb-0 shadow-none border">
                   <div class="card-header">
                     <div class="card-title">Live Preview &amp; Uji Keabsahan QR Code</div>
                   </div>
@@ -242,31 +244,28 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- TAB 3: Audit Trail & Log Keabsahan -->
-          <div class="tab-pane fade" id="tab-audit" role="tabpanel">
-            <div class="card custom-card">
-              <div class="card-header">
-                <div class="card-title">Log Riwayat Digital Signature &amp; Akses QR Verifikasi</div>
               </div>
-              <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Waktu &amp; Tanggal</th>
-                      <th>No. Dokumen / Laporan</th>
-                      <th>Jenis Aksi</th>
-                      <th>Penandatangan / Pengakses</th>
-                      <th>Role</th>
-                      <th>Status Verifikasi</th>
-                      <th>IP &amp; Hash Bukti</th>
-                    </tr>
-                  </thead>
-                  <tbody id="auditTableBody">
-                    <!-- Populated by JS -->
-                  </tbody>
-                </table>
+            </div>
+
+            <!-- TAB 3: Audit Trail & Log Keabsahan -->
+            <div class="tab-pane fade p-0" id="tab-audit" role="tabpanel">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-hover text-nowrap border align-middle mb-0">
+                    <thead>
+                        <tr>
+                          <th>Waktu &amp; Tanggal</th>
+                          <th>No. Dokumen / Laporan</th>
+                          <th>Jenis Aksi</th>
+                          <th>Penandatangan / Pengakses</th>
+                          <th>Role</th>
+                          <th>Status Verifikasi</th>
+                          <th>IP &amp; Hash Bukti</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditTableBody"></tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>

@@ -27,6 +27,11 @@
               </ol>
               <h1 class="page-title fw-medium fs-18 mb-0">Master Metode &amp; Scope Uji ISO 17025</h1>
             </div>
+            <div class="btn-list spk-page-header-actions-host">
+              <div class="spk-page-header-actions-card">
+                <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalAddParam"><i class="ri-add-line me-1 align-middle"></i>Tambah Parameter &amp; Metode</button>
+              </div>
+            </div>
           </div>
 
         <!-- KPI Cards -->
@@ -103,49 +108,57 @@
 
         <!-- Master Table Card -->
         <div class="card custom-card">
-          <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-              <input type="text" id="searchParamInput" class="form-control form-control-sm" placeholder="Cari parameter / metode..." style="width: 220px;" />
-              <div style="width: 160px;">
-                <select id="filterLabSelect" class="form-select form-select-sm">
-                  <option value="">Semua Lab</option>
-                  <option value="Fisika Kimia">Fisika Kimia</option>
-                  <option value="Mikrobiologi">Mikrobiologi</option>
-                  <option value="Sensory">Sensory</option>
-                  <option value="ASLT">ASLT</option>
-                </select>
-              </div>
-              <div style="width: 190px;">
-                <select id="filterScopeSelect" class="form-select form-select-sm">
-                  <option value="">Semua Status Scope</option>
-                  <option value="In-Scope">In-Scope (KAN)</option>
-                  <option value="Non-Scope">Non-Scope</option>
-                </select>
-              </div>
+          <!-- One-tab header (nav-tabs tab-style-2) + filters, same layout as the request lists -->
+          <div class="card-header p-0 d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 border-bottom">
+            <ul class="nav nav-tabs tab-style-2 mb-0 border-0 d-flex flex-nowrap px-3" role="tablist">
+              <li class="nav-item" role="presentation">
+                <a class="nav-link active" href="#!" role="tab">
+                  <i class="ri-flask-line me-1 align-middle"></i>Parameter &amp; Metode
+                  <span class="badge bg-primary-transparent rounded-pill ms-1" id="countList">0</span>
+                </a>
+              </li>
+            </ul>
+            <div class="d-flex align-items-center flex-wrap gap-2 px-3 pb-2 pb-md-0">
+                <div style="width: 160px;">
+                  <select id="filterLabSelect" class="form-select form-select-sm">
+                    <option value="">Semua Lab</option>
+                    <option value="Fisika Kimia">Fisika Kimia</option>
+                    <option value="Mikrobiologi">Mikrobiologi</option>
+                    <option value="Sensory">Sensory</option>
+                    <option value="ASLT">ASLT</option>
+                  </select>
+                </div>
+                <div style="width: 190px;">
+                  <select id="filterScopeSelect" class="form-select form-select-sm">
+                    <option value="">Semua Status Scope</option>
+                    <option value="In-Scope">In-Scope (KAN)</option>
+                    <option value="Non-Scope">Non-Scope</option>
+                  </select>
+                </div>
+                <input type="text" id="searchParamInput" class="form-control form-control-sm" placeholder="Cari parameter / metode..." style="width: 300px;" />
             </div>
-            <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalAddParam">
-              <i class="ri-add-line"></i> Tambah Parameter &amp; Metode
-            </button>
           </div>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th style="width: 50px;">No</th>
-                  <th>Kode &amp; Parameter Uji</th>
-                  <th>Laboratorium</th>
-                  <th>Metode Acuan Resmi</th>
-                  <th>Status Scope ISO 17025</th>
-                  <th>Lead Time</th>
-                  <th>Suhu Simpan Standar</th>
-                  <th>Satuan &amp; Limit Baku Mutu</th>
-                  <th style="width: 100px;" class="text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="paramTableBody">
-                <!-- Populated by JS -->
-              </tbody>
-            </table>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover text-nowrap border align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">No</th>
+                    <th>Kode &amp; Parameter Uji</th>
+                    <th>Laboratorium</th>
+                    <th>Metode Acuan Resmi</th>
+                    <th>Status Scope ISO 17025</th>
+                    <th>Lead Time</th>
+                    <th>Suhu Simpan Standar</th>
+                    <th>Satuan &amp; Limit Baku Mutu</th>
+                    <th style="width: 100px;" class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="paramTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

@@ -134,6 +134,8 @@
       return matchSearch && matchBrand && matchKat;
     });
 
+    var countEl = document.getElementById('countList'); // tab badge in the card header
+    if (countEl) countEl.textContent = filtered.length;
     tbody.innerHTML = filtered.map(function (item, idx) {
       return '<tr>' +
         '<td class="text-muted">' + (idx + 1) + '</td>' +

@@ -27,6 +27,11 @@
               </ol>
               <h1 class="page-title fw-medium fs-18 mb-0">Master SKU &amp; Produk</h1>
             </div>
+            <div class="btn-list spk-page-header-actions-host">
+              <div class="spk-page-header-actions-card">
+                <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalAddSku"><i class="ri-add-line me-1 align-middle"></i>Tambah SKU Baru</button>
+              </div>
+            </div>
           </div>
 
         <!-- KPI Cards -->
@@ -103,53 +108,61 @@
 
         <!-- Table Card -->
         <div class="card custom-card">
-          <div class="card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-              <input type="text" id="searchSkuInput" class="form-control form-control-sm" placeholder="Cari nama SKU / kode..." style="width: 230px;" />
-              <div style="width: 170px;">
-                <select id="filterBrandSku" class="form-select form-select-sm">
-                  <option value="">Semua Brand</option>
-                  <option value="Chocolatos">Chocolatos</option>
-                  <option value="Gery">Gery</option>
-                  <option value="MACO">MACO</option>
-                  <option value="WCG">WCG</option>
-                  <option value="Slai O Lai">Slai O Lai</option>
-                  <option value="Garuda Pilus">Garuda Pilus</option>
-                </select>
-              </div>
-              <div style="width: 170px;">
-                <select id="filterKategoriSku" class="form-select form-select-sm">
-                  <option value="">Semua Kategori</option>
-                  <option value="Biskuit & Wafer">Biskuit &amp; Wafer</option>
-                  <option value="Minuman Susu">Minuman Susu</option>
-                  <option value="Makanan Ringan">Makanan Ringan</option>
-                  <option value="Kacang & Snack">Kacang &amp; Snack</option>
-                </select>
-              </div>
+          <!-- One-tab header (nav-tabs tab-style-2) + filters, same layout as the request lists -->
+          <div class="card-header p-0 d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 border-bottom">
+            <ul class="nav nav-tabs tab-style-2 mb-0 border-0 d-flex flex-nowrap px-3" role="tablist">
+              <li class="nav-item" role="presentation">
+                <a class="nav-link active" href="#!" role="tab">
+                  <i class="ri-barcode-line me-1 align-middle"></i>Daftar SKU
+                  <span class="badge bg-primary-transparent rounded-pill ms-1" id="countList">0</span>
+                </a>
+              </li>
+            </ul>
+            <div class="d-flex align-items-center flex-wrap gap-2 px-3 pb-2 pb-md-0">
+                <div style="width: 170px;">
+                  <select id="filterBrandSku" class="form-select form-select-sm">
+                    <option value="">Semua Brand</option>
+                    <option value="Chocolatos">Chocolatos</option>
+                    <option value="Gery">Gery</option>
+                    <option value="MACO">MACO</option>
+                    <option value="WCG">WCG</option>
+                    <option value="Slai O Lai">Slai O Lai</option>
+                    <option value="Garuda Pilus">Garuda Pilus</option>
+                  </select>
+                </div>
+                <div style="width: 170px;">
+                  <select id="filterKategoriSku" class="form-select form-select-sm">
+                    <option value="">Semua Kategori</option>
+                    <option value="Biskuit & Wafer">Biskuit &amp; Wafer</option>
+                    <option value="Minuman Susu">Minuman Susu</option>
+                    <option value="Makanan Ringan">Makanan Ringan</option>
+                    <option value="Kacang & Snack">Kacang &amp; Snack</option>
+                  </select>
+                </div>
+                <input type="text" id="searchSkuInput" class="form-control form-control-sm" placeholder="Cari nama SKU / kode..." style="width: 300px;" />
             </div>
-            <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#modalAddSku">
-              <i class="ri-add-line"></i> Tambah SKU Baru
-            </button>
           </div>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th style="width: 50px;">No</th>
-                  <th>Kode &amp; Nama SKU</th>
-                  <th>Brand</th>
-                  <th>Kategori Pangan</th>
-                  <th>Kemasan Standar</th>
-                  <th>Netto</th>
-                  <th>Spesifikasi Mutu Release Standar</th>
-                  <th>Status</th>
-                  <th style="width: 100px;" class="text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="skuTableBody">
-                <!-- Populated by JS -->
-              </tbody>
-            </table>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover text-nowrap border align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">No</th>
+                    <th>Kode &amp; Nama SKU</th>
+                    <th>Brand</th>
+                    <th>Kategori Pangan</th>
+                    <th>Kemasan Standar</th>
+                    <th>Netto</th>
+                    <th>Spesifikasi Mutu Release Standar</th>
+                    <th>Status</th>
+                    <th style="width: 100px;" class="text-center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="skuTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

@@ -102,6 +102,8 @@
       return matchSearch && matchRuang && matchStatus;
     });
 
+    var countEl = document.getElementById('countList'); // tab badge in the card header
+    if (countEl) countEl.textContent = filtered.length;
     tbody.innerHTML = filtered.map(function (item, idx) {
       var statusBadge = item.status === 'In-Spec'
         ? '<span class="badge bg-success-transparent"><i class="ri-checkbox-circle-line"></i> In-Spec (Normal)</span>'

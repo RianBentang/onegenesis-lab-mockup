@@ -112,6 +112,8 @@
       return matchSearch && matchLab && matchStatus;
     });
 
+    var countEl = document.getElementById('countList'); // tab badge in the card header
+    if (countEl) countEl.textContent = filtered.length;
     tbody.innerHTML = filtered.map(function (item, idx) {
       var statusBadge = item.status === 'Certified'
         ? '<span class="badge bg-success-transparent"><i class="ri-shield-check-line"></i> Certified (Mandiri)</span>'
