@@ -16,3 +16,6 @@ Desktop.ini
 # Office lock / temp files
 ~$*
 *.tmp
+
+# Lab reference spreadsheet above the GitHub 100 MB file limit (kept locally only)
+docs/excel/Copy of Push Database Fiskim 2026.xlsm
