@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(py *)",
+      "PowerShell(python *)",
+      "PowerShell(python3 *)",
+      "PowerShell(py *)",
+      "Edit(./LAB/assets/og-theme/**)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/check-mockup.mjs\"",
+            "timeout": 30,
+            "statusMessage": "Mockup check"
+          }
+        ]
+      }
+    ]
+  }
+}

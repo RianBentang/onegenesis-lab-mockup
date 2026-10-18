@@ -46,7 +46,7 @@
       nik: 'GF-10024',
       role: 'TCM',
       roleLabel: 'Technical Manager',
-      dept: 'Laboratorium',
+      dept: 'Laboratory',
       hash: 'SHA256: 7f8a9...b12e',
       validUntil: '31-12-2027',
       status: 'Active',
@@ -57,8 +57,8 @@
       nama: 'Budi Santoso, S.TP.',
       nik: 'GF-10492',
       role: 'CRL',
-      roleLabel: 'Koordinator Lab / Penyelia',
-      dept: 'Laboratorium',
+      roleLabel: 'Lab Coordinator / Supervisor',
+      dept: 'Laboratory',
       hash: 'SHA256: 4a2c1...99ef',
       validUntil: '31-12-2027',
       status: 'Active',
@@ -70,7 +70,7 @@
       nik: 'GF-10811',
       role: 'ADM',
       roleLabel: 'Lab Administrator',
-      dept: 'Laboratorium',
+      dept: 'Laboratory',
       hash: 'SHA256: 1c3d9...65ab',
       validUntil: '31-12-2026',
       status: 'Active',
@@ -82,7 +82,7 @@
       nik: 'GF-09871',
       role: 'HOL',
       roleLabel: 'Head of Laboratory',
-      dept: 'Laboratorium',
+      dept: 'Laboratory',
       hash: 'SHA256: 9e8d3...41aa',
       validUntil: '31-12-2027',
       status: 'Active',
@@ -105,9 +105,9 @@
   // Audit Log Data
   var AUDIT_LOGS = [
     { time: '23-09-2026 10:15:30', doc: 'COA/LAB/202609/0040', aksi: 'Final Digital Sign-off', user: 'Siti Rahmawati', role: 'TCM', status: 'SUCCESS', ip: '10.20.14.88 (GF-Intranet)' },
-    { time: '23-09-2026 09:40:12', doc: 'LHU/LAB/202609/0039', aksi: 'Validasi & Review Draf', user: 'Budi Santoso', role: 'CRL', status: 'SUCCESS', ip: '10.20.14.92 (GF-Intranet)' },
-    { time: '22-09-2026 16:30:05', doc: 'SPK/LAB/202609/0011', aksi: 'Kaji Ulang & Terbit SPK', user: 'Bambang Admin', role: 'ADM', status: 'SUCCESS', ip: '10.20.14.101 (GF-Intranet)' },
-    { time: '22-09-2026 14:10:44', doc: 'COA/LAB/202609/0038', aksi: 'Scan Verifikasi Publik QR', user: 'External Client / QA', role: 'Guest', status: 'VALIDATED', ip: '180.252.16.5 (Public Web)' },
+    { time: '23-09-2026 09:40:12', doc: 'LHU/LAB/202609/0039', aksi: 'Draft Validation & Review', user: 'Budi Santoso', role: 'CRL', status: 'SUCCESS', ip: '10.20.14.92 (GF-Intranet)' },
+    { time: '22-09-2026 16:30:05', doc: 'SPK/LAB/202609/0011', aksi: 'Technical Review & SPK Issued', user: 'Bambang Admin', role: 'ADM', status: 'SUCCESS', ip: '10.20.14.101 (GF-Intranet)' },
+    { time: '22-09-2026 14:10:44', doc: 'COA/LAB/202609/0038', aksi: 'Public QR Verification Scan', user: 'External Client / QA', role: 'Guest', status: 'VALIDATED', ip: '180.252.16.5 (Public Web)' },
     { time: '21-09-2026 11:05:19', doc: 'COA/LAB/202609/0035', aksi: 'Final Digital Sign-off', user: 'Siti Rahmawati', role: 'TCM', status: 'SUCCESS', ip: '10.20.14.88 (GF-Intranet)' }
   ];
 
@@ -133,10 +133,15 @@
     tbody.innerHTML = filtered.map(function (item, idx) {
       var badgeCls = getBadgeClass(item.role);
       var statusBadge = item.status === 'Active'
-        ? '<span class="badge bg-success-transparent"><i class="ri-checkbox-circle-line"></i> Aktif</span>'
-        : '<span class="badge bg-secondary-transparent">Nonaktif</span>';
+        ? '<span class="badge bg-success-transparent"><i class="ri-checkbox-circle-line"></i> Active</span>'
+        : '<span class="badge bg-secondary-transparent">Inactive</span>';
 
       return '<tr>' +
+        /* SpkTableActions */
+        '<td><div class="d-flex gap-1">' +
+        '<button type="button" class="btn btn-icon btn-sm btn-info-light btn-wave btn-edit-ttd" data-id="' + item.id + '" title="Edit Specimen"><i class="ri-edit-line"></i></button>' +
+        '<button type="button" class="btn btn-icon btn-sm btn-danger-light btn-wave btn-toggle-status" data-id="' + item.id + '" title="Deactivate"><i class="ri-shut-down-line"></i></button>' +
+        '</div></td>' +
         '<td class="text-muted">' + (idx + 1) + '</td>' +
         '<td><div class="fw-semibold">' + item.nama + '</div><small class="text-muted font-monospace">' + item.nik + '</small></td>' +
         '<td><span class="badge ' + badgeCls + ' px-2 py-1 font-monospace">' + item.role + '</span><div class="small text-muted mt-1">' + item.roleLabel + '</div></td>' +
@@ -145,12 +150,6 @@
         '<td><code class="small text-dark">' + item.hash + '</code><div class="small text-success mt-1"><i class="ri-lock-2-line"></i> Enkripsi RSA-2048</div></td>' +
         '<td class="font-monospace small">' + item.validUntil + '</td>' +
         '<td>' + statusBadge + '</td>' +
-        '<td class="text-center">' +
-        '<div class="btn-group btn-group-sm">' +
-        '<button type="button" class="btn btn-outline-secondary btn-edit-ttd" data-id="' + item.id + '" title="Edit Spesimen"><i class="ri-edit-line"></i></button>' +
-        '<button type="button" class="btn btn-outline-danger btn-toggle-status" data-id="' + item.id + '" title="Nonaktifkan"><i class="ri-shut-down-line"></i></button>' +
-        '</div>' +
-        '</td>' +
         '</tr>';
     }).join('');
   }
@@ -226,17 +225,17 @@
     });
 
     document.getElementById('btnSaveQrConfig')?.addEventListener('click', function () {
-      alert('Konfigurasi Template QR Code berhasil disimpan ke Master Data Sistem!');
+      ToastService.showSuccess('QR Code template configuration saved to the system Master Data!');
     });
 
     document.getElementById('btnCopyPayload')?.addEventListener('click', function () {
       var text = document.getElementById('qrPayloadDecoded')?.textContent.trim();
       navigator.clipboard?.writeText(text);
-      alert('URL Verifikasi disalin ke clipboard: \n' + text);
+      ToastService.showSuccess('Verification URL copied to clipboard: ' + text);
     });
 
     document.getElementById('btnTestVerify')?.addEventListener('click', function () {
-      alert('Simulasi Validasi Sertifikat ISO 17025:\n\nStatus: KEABSAHAN VALID (100% ASLI)\nNomor: COA/LAB/202609/0040\nPenandatangan: Siti Rahmawati, S.Si. (TCM)\nWaktu: 23-Sep-2026 10:15 WIB\nIntegritas Dokumen: Lolos verifikasi SHA-256');
+      ToastService.showSuccess('<b>ISO 17025 Certificate Validation Simulation</b><br>Status: VALID (100% AUTHENTIC)<br>Number: COA/LAB/202609/0040<br>Signer: Siti Rahmawati, S.Si. (TCM)<br>Time: 23-Sep-2026 10:15 WIB<br>Integritas Dokumen: Lolos verifikasi SHA-256');
     });
 
     // Form Add TTD
@@ -248,7 +247,7 @@
 
       var roleMap = {
         TCM: 'Technical Manager',
-        CRL: 'Koordinator Lab / Penyelia',
+        CRL: 'Lab Coordinator / Supervisor',
         ADM: 'Lab Administrator',
         HOL: 'Head of Laboratory',
         HOR: 'Head of R&D',
@@ -261,7 +260,7 @@
         nik: nik,
         role: role,
         roleLabel: roleMap[role] || role,
-        dept: role === 'HOR' ? 'Research & Development' : (role === 'MGU' ? 'Quality Assurance' : 'Laboratorium'),
+        dept: role === 'HOR' ? 'Research & Development' : (role === 'MGU' ? 'Quality Assurance' : 'Laboratory'),
         hash: 'SHA256: ' + Math.random().toString(36).substring(2, 8) + '...new',
         validUntil: '31-12-2027',
         status: 'Active',
@@ -276,7 +275,7 @@
       var modal = bootstrap.Modal.getInstance(modalEl);
       if (modal) modal.hide();
       this.reset();
-      alert('Spesimen Tanda Tangan Digital baru untuk ' + nama + ' berhasil didaftarkan!');
+      ToastService.showSuccess('New digital signature specimen for ' + nama + ' registered!');
     });
   });
 })();

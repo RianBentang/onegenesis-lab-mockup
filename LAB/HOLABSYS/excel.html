@@ -25,26 +25,35 @@
                 <li class="breadcrumb-item"><a href="#!">HOLABSYS</a></li>
                 <li class="breadcrumb-item active" aria-current="page">Excel</li>
               </ol>
-              <h1 class="page-title fw-medium fs-18 mb-0">Lembar Kerja</h1>
+              <h1 class="page-title fw-medium fs-18 mb-0">Worksheet</h1>
             </div>
           </div>
 
           <!-- FortuneSheet (port: @fortune-sheet/react <Workbook />) -->
           <div class="card custom-card sheet-card" id="sheetCard">
-            <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-              <div>
-                <div class="card-title">Lembar Kerja Hasil Uji</div>
-                <p class="text-muted fs-12 mb-0 mt-1" id="sheetInfo">Pilih No. ID Transaksi (Internal / Sensory / ASLT), lalu Tarik Data. Sensory / ASLT ikut menarik nilai panelis dari booth.</p>
-              </div>
-              <div class="d-flex align-items-center flex-wrap gap-2">
+            <!-- Nav tabs (nav-tabs tab-style-2): Internal (per-parameter sheets) | Sensory & ASLT (per transaction) -->
+            <div class="card-header p-0 d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 border-bottom">
+              <ul class="nav nav-tabs tab-style-2 mb-0 border-0 d-flex flex-nowrap px-3" role="tablist" id="excelTabs">
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link active" href="#!" role="tab" data-tab="internal"><i class="ri-flask-line me-1 align-middle"></i>Internal</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" href="#!" role="tab" data-tab="panel"><i class="ri-goblet-line me-1 align-middle"></i>Sensory &amp; ASLT</a>
+                </li>
+              </ul>
+              <div class="d-flex align-items-center flex-wrap gap-2 px-3 pb-2 pb-md-0">
                 <!-- SpkSelect2 -->
-                <div style="width: 340px;">
+                <div style="width: 340px;" id="trxWrap" class="d-none">
                   <select id="trxSelect" class="form-select form-select-sm">
-                    <option value="">Pilih No. ID Transaksi</option>
+                    <option value="">Select Transaction ID</option>
                   </select>
                 </div>
                 <button type="button" id="btnPull" class="btn btn-primary btn-sm btn-wave" disabled>
-                  <i class="ri-download-2-line me-1 align-middle"></i>Tarik Data
+                  <i class="ri-download-2-line me-1 align-middle"></i>Pull Data
+                </button>
+                <!-- Internal only: keeps typed results before Push (ISO/IEC 17025 cl. 7.5.1) -->
+                <button type="button" id="btnSaveRaw" class="btn btn-info-light btn-sm btn-wave d-none" disabled>
+                  <i class="ri-save-3-line me-1 align-middle"></i>Save Raw Data
                 </button>
                 <button type="button" id="btnPush" class="btn btn-success btn-sm btn-wave" disabled>
                   <i class="ri-upload-2-line me-1 align-middle"></i>Push Data
@@ -54,6 +63,7 @@
                 </button>
               </div>
             </div>
+            <p class="text-muted fs-12 mb-0 px-3 py-2" id="sheetInfo"></p>
             <div class="card-body p-0">
               <div id="sheet" class="sheet-host"></div>
             </div>
@@ -63,7 +73,6 @@
       </div>
     </div>
 
-    <div id="appToastContainer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -72,7 +81,10 @@
     <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@fortune-sheet/react@1.0.4/dist/index.umd.min.js"></script>
+    <script src="../assets/spk-toast.js"></script>
     <script src="../assets/og-shell.js"></script>
+    <script src="../assets/spk-history.js"></script><!-- Approval / Document History + record.activity -->
+    <script src="../assets/dummy-parameters.js"></script>
     <script src="../assets/dummy-requests.js"></script>
     <script src="../assets/dummy-aslt-sensory-requests.js"></script>
     <script src="../assets/dummy-schedule.js"></script>

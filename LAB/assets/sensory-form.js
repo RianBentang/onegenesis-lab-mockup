@@ -1,42 +1,30 @@
 /* ---------- Master data (dummy) ---------- */
-var MASTER_SITE_SN = ['Head Office', 'Plant Sentul', 'Plant Pati', 'Plant Gresik', 'Plant Rancaekek', 'Plant Cimanggis'];
-var MASTER_DEPT_SN = ['Quality Assurance', 'Laboratorium', 'Research & Development', 'Regulatory Affairs', 'Process Development', 'Marketing'];
-var MASTER_TUJUAN_SN = ['Scale Up', 'R&D Trial', 'Routine QC', 'Customer Complaint', 'Pendaftaran MD (BPOM)', 'Pengujian P5'];
-var MASTER_KATEGORI_PANGAN_SN = ['Makanan Ringan', 'Minuman Susu', 'Biskuit & Wafer', 'Cokelat & Kembang Gula', 'Kacang & Snack'];
-var MASTER_KEMASAN_SN = ['Plastik', 'Cup', 'Kaleng', 'Pouch Alufo', 'Karton'];
-var MASTER_SUHU_PENYAJIAN = ['Ambient', 'Cool (Sejuk)', 'Frozen', 'Hot', 'Warm'];
-var MASTER_LAB_SN = ['Fisika Kimia', 'Mikrobiologi', 'Sensory', 'ASLT'];
+var MASTER_DEPT_SN = ['Quality Assurance', 'Laboratory', 'Research & Development', 'Regulatory Affairs', 'Process Development', 'Marketing'];
+var MASTER_TUJUAN_SN = ['Scale Up', 'R&D Trial', 'Routine QC', 'Customer Complaint', 'MD Registration (BPOM)', 'P5 Testing'];
+var MASTER_LAB_SN = ['Physicochemical', 'Microbiology', 'Sensory', 'ASLT'];
 
 var MASTER_PARAMETER_SN = [
   { value: 'internal-rating', text: 'Internal Rating' },
   { value: 'ranking', text: 'Ranking' },
-  { value: 'triangle', text: 'Triangle (Pembeda)' },
+  { value: 'triangle', text: 'Triangle (Discrimination)' },
   { value: 'quality-monitoring', text: 'Quality Monitoring' }
 ];
 
-/* Atribut that each parameter can test (Master Scope Lab) */
+/* Atribut that each parameter can test (Master Scope Lab); Triangle has none, it only picks the odd cup */
 var MASTER_ATRIBUT_BY_PARAM = {
-  'internal-rating': ['Rasa', 'Aroma', 'Tekstur', 'Warna & Penampakan', 'Aftertaste', 'Overall'],
-  'ranking': ['Rasa', 'Aroma', 'Tekstur', 'Overall'],
-  'triangle': ['Rasa', 'Aroma', 'Tekstur', 'Warna & Penampakan'],
-  'quality-monitoring': ['Rasa', 'Aroma', 'Tekstur', 'Warna & Penampakan', 'Aftertaste']
+  'internal-rating': ['Taste', 'Aroma', 'Texture', 'Color & Appearance', 'Aftertaste', 'Overall'],
+  'ranking': ['Taste', 'Aroma', 'Texture', 'Overall'],
+  'quality-monitoring': ['Taste', 'Aroma', 'Texture', 'Color & Appearance', 'Aftertaste']
 };
 
-/* Ketepatan (specific note) per atribut; the Ketepatan options of a row = those of its chosen atribut */
-var MASTER_KETEPATAN_BY_ATRIBUT = {
-  'Rasa': ['Rasa Manis', 'Rasa Asin', 'Rasa Asam', 'Rasa Pahit', 'Rasa Pedas', 'Rasa Gurih (Umami)'],
-  'Aroma': ['Aroma Cokelat', 'Aroma Susu', 'Aroma Vanila', 'Aroma Gosong', 'Off-odor / Tengik'],
-  'Tekstur': ['Renyah', 'Keras', 'Lembut', 'Lengket', 'Berpasir'],
-  'Warna & Penampakan': ['Warna Cokelat', 'Kecerahan', 'Keseragaman Warna', 'Bentuk Utuh'],
-  'Aftertaste': ['Aftertaste Pahit', 'Aftertaste Manis', 'Aftertaste Logam', 'Tertinggal Lama'],
-  'Overall': ['Overall Liking', 'Overall Preference']
-};
+/* Atribut, Ketepatan (suggestions; free text allowed), Kategori Pangan, Jenis Kemasan and Suhu
+   Penyajian come from FlexTab (dummy-flextab.js) */
 
 /* Jenis pengujian shown in the Sensory list, per parameter */
 var SENSORY_JENIS_BY_PARAM = {
-  'internal-rating': 'Uji Sensori Internal - Afektif Rating',
-  'ranking': 'Uji Sensori Internal - Afektif Ranking',
-  'triangle': 'Uji Triangle',
+  'internal-rating': 'Internal Sensory Test - Affective Rating',
+  'ranking': 'Internal Sensory Test - Affective Ranking',
+  'triangle': 'Triangle Test',
   'quality-monitoring': 'Quality Monitoring'
 };
 
@@ -46,7 +34,7 @@ function fillSelectSn(selectEl, options, placeholder) {
   if (!selectEl) return;
   var opt = document.createElement('option');
   opt.value = '';
-  opt.textContent = placeholder || '-- Pilih --';
+  opt.textContent = placeholder || '-- Select --';
   selectEl.appendChild(opt);
   options.forEach(function (o) {
     var el = document.createElement('option');
@@ -62,13 +50,7 @@ function initSelect2Sn(id, placeholder) {
 }
 
 function generateSensoryDocNo() {
-  var now = new Date();
-  var ym = now.getFullYear().toString() + String(now.getMonth() + 1).padStart(2, '0');
-  /* Next free number of this month (never reuses an existing No. ID) */
-  var prefix = 'SN-' + ym + '-';
-  var max = 0;
-  getSensoryRequests().forEach(function (r) { if (r.id.indexOf(prefix) === 0) max = Math.max(max, parseInt(r.id.slice(prefix.length), 10) || 0); });
-  return prefix + String(max + 1).padStart(4, '0');
+  return nextFreeNo('SN-' + currentYm() + '-', getSensoryRequests().map(function (r) { return r.id; }), 4);
 }
 
 function formatDateIDSn(date) {
@@ -82,6 +64,10 @@ document.addEventListener('DOMContentLoaded', function () {
   var urlParams = new URLSearchParams(window.location.search);
   var existingId = urlParams.get('docId');
   var existingRecord = (existingId && typeof getSensoryRequestById === 'function') ? getSensoryRequestById(existingId) : null;
+  /* No. Reference (?ref=): the form pre-fills from that request's template (request-reference.js);
+     the document itself (number, date, status) stays this one */
+  var refRecord = urlParams.get('ref') ? getSensoryRequestById(urlParams.get('ref')) : null;
+  var prefill = refRecord ? requestTemplate(refRecord) : existingRecord;
 
   var docNoEl = document.getElementById('docNoValue');
   var docDateEl = document.getElementById('docDateValue');
@@ -94,45 +80,45 @@ document.addEventListener('DOMContentLoaded', function () {
   if (docDateEl) docDateEl.textContent = existingRecord ? existingRecord.tanggal : formatDateIDSn(new Date());
 
   /* Master dropdowns */
-  fillSelectSn(document.getElementById('alamatPelanggan'), toOptionsSn(MASTER_SITE_SN));
-  fillSelectSn(document.getElementById('alamatPabrik'), toOptionsSn(MASTER_SITE_SN));
+  fillSelectSn(document.getElementById('alamatPelanggan'), siteOptions());
+  fillSelectSn(document.getElementById('alamatPabrik'), siteOptions());
   fillSelectSn(document.getElementById('departemenPemohon'), toOptionsSn(MASTER_DEPT_SN));
   fillSelectSn(document.getElementById('tujuanAnalisa'), toOptionsSn(MASTER_TUJUAN_SN));
-  fillSelectSn(document.getElementById('kategoriPangan'), toOptionsSn(MASTER_KATEGORI_PANGAN_SN));
-  fillSelectSn(document.getElementById('jenisKemasan'), toOptionsSn(MASTER_KEMASAN_SN));
-  fillSelectSn(document.getElementById('suhuPenyajian'), toOptionsSn(MASTER_SUHU_PENYAJIAN));
+  fillSelectSn(document.getElementById('kategoriPangan'), toOptionsSn(flexTabOptions('LAB_KATEGORI_PANGAN')));
+  fillSelectSn(document.getElementById('jenisKemasan'), toOptionsSn(flexTabOptions('LAB_JENIS_KEMASAN')));
+  fillSelectSn(document.getElementById('suhuPenyajian'), toOptionsSn(flexTabOptions('SN_SUHU_PENYAJIAN')));
   fillSelectSn(document.getElementById('laboratorium'), toOptionsSn(MASTER_LAB_SN));
-  document.getElementById('laboratorium').value = (existingRecord && existingRecord.lab) || 'Sensory';
+  document.getElementById('laboratorium').value = (prefill && prefill.lab) || 'Sensory';
 
   ['alamatPelanggan', 'alamatPabrik', 'departemenPemohon', 'tujuanAnalisa', 'kategoriPangan', 'idGenesis',
     'tipePengajuan', 'jenisKemasan', 'suhuPenyajian', 'laboratorium'
   ].forEach(function (id) { initSelect2Sn(id); });
 
-  var roleCode = localStorage.getItem('holabsysRole');
+  var roleCode = currentRole().code;
   var role = (typeof findRole === 'function') ? findRole(roleCode) : null;
   if (role && window.jQuery) {
     window.jQuery('#departemenPemohon').val(existingRecord ? existingRecord.departemen : role.dept).trigger('change');
   }
 
-  if (existingRecord && window.jQuery) {
-    window.jQuery('#tipePengajuan').val(existingRecord.tipe).trigger('change');
-    window.jQuery('#kategoriPangan').val(existingRecord.kategoriPangan).trigger('change');
+  if (prefill && window.jQuery) {
+    window.jQuery('#tipePengajuan').val(prefill.tipe).trigger('change');
+    window.jQuery('#kategoriPangan').val(prefill.kategoriPangan).trigger('change');
     [['tujuanAnalisa', 'tujuan'], ['alamatPelanggan', 'alamatPelanggan'], ['alamatPabrik', 'alamatPabrik'], ['suhuPenyajian', 'suhuPenyajian'],
       ['jenisKemasan', 'kemasan'], ['laboratorium', 'lab']].forEach(function (m) {
-      if (existingRecord[m[1]]) window.jQuery('#' + m[0]).val(existingRecord[m[1]]).trigger('change');
+      if (prefill[m[1]]) window.jQuery('#' + m[0]).val(prefill[m[1]]).trigger('change');
     });
 
     var idMap = { namaSampel: 'sampel', kodeBatch: 'batch', catatanTambahan: 'catatanTambahan', alasanUrgent: 'alasanUrgent', kondisiPenyajian: 'kondisiPenyajian' };
     Object.keys(idMap).forEach(function (id) {
       var el = document.getElementById(id);
-      if (el) el.value = existingRecord[idMap[id]] || '';
+      if (el) el.value = prefill[idMap[id]] || '';
     });
   }
 
   var tanggalProduksiFp = null;
   if (window.flatpickr) {
     tanggalProduksiFp = window.flatpickr('#tanggalProduksi', { dateFormat: 'd-m-Y', maxDate: 'today', altInput: false });
-    if (existingRecord && existingRecord.prod) tanggalProduksiFp.setDate(existingRecord.prod, true, 'd-m-Y');
+    if (prefill && prefill.prod) tanggalProduksiFp.setDate(prefill.prod, true, 'd-m-Y');
   }
 
   var tipeSelect = document.getElementById('tipePengajuan');
@@ -153,8 +139,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var paramEl = document.getElementById('parameterUji');
   fillSelectSn(paramEl, MASTER_PARAMETER_SN);
   initSelect2Sn('parameterUji');
-  if (existingRecord && existingRecord.params && existingRecord.params.length) {
-    paramEl.value = existingRecord.params[0];
+  if (prefill && prefill.params && prefill.params.length) {
+    paramEl.value = prefill.params[0];
   }
 
   function paramText(v) {
@@ -162,118 +148,157 @@ document.addEventListener('DOMContentLoaded', function () {
     return f ? f.text : v;
   }
 
-  /* ---------- Atribut & Ketepatan per jenis sampel ----------
-     One row per jenis sampel. Atribut options come from the Parameter Uji, Ketepatan options
-     from the chosen atribut; both can hold many values (TomSelect multi). */
-  var atributState = {};   // { jenisSampel: { atribut: [], ketepatan: [] } }
-  var rowSelects = [];     // TomSelect instances of the current rows
+  /* ---------- Jenis Sampel, Atribut & Ketepatan ----------
+     Jenis Sampel: free-text rows (add more), each with Tgl Pembuatan + Exp. Date.
+     Atribut and Ketepatan: one list per request — every sample (blind cup) is scored on the same
+     questions. SpkSelect2 rows, add more downwards. Atribut options = what the Parameter Uji can
+     test (and FlexTab SN_ATRIBUT has); Ketepatan = FlexTab SN_KETEPATAN or free text (tags).
+     Triangle only picks the odd cup (no atribut / ketepatan); Ranking has no ketepatan. */
   var formLocked = false;
-  var atributWrap = document.getElementById('atributTableWrap');
-  var atributBody = document.getElementById('atributTableBody');
-
-  if (existingRecord && existingRecord.atributBySampel) {
-    Object.keys(existingRecord.atributBySampel).forEach(function (k) {
-      var m = existingRecord.atributBySampel[k];
-      atributState[k] = { atribut: (m.atribut || []).slice(), ketepatan: (m.ketepatan || []).slice() };
-    });
-  }
+  var sampelBody = document.getElementById('sampelBody');
+  var atributList = document.getElementById('atributList');
+  var ketepatanList = document.getElementById('ketepatanList');
+  var existingMap = prefill && prefill.atributMap && prefill.params
+    ? prefill.atributMap[prefill.params[0]] || {} : {};
 
   function escSn(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;'); }
 
-  function ketepatanOptions(atributList) {
-    var out = [];
-    atributList.forEach(function (a) {
-      (MASTER_KETEPATAN_BY_ATRIBUT[a] || []).forEach(function (k) { out.push({ value: k, text: k, group: a }); });
+  function paramUses(param) {
+    return { atribut: !!param && param !== 'triangle', ketepatan: param === 'internal-rating' || param === 'quality-monitoring' };
+  }
+  function atributOptions() {
+    var allowed = flexTabOptions('SN_ATRIBUT');
+    return (MASTER_ATRIBUT_BY_PARAM[paramEl.value] || []).filter(function (a) { return allowed.indexOf(a) !== -1; });
+  }
+
+  /* Jenis Sampel rows */
+  function addSampelRow(s) {
+    s = s || {};
+    var tr = document.createElement('tr');
+    tr.className = 'sampel-row';
+    tr.innerHTML =
+      '<td class="fw-medium sampel-no"></td>' +
+      '<td><input type="text" class="form-control form-control-sm" data-f="jenis" placeholder="Sample name / variant" value="' + escSn(s.jenis || '') + '" /></td>' +
+      '<td><input type="text" class="form-control form-control-sm" data-f="tglPembuatan" placeholder="dd-mm-yyyy" /></td>' +
+      '<td><input type="text" class="form-control form-control-sm" data-f="expDate" placeholder="dd-mm-yyyy" /></td>' +
+      '<td><button type="button" class="btn btn-icon btn-sm btn-danger-light btn-wave" data-remove-sampel title="Delete sample"><i class="ri-delete-bin-line"></i></button></td>';
+    sampelBody.appendChild(tr);
+    var prodEl = tr.querySelector('[data-f="tglPembuatan"]'), expEl = tr.querySelector('[data-f="expDate"]');
+    if (window.flatpickr) {
+      var prod = window.flatpickr(prodEl, { dateFormat: 'd-m-Y', maxDate: 'today' });
+      var exp = window.flatpickr(expEl, { dateFormat: 'd-m-Y' });
+      if (s.tglPembuatan) prod.setDate(s.tglPembuatan, false, 'd-m-Y');
+      if (s.expDate) exp.setDate(s.expDate, false, 'd-m-Y');
+    } else {
+      prodEl.value = s.tglPembuatan || '';
+      expEl.value = s.expDate || '';
+    }
+    if (formLocked) tr.querySelectorAll('input').forEach(function (el) { el.disabled = true; });
+    renumberSampel();
+  }
+  function renumberSampel() {
+    var rows = sampelBody.querySelectorAll('tr.sampel-row');
+    rows.forEach(function (tr, i) {
+      tr.querySelector('.sampel-no').textContent = i + 1;
+      tr.querySelector('[data-remove-sampel]').disabled = formLocked || rows.length === 1;
     });
+  }
+  function sampelValues() {
+    return Array.prototype.map.call(sampelBody.querySelectorAll('tr.sampel-row'), function (tr) {
+      var get = function (f) { return tr.querySelector('[data-f="' + f + '"]').value.trim(); };
+      return { jenis: get('jenis'), tglPembuatan: get('tglPembuatan'), expDate: get('expDate') };
+    });
+  }
+  sampelBody.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-remove-sampel]');
+    if (!btn) return;
+    btn.closest('tr').remove();
+    renumberSampel();
+  });
+  document.getElementById('btnAddSampel').addEventListener('click', function () { addSampelRow(); });
+
+  /* Atribut / Ketepatan rows: one SpkSelect2 each + delete */
+  function addPickRow(list, options, value, tags) {
+    var row = document.createElement('div');
+    row.className = 'd-flex align-items-center gap-2 pick-row';
+    var opts = options.slice();
+    if (value && opts.indexOf(value) === -1) opts.push(value);
+    row.innerHTML =
+      '<div class="flex-grow-1"><select class="form-select"><option value="">-- Select --</option>' +
+        opts.map(function (o) { return '<option value="' + escSn(o) + '"' + (o === value ? ' selected' : '') + '>' + escSn(o) + '</option>'; }).join('') +
+      '</select></div>' +
+      '<button type="button" class="btn btn-icon btn-sm btn-danger-light btn-wave flex-shrink-0" data-remove-pick title="Delete"><i class="ri-delete-bin-line"></i></button>';
+    list.appendChild(row);
+    if (window.spkSelect2) window.spkSelect2(row.querySelector('select'), tags ? { tags: true } : {});
+    if (formLocked) setPickLocked(row, true);
+  }
+  function pickValues(list) {
+    var out = [];
+    list.querySelectorAll('select').forEach(function (s) { var v = s.value.trim(); if (v && out.indexOf(v) === -1) out.push(v); });
     return out;
   }
-
-  function renderAtributTable() {
-    var samples = jenisSampelTs ? jenisSampelTs.getValue() : [];
-    var param = paramEl.value;
-    var atributOpts = MASTER_ATRIBUT_BY_PARAM[param] || [];
-    rowSelects.forEach(function (t) { t.destroy(); });
-    rowSelects = [];
-    atributWrap.style.display = samples.length ? '' : 'none';
-    atributBody.innerHTML = samples.map(function (s, i) {
-      return '<tr data-row="' + i + '">' +
-        '<td class="fw-semibold">' + escSn(s) + '</td>' +
-        '<td><select multiple data-role="atribut" placeholder="' + (param ? 'Pilih atribut...' : 'Pilih Parameter Uji dulu') + '"></select></td>' +
-        '<td><select multiple data-role="ketepatan" placeholder="Pilih ketepatan..."></select></td>' +
-        '</tr>';
-    }).join('');
-
-    samples.forEach(function (s, i) {
-      var st = atributState[s] = atributState[s] || { atribut: [], ketepatan: [] };
-      /* Atribut not offered by the current parameter are dropped (and their ketepatan) */
-      st.atribut = st.atribut.filter(function (a) { return atributOpts.indexOf(a) !== -1; });
-      var allowedKet = ketepatanOptions(st.atribut).map(function (o) { return o.value; });
-      st.ketepatan = st.ketepatan.filter(function (k) { return allowedKet.indexOf(k) !== -1; });
-
-      var row = atributBody.querySelector('tr[data-row="' + i + '"]');
-      var ketTs = new window.TomSelect(row.querySelector('[data-role="ketepatan"]'), {
-        plugins: ['remove_button'], persist: false, create: false, dropdownParent: 'body',
-        optgroupField: 'group', lockOptgroupOrder: true,
-        optgroups: st.atribut.map(function (a) { return { value: a, label: a }; }),
-        options: ketepatanOptions(st.atribut),
-        items: st.ketepatan,
-        onChange: function (v) { st.ketepatan = Array.isArray(v) ? v : (v ? [v] : []); }
-      });
-      var atrTs = new window.TomSelect(row.querySelector('[data-role="atribut"]'), {
-        plugins: ['remove_button'], persist: false, create: false, dropdownParent: 'body',
-        options: atributOpts.map(function (a) { return { value: a, text: a }; }),
-        items: st.atribut,
-        onChange: function (v) {
-          st.atribut = Array.isArray(v) ? v : (v ? [v] : []);
-          /* Ketepatan follows the atribut: drop options/values of removed atribut, add new ones */
-          var opts = ketepatanOptions(st.atribut);
-          var allowed = opts.map(function (o) { return o.value; });
-          st.ketepatan = st.ketepatan.filter(function (k) { return allowed.indexOf(k) !== -1; });
-          ketTs.clear(true);
-          ketTs.clearOptions();
-          ketTs.clearOptionGroups();
-          st.atribut.forEach(function (a) { ketTs.addOptionGroup(a, { value: a, label: a }); });
-          ketTs.addOptions(opts);
-          ketTs.setValue(st.ketepatan, true);
-          ketTs.refreshOptions(false);
-        }
-      });
-      rowSelects.push(atrTs, ketTs);
-      if (formLocked || !param) { atrTs.disable(); ketTs.disable(); }
+  function pickDuplicates(list) {
+    var seen = {}, dup = [];
+    list.querySelectorAll('select').forEach(function (s) {
+      var v = s.value.trim();
+      if (!v) return;
+      if (seen[v] && dup.indexOf(v) === -1) dup.push(v);
+      seen[v] = true;
     });
+    return dup;
+  }
+  function setPickLocked(row, locked) {
+    if (window.jQuery) window.jQuery(row.querySelector('select')).prop('disabled', locked).trigger('change.select2');
+    row.querySelector('[data-remove-pick]').disabled = locked;
+  }
+  [atributList, ketepatanList].forEach(function (list) {
+    list.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-remove-pick]');
+      if (btn) btn.closest('.pick-row').remove();
+    });
+  });
+  document.getElementById('btnAddAtribut').addEventListener('click', function () { addPickRow(atributList, atributOptions(), '', false); });
+  document.getElementById('btnAddKetepatan').addEventListener('click', function () { addPickRow(ketepatanList, flexTabOptions('SN_KETEPATAN'), '', true); });
+
+  /* Parameter change: show the lists it uses, re-offer the atribut it allows (keep valid picks) */
+  function applyParam() {
+    var use = paramUses(paramEl.value);
+    document.getElementById('wrapAtribut').style.display = use.atribut ? '' : 'none';
+    document.getElementById('wrapKetepatan').style.display = use.ketepatan ? '' : 'none';
+    document.getElementById('jenisSampelHint').textContent = paramEl.value === 'triangle'
+      ? 'Triangle: enter 2 samples. Panelists get 3 cups (2 identical, 1 different) and only see the blind codes.'
+      : 'One row per sample. Panelists only see the blind code, not the sample name.';
+    var keep = pickValues(atributList).filter(function (a) { return atributOptions().indexOf(a) !== -1; });
+    atributList.innerHTML = '';
+    (keep.length ? keep : ['']).forEach(function (a) { addPickRow(atributList, atributOptions(), a, false); });
   }
 
-  /* ---------- Jenis Sampel (TomSelect multi, free text) ---------- */
-  var jenisSampelTs = null;
-  var jenisSampelEl = document.getElementById('jenisSampel');
-  if (jenisSampelEl && window.TomSelect) {
-    var existingJenis = existingRecord && existingRecord.jenisSampel;
-    existingJenis = Array.isArray(existingJenis) ? existingJenis : (existingJenis ? [existingJenis] : []);
-    jenisSampelTs = new window.TomSelect(jenisSampelEl, {
-      plugins: ['remove_button'],
-      create: true,
-      createOnBlur: true,
-      persist: false,
-      delimiter: ',',
-      options: existingJenis.map(function (v) { return { value: v, text: v }; }),
-      items: existingJenis,
-      render: { no_results: null, option_create: function (data, escape) { return '<div class="create">Tambah <strong>' + escape(data.input) + '</strong></div>'; } },
-      onChange: renderAtributTable
-    });
-  }
-  paramEl.addEventListener('change', renderAtributTable);
-  renderAtributTable();
+  /* Initial rows */
+  var existingSampel = prefill && prefill.sampelDetail
+    ? prefill.sampelDetail
+    : ((prefill && prefill.jenisSampel) || []).map(function (j) { return { jenis: j }; });
+  (existingSampel.length ? existingSampel : [{}]).forEach(function (s) { addSampelRow(s); });
+  ((existingMap.atribut && existingMap.atribut.length) ? existingMap.atribut : ['']).forEach(function (a) { addPickRow(atributList, atributOptions(), a, false); });
+  ((existingMap.ketepatan && existingMap.ketepatan.length) ? existingMap.ketepatan : ['']).forEach(function (k) { addPickRow(ketepatanList, flexTabOptions('SN_KETEPATAN'), k, true); });
+  paramEl.addEventListener('change', applyParam);
+  applyParam();
 
-  /* Parameter, at least one jenis sampel, and atribut + ketepatan for each jenis sampel */
+  /* Parameter, complete jenis sampel rows, at least one atribut; no duplicates */
   function paramIncomplete() {
-    if (!paramEl.value) return 'Pilih Parameter Uji.';
-    var samples = jenisSampelTs ? jenisSampelTs.getValue() : [];
-    if (!samples.length) return 'Isi minimal satu Jenis Sampel.';
-    var missing = samples.filter(function (s) {
-      var st = atributState[s];
-      return !st || !st.atribut.length || !st.ketepatan.length;
-    });
-    return missing.length ? 'Atribut & Ketepatan wajib diisi untuk: ' + missing.join(', ') + '.' : '';
+    var param = paramEl.value;
+    if (!param) return 'Select a Test Parameter.';
+    var samples = sampelValues();
+    if (samples.some(function (s) { return !s.jenis; })) return 'Sample Type name is required on every row.';
+    if (samples.some(function (s) { return !s.tglPembuatan || !s.expDate; })) return 'Manufacturing Date & Exp. Date are required for every sample.';
+    var names = samples.map(function (s) { return s.jenis.toLowerCase(); });
+    if (names.some(function (n, i) { return names.indexOf(n) !== i; })) return 'Sample Types must be different.';
+    if (param === 'triangle' && samples.length !== 2) return 'The Triangle test needs exactly 2 sample types.';
+    if (param === 'ranking' && samples.length < 2) return 'The Ranking test needs at least 2 sample types.';
+    var use = paramUses(param);
+    if (use.atribut && !pickValues(atributList).length) return 'Enter at least one Attribute.';
+    if (use.atribut && pickDuplicates(atributList).length) return 'Duplicate attributes: ' + pickDuplicates(atributList).join(', ') + '.';
+    if (use.ketepatan && pickDuplicates(ketepatanList).length) return 'Duplicate JAR attributes: ' + pickDuplicates(ketepatanList).join(', ') + '.';
+    return '';
   }
 
 
@@ -296,7 +321,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<span class="fs-12 text-truncate" title="' + f.name + '"><i class="' + iconFor(f.name) + ' me-1"></i>' + f.name + '</span>' +
         '<div class="d-flex align-items-center gap-2 flex-shrink-0">' +
         '<span class="text-muted fs-11">' + (f.size / 1024 / 1024).toFixed(2) + ' MB</span>' +
-        '<button type="button" class="btn btn-danger btn-sm fs-10 py-0 px-2 file-remove" data-idx="' + idx + '">Hapus</button>' +
+        '<button type="button" class="btn btn-danger btn-sm fs-10 py-0 px-2 file-remove" data-idx="' + idx + '">Delete</button>' +
         '</div></div>';
     }).join('');
 
@@ -311,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function addFiles(fileArr) {
     Array.from(fileArr).forEach(function (f) {
       if (f.size > 10 * 1024 * 1024) {
-        alert('File "' + f.name + '" melebihi batas maksimal 10MB.');
+        ToastService.showWarning('File "' + f.name + '" exceeds the 10MB limit.');
         return;
       }
       files.push(f);
@@ -334,24 +359,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  function showToast(message) {
-    var container = document.getElementById('appToastContainer');
-    if (!container) { alert(message); return; }
-    var toastEl = document.createElement('div');
-    toastEl.className = 'toast align-items-center text-white bg-dark border-0 shadow';
-    toastEl.setAttribute('role', 'alert');
-    toastEl.innerHTML = '<div class="d-flex"><div class="toast-body">' + message + '</div>' +
-      '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>';
-    container.appendChild(toastEl);
-    if (window.bootstrap && window.bootstrap.Toast) {
-      var toast = new window.bootstrap.Toast(toastEl, { delay: 3500 });
-      toastEl.addEventListener('hidden.bs.toast', function () { toastEl.remove(); });
-      toast.show();
-    } else {
-      setTimeout(function () { toastEl.remove(); }, 3500);
-    }
-  }
-
   function setFormLocked(locked) {
     document.querySelectorAll('#sensoryForm input, #sensoryForm select, #sensoryForm textarea').forEach(function (el) { el.disabled = locked; });
     if (window.jQuery) {
@@ -359,9 +366,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (window.jQuery(this).data('select2')) window.jQuery(this).prop('disabled', locked).trigger('change.select2');
       });
     }
-    if (jenisSampelTs) { locked ? jenisSampelTs.disable() : jenisSampelTs.enable(); }
     formLocked = locked;
-    rowSelects.forEach(function (t) { locked || !paramEl.value ? t.disable() : t.enable(); });
+    ['btnAddSampel', 'btnAddAtribut', 'btnAddKetepatan'].forEach(function (id) { document.getElementById(id).disabled = locked; });
+    document.querySelectorAll('[data-remove-pick]').forEach(function (b) { b.disabled = locked; });
+    renumberSampel();
     if (tanggalProduksiFp) {
       tanggalProduksiFp.set('clickOpens', !locked);
       document.getElementById('tanggalProduksi').disabled = locked;
@@ -374,18 +382,15 @@ document.addEventListener('DOMContentLoaded', function () {
     var val = function (id) { var el = document.getElementById(id); return el ? el.value : ''; };
     var param = val('parameterUji');
     var params = param ? [param] : [];
-    var samples = jenisSampelTs ? jenisSampelTs.getValue() : [];
-    /* Atribut & Ketepatan per jenis sampel; the panel tests use their union per parameter */
-    var atributBySampel = {}, unionAtr = {}, unionKet = {};
-    samples.forEach(function (s) {
-      var st = atributState[s] || { atribut: [], ketepatan: [] };
-      atributBySampel[s] = { atribut: st.atribut.slice(), ketepatan: st.ketepatan.slice() };
-      st.atribut.forEach(function (a) { unionAtr[a] = true; });
-      st.ketepatan.forEach(function (k) { unionKet[k] = true; });
-    });
+    var samples = sampelValues().filter(function (s) { return s.jenis; });
+    /* One atribut / ketepatan list per request, only what the parameter uses (the panel booth asks these) */
+    var use = paramUses(param);
+    var atribut = use.atribut ? pickValues(atributList) : [];
+    var ketepatan = use.ketepatan ? pickValues(ketepatanList) : [];
     var atributMap = {};
-    if (param) atributMap[param] = { atribut: Object.keys(unionAtr), ketepatan: Object.keys(unionKet) };
+    if (param) atributMap[param] = { atribut: atribut, ketepatan: ketepatan };
     return {
+      refNo: document.getElementById('noReference').value || null,
       id: docNoEl ? docNoEl.textContent : generateSensoryDocNo(),
       tanggal: docDateEl ? docDateEl.textContent : formatDateIDSn(new Date()),
       tipe: val('tipePengajuan'),
@@ -395,9 +400,9 @@ document.addEventListener('DOMContentLoaded', function () {
       alamatPabrik: val('alamatPabrik'),
       suhuPenyajian: val('suhuPenyajian'),
       kondisiPenyajian: val('kondisiPenyajian'),
-      pemohon: findRole(localStorage.getItem('holabsysRole')).name,
+      pemohon: currentRole().name,
       departemen: val('departemenPemohon'),
-      jenis: SENSORY_JENIS_BY_PARAM[param] || 'Uji Sensori Internal - Afektif Rating',
+      jenis: SENSORY_JENIS_BY_PARAM[param] || 'Internal Sensory Test - Affective Rating',
       sampel: val('namaSampel'),
       kategoriPangan: val('kategoriPangan'),
       batch: val('kodeBatch'),
@@ -406,11 +411,11 @@ document.addEventListener('DOMContentLoaded', function () {
       blindCodes: (existingRecord && existingRecord.blindCodes) || [],
       suhuWadah: (val('suhuPenyajian') || '-') + ' · ' + (val('kondisiPenyajian') || '-'),
       lab: val('laboratorium'),
-      jenisSampel: samples,
-      atributBySampel: atributBySampel,
+      jenisSampel: samples.map(function (s) { return s.jenis; }),
+      sampelDetail: samples,
       atributMap: atributMap,
-      atribut: Object.keys(unionAtr).join(', '),
-      ketepatan: Object.keys(unionKet).join(', '),
+      atribut: atribut.join(', '),
+      ketepatan: ketepatan.join(', '),
       kemasan: val('jenisKemasan'),
       params: params,
       param: param ? paramText(param) : ''
@@ -418,15 +423,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* ---------- Approval flow: shared with ASLT (request-approval.js) ---------- */
-  /* Last approval: one 3-digit blind code per jenis sampel (triangle: 3 cups) */
-  function newBlindCodes(n) {
-    var out = [];
-    while (out.length < n) {
-      var c = String(Math.floor(100 + Math.random() * 900));
-      if (out.indexOf(c) === -1) out.push(c);
-    }
-    return out;
-  }
   setupRequestApproval({
     label: 'Sensory',
     formId: 'sensoryForm',
@@ -437,12 +433,14 @@ document.addEventListener('DOMContentLoaded', function () {
     collect: collectFormValues,
     validate: paramIncomplete,
     setLocked: setFormLocked,
-    toast: showToast,
+    /* Last approval: blind codes unique over all panel requests (panelNewBlindCodes): one per
+       jenis sampel, triangle 3 cup positions whose content rotates per panelist */
     onApproved: function (rec) {
-      var n = Math.max((rec.jenisSampel || []).length, 2);
-      if ((rec.params || [])[0] === 'triangle') n = 3;
-      var codes = rec.blindCodes && rec.blindCodes.length ? rec.blindCodes : newBlindCodes(n);
-      return { blindCodes: codes, panel: { codes: codes, oddCode: (rec.params || [])[0] === 'triangle' ? codes[1] : null } };
+      var n = sensoryIsTriangle(rec) ? 3 : Math.max((rec.jenisSampel || []).length, 2);
+      var codes = rec.blindCodes && rec.blindCodes.length ? rec.blindCodes : panelNewBlindCodes(n, rec.id);
+      return { blindCodes: codes, panel: { codes: codes } };
     }
   });
+
+  RequestReference.setup({ title: 'Sensory', rows: getSensoryRequests, current: function () { return getSensoryRequestById(docNo); }, docId: function () { return docNo; } });
 });

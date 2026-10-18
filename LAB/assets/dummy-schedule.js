@@ -8,7 +8,7 @@
  * - ASLT: free time (start / end can be set and dragged). Panelists are not registered either,
  *   but at most ASLT_PANEL_QUOTA people can score one session.
  */
-var SCHEDULE_STORAGE_KEY = 'holabsysSchedules.v3';
+var SCHEDULE_STORAGE_KEY = 'holabsysSchedules.v3.en';
 
 var SCHEDULE_JENIS = {
   Sensory: { color: 'success', form: 'sensoryForm.html' },
@@ -22,9 +22,28 @@ var SENSORY_SLOTS = {
 };
 function sensorySlotLabel(slot) {
   var s = SENSORY_SLOTS[slot];
-  return s ? 'Sesi ' + slot + ' (' + s.start + '–' + s.end + ')' : '-';
+  return s ? 'Session ' + slot + ' (' + s.start + '–' + s.end + ')' : '-';
 }
+/* One Sensory session (date + slot) runs one kind of test only: Triangle or Non-Triangle
+   (rating / ranking / quality monitoring), so the booth never mixes the two. */
+function sensorySessionKind(requestId) {
+  var r = typeof getSensoryRequestById === 'function' ? getSensoryRequestById(requestId) : null;
+  return r && (r.params || [])[0] === 'triangle' ? 'Triangle' : 'Non-Triangle';
+}
+/* Calendar colour of a Sensory session by its kind (ASLT uses SCHEDULE_JENIS.ASLT.color) */
+var SENSORY_KIND_COLOR = { 'Triangle': 'info', 'Non-Triangle': 'success' };
 var ASLT_PANEL_QUOTA = 5;
+
+/* Mockup-only test mode (not in the real app, like the role switcher): while on, every Sensory /
+   ASLT session counts as running, whatever the clock says, so the booth can be tested outside
+   the session hours. Off = real time. Shared by LAB and PANELIS through localStorage. */
+var SCHEDULE_TEST_MODE_KEY = 'holabsysScheduleTestMode';
+function scheduleTestMode() {
+  try { return localStorage.getItem(SCHEDULE_TEST_MODE_KEY) === '1'; } catch (e) { return false; }
+}
+function setScheduleTestMode(on) {
+  try { if (on) localStorage.setItem(SCHEDULE_TEST_MODE_KEY, '1'); else localStorage.removeItem(SCHEDULE_TEST_MODE_KEY); } catch (e) { /* ignore */ }
+}
 
 /* Seeds are placed relative to the day the seed is written, so the demo always has sessions
    yesterday (done), today and tomorrow. */
@@ -54,17 +73,17 @@ var _ASLT_NOW = _asltNow();
 
 var SEED_SCHEDULES = [
   /* Sensory — fixed slots, several requests may share one slot */
-  _sensory('SCH-0013', 'SN-202609-0011', -1, 1, 'Uji triangle'),
+  _sensory('SCH-0013', 'SN-202609-0011', -1, 1, 'Triangle test'),
   _sensory('SCH-0014', 'SN-202609-0012', -1, 2, ''),
   _sensory('SCH-0017', 'SN-202609-0012', 0, 1, ''),
-  _sensory('SCH-0019', 'SN-202609-0009', 0, 1, 'Uji ranking'),
-  _sensory('SCH-0020', 'SN-202609-0012', 0, 3, 'Ulangan'),
+  _sensory('SCH-0019', 'SN-202609-0009', 0, 1, 'Ranking test'),
+  _sensory('SCH-0020', 'SN-202609-0012', 0, 3, 'Replicate'),
   _sensory('SCH-0021', 'SN-202609-0009', 1, 2, ''),
   /* ASLT — free time, max 5 panelists per session */
-  { id: 'SCH-0010', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: '2026-09-29T14:00', end: '2026-09-29T16:00', analis: 'Budi Santoso', catatan: 'Organoleptik H-21' },
-  { id: 'SCH-0018', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: _ASLT_NOW.start, end: _ASLT_NOW.end, analis: 'Budi Santoso', catatan: 'Organoleptik H-28' },
-  { id: 'SCH-0011', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: '2026-10-27T14:00', end: '2026-10-27T16:00', analis: 'Budi Santoso', catatan: 'Organoleptik H-56' },
-  { id: 'SCH-0012', requestId: 'ASLT-202609-004', jenis: 'ASLT', start: _schDay(1) + 'T09:00', end: _schDay(1) + 'T10:30', analis: 'Galih Saputra', catatan: 'Organoleptik H-14' }
+  { id: 'SCH-0010', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: '2026-09-29T14:00', end: '2026-09-29T16:00', analis: 'Budi Santoso', catatan: 'Organoleptic D-21' },
+  { id: 'SCH-0018', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: _ASLT_NOW.start, end: _ASLT_NOW.end, analis: 'Budi Santoso', catatan: 'Organoleptic D-28' },
+  { id: 'SCH-0011', requestId: 'ASLT-202609-001', jenis: 'ASLT', start: '2026-10-27T14:00', end: '2026-10-27T16:00', analis: 'Budi Santoso', catatan: 'Organoleptic D-56' },
+  { id: 'SCH-0012', requestId: 'ASLT-202609-004', jenis: 'ASLT', start: _schDay(1) + 'T09:00', end: _schDay(1) + 'T10:30', analis: 'Galih Saputra', catatan: 'Organoleptic D-14' }
 ];
 
 function getSchedules() {
@@ -81,7 +100,7 @@ function getSchedules() {
 }
 
 function saveSchedules(list) {
-  try { localStorage.setItem(SCHEDULE_STORAGE_KEY, JSON.stringify(list)); } catch (e) { /* ignore */ }
+  localStorage.setItem(SCHEDULE_STORAGE_KEY, JSON.stringify(list));
 }
 
 function nextScheduleId(list) {
@@ -96,8 +115,8 @@ function getSchedulableRequests() {
   var add = function (list, jenis) {
     list.forEach(function (r) {
       // only Fully Approved (Waiting for Schedule) or Confirmed requests run a panel
-      if (r.step !== 'Penjadwalan' && r.step !== 'Berjalan') return;
-      out.push({ id: r.id, jenis: jenis, sampel: r.sampel || '', waiting: r.step === 'Penjadwalan' });
+      if (r.step !== 'Scheduling' && r.step !== 'Running') return;
+      out.push({ id: r.id, jenis: jenis, sampel: r.sampel || '', waiting: r.step === 'Scheduling' });
     });
   };
   add(getSensoryRequests(), 'Sensory');

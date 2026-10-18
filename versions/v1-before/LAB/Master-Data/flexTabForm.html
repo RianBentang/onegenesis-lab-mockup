@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="../assets/version-v1.js"></script><!-- proposal v1: own browser data + label -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form Flex Tab | HOLABSYS</title>
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="../../../../LAB/assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+          <!-- SpkForm: Pageheader with action buttons (buttonsInHeader) — pages/Core/GEN/FlexTab/FlexTabForm.jsx -->
+          <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+            <div>
+              <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="#!">Master Data</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Form FlexTab</li>
+              </ol>
+              <h1 class="page-title fw-medium fs-18 mb-0">FlexTab</h1>
+            </div>
+            <div class="btn-list spk-page-header-actions-host">
+              <div class="spk-page-header-actions-card">
+                <div class="d-flex flex-wrap gap-2 justify-content-start justify-content-sm-end w-100 w-sm-auto">
+                  <a href="flexTab.html" class="btn btn-light btn-sm btn-wave d-inline-flex align-items-center"><i class="ri-arrow-go-back-line me-1"></i><span>Back</span></a>
+                  <button type="button" class="btn btn-success btn-sm btn-wave d-inline-flex align-items-center" id="btnSaveFlexTab"><i class="ri-save-2-line me-1"></i><span>Save</span></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card custom-card">
+            <div class="card-body">
+              <form id="flexTabForm" class="row gy-3" novalidate>
+                <div class="col-xl-6">
+                  <label class="form-label" for="flexTabId">FlexTab ID <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control form-control-light font-monospace" id="flexTabId" placeholder="Enter FlexTab ID" required />
+                </div>
+                <div class="col-xl-4">
+                  <label class="form-label" for="flexTabDescription">Description</label>
+                  <input type="text" class="form-control form-control-light" id="flexTabDescription" placeholder="Enter Description" />
+                </div>
+                <div class="col-xl-2">
+                  <!-- SpkLovInput in the app (AVO.GEN.FlexTab / DefaultLov); SpkSelect2 here -->
+                  <label class="form-label" for="flexTabParentId">Parent ID</label>
+                  <select id="flexTabParentId" class="form-select"><option value="">-- No Parent --</option></select>
+                </div>
+
+                <!-- SpkTablescomponent: items (showCheckbox) -->
+                <div class="col-xl-12">
+                  <div class="table-responsive">
+                    <table class="table nowrap text-nowrap border mt-2 mb-0 align-middle">
+                      <thead>
+                        <tr>
+                          <th style="width: 1%"><input class="form-check-input" type="checkbox" id="checkAllItems" style="min-width:20px;min-height:20px" aria-label="Select all items" /></th>
+                          <th style="width: 1%">Action</th>
+                          <th>ID</th>
+                          <th>Description</th>
+                          <th>Parent ID</th>
+                        </tr>
+                      </thead>
+                      <tbody id="flexTabItemsBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Add / Edit Item -->
+    <div class="modal fade" id="flexTabItemModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title fw-semibold fs-15" id="flexTabItemModalTitle">Add New Item</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="flexTabItemForm" novalidate>
+              <div class="mb-3">
+                <label class="form-label" for="itemId">ID <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-light font-monospace" id="itemId" placeholder="Enter ID" required />
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="itemDescription">Description <span class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-light" id="itemDescription" placeholder="Enter Description" required />
+              </div>
+              <div class="mb-3">
+                <!-- SpkLovInput in the app (AVO.GEN.FlexTab / ParentItem, filtered by the parent FlexTab) -->
+                <label class="form-label" for="itemParentId">Parent ID</label>
+                <select id="itemParentId" class="form-select"><option value="">-- No Parent --</option></select>
+                <div class="form-text" id="itemParentHint"></div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-sm btn-primary" id="btnSaveItem">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/spk-toast.js"></script>
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/spk-history.js"></script><!-- Approval / Document History + record.activity -->
+    <script src="../assets/dummy-flextab.js"></script>
+    <script src="../assets/flex-tab-form.js"></script>
+  </body>
+</html>

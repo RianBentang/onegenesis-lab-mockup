@@ -40,7 +40,7 @@
 }
 
 /* ---------- Print layouts (not app UI) ----------
-   Label sheet (Kaji Ulang & SPK tab of HOLABSYS/internalForm.html) and certificate / LHU (HOLABSYS/reportForm.html)
+   Label sheet (Technical Review & SPK tab of HOLABSYS/internalForm.html) and certificate / LHU (Report tab of the request forms, report-form.js)
    are paper documents, so they keep fixed black-on-white colors in both themes.
    Moved from the legacy assets/css/app.css. */
 @media print {
@@ -68,10 +68,6 @@
   border-radius: .6rem;
   background-color: #fff;
   color: #212529;
-}
-
-.lbl-card svg {
-  flex: none;
 }
 
 .lbl-card .lh {
@@ -407,3 +403,215 @@
 }
 .booth-cup { min-height: 8rem; }
 
+
+/* Schedule (Google Calendar-like). No theme class fits:
+   - quick-create popover: a fixed card next to the clicked time, above the offcanvas (1045) but
+     below select2's dropdown (1051) and modals (1055); the theme has no floating-card class.
+   - side panel width: the theme keeps Bootstrap's 400px offcanvas, too narrow for the session table.
+   - waiting requests are FullCalendar external draggables: grab cursor. */
+.card.custom-card.sch-quick { /* beats the theme .card.custom-card (width 100%, soft shadow) */
+  width: 340px;
+  max-width: calc(100vw - 2rem);
+  z-index: 1046;
+  box-shadow: var(--bs-box-shadow-lg);
+}
+.sch-panel { --bs-offcanvas-width: 520px; }
+.sch-waiting { cursor: grab; }
+.sch-waiting:active { cursor: grabbing; }
+/* Schedule left column stays in view while the (tall) week grid scrolls, so a waiting request can
+   be dragged onto any hour; offset = app header + sticky page-header actions. */
+@media (min-width: 1200px) {
+  .sch-side { position: sticky; top: 8rem; }
+}
+/* Schedule: grey out the hours outside the Sensory slots (businessHours). The theme paints
+   .fc-non-business white (!important), which hides them; use FullCalendar's own grey. */
+#calendar .fc-non-business { background: var(--fc-non-business-color) !important; }
+
+/* Kaji Ulang table (internal-review-tab.js): every cell after Parameter is a SpkSelect2; without a
+   minimum the table squeezes them to the arrow. No theme class sets a select width. */
+.kaji-ulang-table td .select2-container { min-width: 150px; }
+/* select2 puts absolutely positioned parts (hidden <select>, arrow) in each cell; with a static
+   .table-responsive they escape its scroll box and widen the whole page. Contain them. */
+.table-responsive { position: relative; }
+
+/* LHU legend under the result table (subkontrak parameters, report-form.js) — printable document */
+.cert-legend { font-size: 11px; line-height: 1.5; margin-top: 10px; }
+
+/* External form parameter picker (dummy-parameters.js parameterPickerOptions): big Internal /
+   External heading above its lab optgroups. TomSelect has one optgroup level only. */
+.param-jenis-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: rgb(var(--primary-rgb));
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--default-border);
+}
+
+/* Dashboard welcome row (layout taken from oneIPF's home dashboard; onegenesis-web has no
+   equivalent widget, so the banner and the haloed stat icon live here). The banner image is
+   onegenesis-web's public/assets/dashboard-main-image.jpeg (batik, also the Profile hero banner);
+   KPI tiles below. */
+.card.custom-card.dash-welcome {
+  background: url('img/dashboard-main-image.jpeg') right center / cover no-repeat;
+  min-height: 220px;
+}
+.dash-welcome-date {
+  color: #fff;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+}
+.dash-welcome-name {
+  color: color-mix(in srgb, rgb(var(--info-rgb)) 55%, #fff);
+}
+
+/* ---------- Dashboard + document stepper (onegenesis-web has no stepper / pipeline widget;
+   KPI tiles are SpkCountercard; colours come only from theme variables: --{variant}-rgb, --default-border,
+   --default-text-color, --custom-white) ---------- */
+.dash-welcome-role {
+  color: rgba(255, 255, 255, .8);
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+
+/* Pie card: total next to the chart, legend rows as clickable pills */
+.dash-pie-wrap { width: 230px; max-width: 100%; }
+.dash-pie-total { font-size: 1.9rem; font-weight: 700; line-height: 1; }
+.dash-pie-total small { font-size: 12px; font-weight: 400; margin-left: .35rem; opacity: .65; }
+.dash-legend-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  padding: .4rem .6rem;
+  border-radius: .5rem;
+  color: var(--default-text-color);
+  text-decoration: none;
+  border: 1px solid var(--default-border);
+}
+.dash-legend-item:hover { background: rgba(var(--primary-rgb), .06); color: var(--default-text-color); }
+.dash-legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+
+.dash-queue-scroll { max-height: 330px; overflow-y: auto; }
+.dash-empty { text-align: center; padding: 2.25rem 0; }
+.dash-empty i { font-size: 2rem; color: rgb(var(--success-rgb)); }
+
+/* Pipeline: one tile per stage, arrows between them */
+.dash-pipeline {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: .75rem;
+}
+@media (max-width: 991.98px) { .dash-pipeline { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 575.98px) { .dash-pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.dash-stage {
+  position: relative;
+  text-align: center;
+  padding: .9rem .5rem;
+  border-radius: .75rem;
+  border: 1px dashed var(--default-border);
+}
+.dash-stage.has-mine {
+  border: 1px solid rgba(var(--primary-rgb), .45);
+  background: rgba(var(--primary-rgb), .06);
+}
+.dash-stage-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--primary-rgb), .1);
+  color: rgb(var(--primary-rgb));
+}
+.dash-stage-count { font-size: 1.4rem; font-weight: 700; margin-top: .4rem; line-height: 1; }
+.dash-stage-name { font-size: 12px; opacity: .75; margin-top: .2rem; }
+
+/* ---------- Document progress stepper (request forms, docProgressHtml in dummy-requests.js) ---------- */
+.doc-stepper {
+  display: flex;
+  align-items: flex-start;
+  overflow-x: auto;
+  gap: 0;
+}
+.doc-step {
+  flex: 1 1 0;
+  min-width: 110px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 .25rem;
+}
+.doc-step::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: calc(-50% + 18px);
+  right: calc(50% + 18px);
+  height: 2px;
+  background: var(--default-border);
+}
+.doc-step:first-child::before { display: none; }
+.doc-step.is-done::before, .doc-step.is-current::before { background: rgb(var(--success-rgb)); }
+.doc-step-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  border: 2px solid var(--default-border);
+  background: var(--custom-white);
+  position: relative;
+  z-index: 1;
+}
+.doc-step.is-done .doc-step-dot {
+  border-color: rgb(var(--success-rgb));
+  background: rgb(var(--success-rgb));
+  color: #fff;
+}
+.doc-step.is-current .doc-step-dot {
+  border-color: rgb(var(--primary-rgb));
+  background: rgb(var(--primary-rgb));
+  color: #fff;
+  box-shadow: 0 0 0 5px rgba(var(--primary-rgb), .18);
+}
+.doc-step-title { font-size: 12px; font-weight: 600; margin-top: .45rem; }
+.doc-step.is-current .doc-step-title { color: rgb(var(--primary-rgb)); }
+.doc-step-who { font-size: 11px; opacity: .65; }
+
+/* ---------- LHU print: page x of y on every page (ISO/IEC 17025 cl. 7.8.2.1). A named page, so label
+   sheets and other prints keep their own margins and get no LHU footer. ---------- */
+.printable-doc { page: lhu; }
+@page lhu {
+  margin: 14mm 12mm 16mm;
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font-size: 9pt; }
+  @bottom-left { content: "HOLABSYS Central Laboratory · LHU"; font-size: 9pt; }
+}
+
+/* ---------- Request list accordion: Re-test / Revision document rows under their request. The
+   New Material Registration list colours them with an inline rgb(var(--light-rgb)) background; no
+   theme class does that for a table row, so it lives here. ---------- */
+.amend-child-row > td { background-color: rgb(var(--light-rgb)); }
+
+/* ---------- Document Journey sidebar (doc-journey.js, port of DevelopmentJourneySidebar): the
+   40px circles, the rail line between them and the collapsed column width are inline styles in the
+   React component; no theme class gives them. ---------- */
+.doc-journey-dot { width: 40px; height: 40px; }
+.doc-journey-dot-active { box-shadow: 0 0 0 3px rgba(var(--primary-rgb), .25); }
+.doc-journey-dot-todo { background-color: var(--custom-white); }
+.doc-journey-rail { width: 40px; flex-shrink: 0; }
+.doc-journey-item { z-index: 1; }
+.doc-journey-line { position: absolute; top: 40px; bottom: 0; left: 20px; width: 2px; transform: translateX(-50%); background-color: var(--default-border); }
+.doc-journey-line-done { background-color: rgb(var(--success-rgb)); }
+.doc-journey-line-started, .doc-journey-line-active { background-color: rgb(var(--purple-rgb)); }
+.doc-journey-collapsed { width: 84px; }
+.min-w-0 { min-width: 0; } /* flex column that may shrink (NewMat form column: style minWidth 0) */

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="../assets/version-v1.js"></script><!-- proposal v1: own browser data + label -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Parameters | HOLABSYS</title>
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="../../../../LAB/assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+          <!-- Pageheader -->
+          <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+            <div>
+              <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="#!">Master Data</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Test Parameters</li>
+              </ol>
+              <h1 class="page-title fw-medium fs-18 mb-0">Test Parameters, Methods &amp; ISO 17025 Scope</h1>
+            </div>
+            <div class="btn-list spk-page-header-actions-host">
+              <div class="spk-page-header-actions-card">
+                <a href="parameterForm.html" id="btnAddParam" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center"><i class="ri-add-line me-1 align-middle"></i>Add Parameter</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- SpkCountercard row -->
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-4">
+              <div class="card custom-card h-100 mb-0">
+                <div class="card-body pb-2">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary-transparent" style="width:48px;height:48px;border-radius:50%">
+                      <i class="ri-book-read-line text-primary" style="font-size:1.3rem"></i>
+                    </div>
+                    <div>
+                      <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Total Parameters</p>
+                      <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiTotalParam">0</h4>
+                      <span class="text-muted fs-12" id="kpiTotalSub">Internal</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-4">
+              <div class="card custom-card h-100 mb-0">
+                <div class="card-body pb-2">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-success-transparent" style="width:48px;height:48px;border-radius:50%">
+                      <i class="ri-dashboard-3-line text-success" style="font-size:1.3rem"></i>
+                    </div>
+                    <div>
+                      <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">In-Scope (Accredited)</p>
+                      <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiInScope">0</h4>
+                      <span class="text-muted fs-12">ISO/IEC 17025</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-4">
+              <div class="card custom-card h-100 mb-0">
+                <div class="card-body pb-2">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-warning-transparent" style="width:48px;height:48px;border-radius:50%">
+                      <i class="ri-error-warning-line text-warning" style="font-size:1.3rem"></i>
+                    </div>
+                    <div>
+                      <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Non-Scope</p>
+                      <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiNonScope">0</h4>
+                      <span class="text-muted fs-12">Manual review during technical review</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SpkTablePagination: tabs Internal / External -->
+          <div class="card custom-card">
+            <div class="card-header p-0 d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 border-bottom">
+              <ul class="nav nav-tabs tab-style-2 mb-0 border-0 d-flex flex-nowrap px-3" role="tablist" id="paramJenisTabs">
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link active" href="#!" role="tab" data-tab="Internal">
+                    <i class="ri-flask-line me-1 align-middle"></i>Internal
+                    <span class="badge bg-primary-transparent rounded-pill ms-1" id="countInternal">0</span>
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" href="#!" role="tab" data-tab="External">
+                    <i class="ri-building-2-line me-1 align-middle"></i>External
+                    <span class="badge bg-primary-transparent rounded-pill ms-1" id="countExternal">0</span>
+                  </a>
+                </li>
+              </ul>
+              <div class="d-flex align-items-center flex-wrap gap-2 px-3 pb-2 pb-md-0">
+                <!-- SpkSelect2 (Internal only) -->
+                <div style="width: 160px;" id="filterLabWrap">
+                  <select id="filterLabSelect" class="form-select form-select-sm">
+                    <option value="">All Labs</option>
+                  </select>
+                </div>
+                <div style="width: 190px;">
+                  <select id="filterScopeSelect" class="form-select form-select-sm">
+                    <option value="">All Scope Statuses</option>
+                    <option value="In-Scope">In-Scope</option>
+                    <option value="Non-Scope">Non-Scope</option>
+                  </select>
+                </div>
+                <input type="text" id="searchParamInput" class="form-control form-control-sm" placeholder="Search parameter / code / method..." style="width: 280px;" />
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover text-nowrap border align-middle mb-0">
+                  <thead id="paramTableHead"></thead>
+                  <tbody id="paramTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: delete confirmation -->
+    <div class="modal fade" id="deleteParamModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title fw-semibold">Delete Parameter?</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">Delete parameter <b id="deleteParamName"></b> from the master?</div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-sm btn-danger" id="btnConfirmDeleteParam">Yes, Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/spk-toast.js"></script>
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/spk-history.js"></script><!-- Approval / Document History + record.activity -->
+    <script src="../assets/dummy-parameters.js"></script>
+    <script src="../assets/dummy-requests.js"></script>
+    <script src="../assets/dummy-external-requests.js"></script>
+    <script src="../assets/parameter-list.js"></script>
+  </body>
+</html>

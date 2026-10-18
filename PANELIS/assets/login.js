@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function fmt(iso) {
-    return new Date(iso).toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short' }) + ' ' + iso.slice(11, 16);
+    return new Date(iso).toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short' }) + ' ' + iso.slice(11, 16);
   }
 
   function showPerson(p, open) {
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('hrisDept').textContent = p.info;
     var el = document.getElementById('hrisBadge');
     el.className = 'badge mt-1 ' + (open ? 'bg-success-transparent' : 'bg-warning-transparent');
-    el.innerHTML = open ? '<i class="ri-checkbox-circle-line me-1"></i>HRIS · ' + open + ' sesi bisa dinilai' : 'HRIS';
+    el.innerHTML = open ? '<i class="ri-checkbox-circle-line me-1"></i>HRIS · ' + open + ' session(s) open for scoring' : 'HRIS';
     result.classList.remove('d-none');
   }
 
@@ -70,11 +70,11 @@ document.addEventListener('DOMContentLoaded', function () {
       if (canEnter) {
         setState('valid', '');
       } else {
-        var running = panelSessions().filter(function (s) { return s.status === 'Berlangsung'; });
+        var running = panelSessions().filter(function (s) { return s.status === 'Ongoing'; });
         var next = panelNextSession();
         setState('invalid', running.length
-          ? 'Semua sesi yang berjalan sudah Anda nilai atau kuota panelisnya penuh.'
-          : 'Belum ada sesi panel yang berjalan.' + (next ? ' Sesi berikutnya: ' + fmt(next.start) + '.' : ''));
+          ? 'You have scored every running session, or its panelist quota is full.'
+          : 'No panel session is running yet.' + (next ? ' Next session: ' + fmt(next.start) + '.' : ''));
       }
       updateSubmit();
     }, 400);
@@ -92,10 +92,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    if (!person) { if (!nikInput.value.trim()) setState('invalid', 'NIK wajib diisi.'); return; }
+    if (!person) { if (!nikInput.value.trim()) setState('invalid', 'NIK is required.'); return; }
     if (submit.disabled) return;
     var who = person.source === 'HRIS' ? person
-      : { nik: person.nik, name: namaInput.value.trim(), source: 'Non-HRIS', username: null, info: 'Panelis non-HRIS' };
+      : { nik: person.nik, name: namaInput.value.trim(), source: 'Non-HRIS', username: null, info: 'Non-HRIS panelist' };
     panelisLogin(who, booth);
     window.location.href = 'booth.html';
   });

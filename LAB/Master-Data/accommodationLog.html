@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <title>Log Akomodasi &amp; Lingkungan Uji | HOLABSYS</title>
+    <title>Accommodation &amp; Test Environment Log | HOLABSYS</title>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
     <link href="../assets/og-theme/onegenesis.css" rel="stylesheet" />
@@ -23,13 +23,13 @@
             <div>
               <ol class="breadcrumb mb-1">
                 <li class="breadcrumb-item"><a href="#!">Master Data</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Log Lingkungan Lab</li>
+                <li class="breadcrumb-item active" aria-current="page">Lab Environment Log</li>
               </ol>
-              <h1 class="page-title fw-medium fs-18 mb-0">Log Akomodasi &amp; Lingkungan Uji</h1>
+              <h1 class="page-title fw-medium fs-18 mb-0">Accommodation &amp; Test Environment Log</h1>
             </div>
             <div class="btn-list spk-page-header-actions-host">
               <div class="spk-page-header-actions-card">
-                <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalAddLog"><i class="ri-add-line me-1 align-middle"></i>Catat Log Lingkungan Baru</button>
+                <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalAddLog"><i class="ri-add-line me-1 align-middle"></i>Record New Environment Log</button>
               </div>
             </div>
           </div>
@@ -45,8 +45,8 @@
                     <i class="ri-dashboard-3-line text-primary" style="font-size:1.3rem"></i>
                   </div>
                   <div>
-                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Titik Ruang &amp; Chamber Terpantau</p>
-                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiTitikRuang">6 Titik</h4>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Monitored Rooms &amp; Chambers</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiTitikRuang">6 Points</h4>
                     <span class="text-muted fs-12">IoT Sensor + Manual Log</span>
                   </div>
                 </div>
@@ -62,9 +62,9 @@
                     <i class="ri-checkbox-circle-line text-success" style="font-size:1.3rem"></i>
                   </div>
                   <div>
-                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Kondisi Baseline Normal (In-Spec)</p>
-                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiNormalCount">5 Titik</h4>
-                    <span class="text-muted fs-12">Sesuai Standar Uji ISO 17025</span>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Normal Baseline Condition (In-Spec)</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiNormalCount">5 Points</h4>
+                    <span class="text-muted fs-12">Meets ISO 17025 Test Standard</span>
                   </div>
                 </div>
               </div>
@@ -79,9 +79,9 @@
                     <i class="ri-alert-line text-danger" style="font-size:1.3rem"></i>
                   </div>
                   <div>
-                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Penyimpangan (Out of Spec Alert)</p>
-                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiAlertCount">1 Titik</h4>
-                    <span class="text-muted fs-12">RH Ruang Timbang Tinggi</span>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Deviation (Out of Spec Alert)</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiAlertCount">1 Point</h4>
+                    <span class="text-muted fs-12">High RH in Weighing Room</span>
                   </div>
                 </div>
               </div>
@@ -96,9 +96,9 @@
                     <i class="ri-dashboard-3-line text-info" style="font-size:1.3rem"></i>
                   </div>
                   <div>
-                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Rata-rata Suhu Lab Sentral</p>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Central Lab Average Temperature</p>
                     <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1">22.4 &deg;C &bull; 58% RH</h4>
-                    <span class="text-muted fs-12">Standar: 20-25&deg;C &bull; &le; 65% RH</span>
+                    <span class="text-muted fs-12">Standard: 20-25&deg;C &bull; &le; 65% RH</span>
                   </div>
                 </div>
               </div>
@@ -113,7 +113,7 @@
             <ul class="nav nav-tabs tab-style-2 mb-0 border-0 d-flex flex-nowrap px-3" role="tablist">
               <li class="nav-item" role="presentation">
                 <a class="nav-link active" href="#!" role="tab">
-                  <i class="ri-temp-hot-line me-1 align-middle"></i>Log Lingkungan
+                  <i class="ri-temp-hot-line me-1 align-middle"></i>Environment Log
                   <span class="badge bg-primary-transparent rounded-pill ms-1" id="countList">0</span>
                 </a>
               </li>
@@ -121,10 +121,10 @@
             <div class="d-flex align-items-center flex-wrap gap-2 px-3 pb-2 pb-md-0">
                 <div style="width: 200px;">
                   <select id="filterRuangSelect" class="form-select form-select-sm">
-                    <option value="">Semua Titik Ruangan</option>
-                    <option value="Ruang Instrumen Fisika Kimia">Ruang Instrumen FK</option>
-                    <option value="Ruang Timbang Analitik">Ruang Timbang</option>
-                    <option value="Ruang Inokulasi Mikrobiologi">Ruang Inokulasi MB</option>
+                    <option value="">All Rooms</option>
+                    <option value="Physicochemical Instrument Room">Physicochemical Instrument Rm.</option>
+                    <option value="Analytical Weighing Room">Weighing Room</option>
+                    <option value="Microbiology Inoculation Room">Microbiology Inoculation Rm.</option>
                     <option value="Chamber ASLT (45°C / 75% RH)">Chamber ASLT 45°C</option>
                     <option value="Chamber ASLT (35°C / 70% RH)">Chamber ASLT 35°C</option>
                     <option value="Sensory Testing Booth">Sensory Booth</option>
@@ -132,12 +132,12 @@
                 </div>
                 <div style="width: 180px;">
                   <select id="filterStatusLog" class="form-select form-select-sm">
-                    <option value="">Semua Status</option>
+                    <option value="">All Statuses</option>
                     <option value="In-Spec">In-Spec (Normal)</option>
                     <option value="Out-of-Spec">Out-of-Spec (Alert)</option>
                   </select>
                 </div>
-                <input type="text" id="searchLogInput" class="form-control form-control-sm" placeholder="Cari ruangan / sensor..." style="width: 300px;" />
+                <input type="text" id="searchLogInput" class="form-control form-control-sm" placeholder="Search room / sensor..." style="width: 300px;" />
             </div>
           </div>
           <div class="card-body">
@@ -146,15 +146,15 @@
                 <thead>
                   <tr>
                     <th style="width: 50px;">No</th>
-                    <th>Waktu &amp; Tanggal</th>
-                    <th>Ruangan / Chamber Uji</th>
-                    <th>Suhu Terukur (&deg;C)</th>
-                    <th>Standar Suhu Target</th>
-                    <th>RH Terukur (%)</th>
-                    <th>Standar RH Target</th>
-                    <th>Status Baseline</th>
-                    <th>Metode Input / Sensor</th>
-                    <th>Catatan / PIC</th>
+                    <th>Time &amp; Date</th>
+                    <th>Test Room / Chamber</th>
+                    <th>Measured Temp. (&deg;C)</th>
+                    <th>Target Temp. Standard</th>
+                    <th>Measured RH (%)</th>
+                    <th>Target RH Standard</th>
+                    <th>Baseline Status</th>
+                    <th>Input Method / Sensor</th>
+                    <th>Notes / PIC</th>
                   </tr>
                 </thead>
                 <tbody id="logTableBody">
@@ -173,58 +173,58 @@
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="modalAddLogLabel">Input Log Suhu &amp; Kelembapan Lingkungan</h5>
+            <h5 class="modal-title" id="modalAddLogLabel">Record Environment Temperature &amp; Humidity</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <form id="formAddLog">
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Titik Lokasi Ruangan / Chamber <span class="text-danger">*</span></label>
+                  <label class="form-label small fw-semibold">Room / Chamber Location <span class="text-danger">*</span></label>
                   <select class="form-select" id="logRuangan" required>
-                    <option value="Ruang Instrumen Fisika Kimia">Ruang Instrumen Fisika Kimia (20-25°C, <=65% RH)</option>
-                    <option value="Ruang Timbang Analitik">Ruang Timbang Analitik (20-22°C, <=55% RH)</option>
-                    <option value="Ruang Inokulasi Mikrobiologi">Ruang Inokulasi Mikrobiologi (22-25°C, <=60% RH)</option>
+                    <option value="Physicochemical Instrument Room">Physicochemical Instrument Room (20-25°C, <=65% RH)</option>
+                    <option value="Analytical Weighing Room">Analytical Weighing Room (20-22°C, <=55% RH)</option>
+                    <option value="Microbiology Inoculation Room">Microbiology Inoculation Room (22-25°C, <=60% RH)</option>
                     <option value="Chamber ASLT (45°C / 75% RH)">Chamber ASLT (Target 45°C &plusmn; 1°C, 75% &plusmn; 3% RH)</option>
                     <option value="Chamber ASLT (35°C / 70% RH)">Chamber ASLT (Target 35°C &plusmn; 1°C, 70% &plusmn; 3% RH)</option>
                     <option value="Sensory Testing Booth">Sensory Testing Booth (22-24°C, Ambient RH)</option>
                   </select>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Tanggal &amp; Waktu Pengamatan <span class="text-danger">*</span></label>
+                  <label class="form-label small fw-semibold">Observation Date &amp; Time <span class="text-danger">*</span></label>
                   <input type="text" class="form-control font-monospace" id="logWaktu" value="23-09-2026 11:00" required />
                 </div>
               </div>
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Suhu Terukur (&deg;C) <span class="text-danger">*</span></label>
-                  <input type="number" step="0.1" class="form-control font-monospace" id="logSuhu" required placeholder="Contoh: 22.5" />
+                  <label class="form-label small fw-semibold">Measured Temp. (&deg;C) <span class="text-danger">*</span></label>
+                  <input type="number" step="0.1" class="form-control font-monospace" id="logSuhu" required placeholder="Example: 22.5" />
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Kelembapan Terukur (% RH) <span class="text-danger">*</span></label>
-                  <input type="number" step="0.1" class="form-control font-monospace" id="logRh" required placeholder="Contoh: 58.0" />
+                  <label class="form-label small fw-semibold">Measured Humidity (% RH) <span class="text-danger">*</span></label>
+                  <input type="number" step="0.1" class="form-control font-monospace" id="logRh" required placeholder="Example: 58.0" />
                 </div>
               </div>
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Metode Pembacaan</label>
+                  <label class="form-label small fw-semibold">Reading Method</label>
                   <select class="form-select" id="logSensor">
                     <option value="Sensor IoT Telemetry">Sensor IoT Telemetry (Auto-sync)</option>
                     <option value="Thermohygrometer Digital (Manual)">Thermohygrometer Digital (Manual)</option>
                   </select>
                 </div>
                 <div class="col-md-6">
-                  <label class="form-label small fw-semibold">Petugas Pencatat (PIC)</label>
+                  <label class="form-label small fw-semibold">Recorded By (PIC)</label>
                   <input type="text" class="form-control" id="logPic" value="Budi Santoso (CRL)" />
                 </div>
               </div>
               <div class="mb-3">
-                <label class="form-label small fw-semibold">Catatan Kondisi Khusus / Tindakan Korektif</label>
-                <textarea class="form-control" id="logCatatan" rows="2" placeholder="Tuliskan jika ada AC adjusting atau regenerasi silica gel..."></textarea>
+                <label class="form-label small fw-semibold">Special Condition Notes / Corrective Action</label>
+                <textarea class="form-control" id="logCatatan" rows="2" placeholder="Note any AC adjustment or silica gel regeneration..."></textarea>
               </div>
               <div class="modal-footer px-0 pb-0">
-                <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-sm btn-primary btn-wave">Simpan Log Lingkungan</button>
+                <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-sm btn-primary btn-wave">Save Environment Log</button>
               </div>
             </form>
           </div>
@@ -237,7 +237,9 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="../assets/spk-select2.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/spk-toast.js"></script>
     <script src="../assets/og-shell.js"></script>
+    <script src="../assets/spk-history.js"></script><!-- Approval / Document History + record.activity -->
     <script src="../assets/accommodation-log.js"></script>
   </body>
 </html>

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>Re-test / Revision | HOLABSYS</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link href="../assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Re-test (RT-) / Revision (RV-) document of an issued certificate: its own number, status and
+         history, linked to its request (refDocId) like the LSPD → SUPD → PSPD chain of New Material
+         Registration. ?ref=<request>&src=internal|sensory|aslt&type=retest|revision creates one,
+         ?docId=<RT-/RV- no.>[&tab=report] opens it. Logic: amendment-form.js, store: dummy-requests.js -->
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+        <!-- ── SpkForm: Page Header (breadcrumb + title + action buttons) ── -->
+        <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+          <div>
+            <ol class="breadcrumb mb-1">
+              <li class="breadcrumb-item"><a href="#!">HOLABSYS</a></li>
+              <li class="breadcrumb-item"><a href="internalList.html" id="breadcrumbList">Internal</a></li>
+              <li class="breadcrumb-item active" aria-current="page" id="breadcrumbType">Re-test</li>
+            </ol>
+            <h1 class="page-title fw-medium fs-18 mb-0" id="pageTitle">Re-test Form</h1>
+          </div>
+          <!-- SpkForm action buttons — rendered by amendment-form.js (spk-kit.js) -->
+          <div id="formActionButtons" class="d-flex flex-wrap gap-2 justify-content-start justify-content-sm-end"></div>
+        </div>
+
+        <!-- ── SpkForm: Document Info Bar ── -->
+        <div class="card custom-card no-print d-flex flex-row align-items-center justify-content-between flex-wrap gap-2 p-2 mb-3">
+          <div class="d-flex align-items-center flex-wrap gap-2">
+            <!-- Doc status + workflow badge — amendmentStatusCardHtml() -->
+            <span id="docStatusBadges" class="d-inline-flex align-items-center flex-wrap gap-2"></span>
+            <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+            <div class="d-flex flex-column gap-1 lh-1">
+              <span class="text-uppercase text-muted fs-10">Transaction ID</span>
+              <span class="fs-13 text-heading text-nowrap font-monospace" id="docNoValue">-</span>
+            </div>
+            <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+            <div class="d-flex flex-column gap-1 lh-1">
+              <span class="text-uppercase text-muted fs-10">Date</span>
+              <span class="fs-13 text-heading text-nowrap font-monospace" id="docDateValue">-</span>
+            </div>
+            <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+            <div class="d-flex flex-column gap-1 lh-1">
+              <span class="text-uppercase text-muted fs-10">Request</span>
+              <span class="fs-13 text-heading text-nowrap font-monospace" id="refDocValue">-</span>
+            </div>
+            <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
+            <div class="d-flex flex-column gap-1 lh-1">
+              <span class="text-uppercase text-muted fs-10">New Certificate</span>
+              <span class="fs-13 text-heading text-nowrap font-monospace" id="issuedNoValue">Not Issued</span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-shrink-0 flex-wrap justify-content-end">
+            <button type="button" class="btn btn-sm btn-light text-muted fw-semibold d-inline-flex align-items-center gap-1" data-bs-toggle="offcanvas" data-bs-target="#historyOffcanvas">
+              <i class="ri-history-line"></i> Document History
+            </button>
+          </div>
+        </div>
+        <!-- Document Journey (left, doc-journey.js) beside the form, like New Material Registration -->
+        <div class="row g-3">
+          <div id="docJourney" class="d-none"></div>
+          <div id="docMain" class="col-12">
+        <!-- Progress stepper + which certificate this document replaces -->
+        <div id="docNote" class="no-print"></div>
+
+        <!-- Tabs (nav-tabs tab-style-2): Form for everyone; Report for lab roles while open, for everyone once the new certificate is issued -->
+        <div class="card custom-card mb-3 overflow-hidden d-none no-print" id="amendTabsCard">
+          <div class="card-body p-0">
+            <div class="border-bottom">
+              <ul class="nav nav-tabs tab-style-2 mb-0 d-flex flex-nowrap" role="tablist" id="amendTabs">
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link active" href="#!" role="tab" data-tab="form">
+                    <i class="ri-file-list-3-line me-1 align-middle"></i><span id="formTabLabel">Re-test Form</span>
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" href="#!" role="tab" data-tab="report">
+                    <i class="ri-award-line me-1 align-middle"></i>Report
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div data-pane="form">
+          <form id="amendmentForm" novalidate>
+            <!-- ── SpkFormSection: 1. Reference ── -->
+            <div class="card custom-card">
+              <div class="card-body">
+                <div class="mb-3">
+                  <h6 class="fw-semibold mb-0">1. Reference</h6>
+                  <p class="text-muted fs-12 mb-0 mt-1">The request and the certificate this document replaces.</p>
+                </div>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label" for="refRequest">Request</label>
+                    <input type="text" class="form-control" id="refRequest" disabled />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="refSample">Sample Name</label>
+                    <input type="text" class="form-control" id="refSample" disabled />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="refRequester">Requester</label>
+                    <input type="text" class="form-control" id="refRequester" disabled />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="refCertificate">Certificate to Replace</label>
+                    <input type="text" class="form-control" id="refCertificate" disabled />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="refIssuedAt">Issued</label>
+                    <input type="text" class="form-control" id="refIssuedAt" disabled />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="refCreatedBy">Created By</label>
+                    <input type="text" class="form-control" id="refCreatedBy" disabled />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── SpkFormSection: 2. Re-test (TCM): parameters that already have a first run ── -->
+            <div class="card custom-card d-none" id="retestSection">
+              <div class="card-body">
+                <div class="mb-3">
+                  <h6 class="fw-semibold mb-0">2. Re-test</h6>
+                  <p class="text-muted fs-12 mb-0 mt-1">The chosen parameters go back to Excel for a new run. One more reagent run is deducted and a Nonconforming Work record is raised.</p>
+                </div>
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label">Parameters <span class="text-danger">*</span></label>
+                    <div id="retestParams"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── SpkFormSection: 2. Revision (CRL / TCM): administrative data, results unchanged ── -->
+            <div class="card custom-card d-none" id="revisionSection">
+              <div class="card-body">
+                <div class="mb-3">
+                  <h6 class="fw-semibold mb-0">2. Revision</h6>
+                  <p class="text-muted fs-12 mb-0 mt-1">Corrects the data printed on the certificate. The test results do not change.</p>
+                </div>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label" for="revSampel">Sample Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="revSampel" />
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="revAlamat">Customer Address</label>
+                    <!-- SpkSelect2 -->
+                    <select id="revAlamat" class="form-select"></select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label" for="revKemasan">Packaging</label>
+                    <!-- SpkSelect2 -->
+                    <select id="revKemasan" class="form-select"></select>
+                  </div>
+                  <div class="col-12" id="revChangesWrap"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── SpkFormSection: 3. Reason ── -->
+            <div class="card custom-card">
+              <div class="card-body">
+                <div class="mb-3">
+                  <h6 class="fw-semibold mb-0">3. Reason</h6>
+                </div>
+                <label class="form-label" for="amendReason">Reason <span class="text-danger">*</span></label>
+                <textarea id="amendReason" class="form-control" rows="3" placeholder="Write the reason..."></textarea>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Report tab: the new version of the request's report (ReportPanel, report-form.js) -->
+        <div data-pane="report" class="d-none" id="paneReport"></div>
+          </div>
+        </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Offcanvas: Document History (spk-history.js) ── -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="historyOffcanvas" style="width: 390px;">
+      <div class="offcanvas-header">
+        <div>
+          <h6 class="mb-0 fw-semibold"><i class="ri-history-line text-primary me-1"></i> Document History</h6>
+          <span class="fs-11 text-muted" id="docNoValueHistory">-</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body" id="historyOffcanvasBody"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/spk-toast.js"></script>
+    <script src="../assets/spk-kit.js"></script><!-- Spk renderers: SpkForm buttons, confirmation -->
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/spk-history.js"></script><!-- Document History -->
+    <script src="../assets/dummy-sites.js"></script>
+    <script src="../assets/dummy-flextab.js"></script>
+    <script src="../assets/dummy-parameters.js"></script>
+    <script src="../assets/dummy-requests.js"></script>
+    <script src="../assets/dummy-reagents.js"></script><!-- a Re-test deducts one more reagent run -->
+    <script src="../assets/dummy-quality.js"></script><!-- a Re-test raises a Quality Record -->
+    <script src="../assets/dummy-aslt-sensory-requests.js"></script>
+    <script src="../assets/dummy-schedule.js"></script>
+    <script src="../assets/dummy-panel.js"></script>
+    <script src="../assets/dummy-worksheet.js"></script>
+    <script src="../assets/report-form.js"></script><!-- Report tab (ReportPanel) -->
+    <script src="../assets/doc-journey.js"></script><!-- Document Journey -->
+    <script src="../assets/amendment-form.js"></script>
+  </body>
+</html>

@@ -33,24 +33,26 @@
     },
     {
       title: 'HOLABSYS', icon: 'ri-flask-line', children: [
-        { title: 'Internal', path: 'HOLABSYS/internalList.html', also: ['HOLABSYS/internalForm.html'] },
+        { title: 'Internal', path: 'HOLABSYS/internalList.html', also: ['HOLABSYS/internalForm.html', 'HOLABSYS/amendmentForm.html'] },
         { title: 'External', path: 'HOLABSYS/externalList.html', also: ['HOLABSYS/externalForm.html'] },
-        { title: 'Report', path: 'HOLABSYS/reportList.html', also: ['HOLABSYS/reportForm.html'] },
+        { title: 'Report', path: 'HOLABSYS/reportList.html' },
         { title: 'ASLT and Sensory', path: 'HOLABSYS/asltAndSensory.html', also: ['HOLABSYS/asltForm.html', 'HOLABSYS/sensoryForm.html'] },
         { title: 'Schedule', path: 'HOLABSYS/schedule.html' },
-        { title: 'Excel', path: 'HOLABSYS/excel.html' }
+        { title: 'Excel', path: 'HOLABSYS/excel.html' },
+        { title: 'Quality Records', path: 'HOLABSYS/qualityRecords.html' }
       ]
     },
     {
       title: 'Master Data', icon: 'ri-database-2-line', children: [
-        { title: 'Metode & Scope Uji', path: 'Master-Data/metodeScope.html' },
-        { title: 'Tanda Tangan & QR', path: 'Master-Data/digitalSignature.html' },
-        { title: 'Matriks Kompetensi', path: 'Master-Data/analisCompetency.html' },
-        { title: 'Alat & Kalibrasi', path: 'Master-Data/equipmentCalibration.html' },
-        { title: 'Reagen & Stok', path: 'Master-Data/reagenStock.html' },
-        { title: 'Log Lingkungan Lab', path: 'Master-Data/accommodationLog.html' },
-        { title: 'Vendor Lab Eksternal', path: 'Master-Data/externalVendor.html' },
-        { title: 'Master SKU', path: 'Master-Data/masterSku.html' }
+        { title: 'Test Parameters', path: 'Master-Data/parameter.html', also: ['Master-Data/parameterForm.html'] },
+        { title: 'Signature & QR', path: 'Master-Data/digitalSignature.html' },
+        { title: 'Competency Matrix', path: 'Master-Data/analisCompetency.html' },
+        { title: 'Equipment & Calibration', path: 'Master-Data/equipmentCalibration.html' },
+        { title: 'Reagents & Stock', path: 'Master-Data/reagenStock.html' },
+        { title: 'Lab Environment Log', path: 'Master-Data/accommodationLog.html' },
+        { title: 'External Lab Vendors', path: 'Master-Data/externalVendor.html' },
+        { title: 'External Lab Invoices', path: 'Master-Data/invoice.html', also: ['Master-Data/invoiceForm.html'] },
+        { title: 'Flex Tab', path: 'Master-Data/flexTab.html', also: ['Master-Data/flexTabForm.html'] }
       ]
     }
   ];
@@ -60,12 +62,13 @@
   var ROLES = [
     { code: 'BSU', label: 'Basic User', name: 'Marsya Valentina', dept: 'Quality Assurance', email: 'marsya.valentina@garudafood.com' },
     { code: 'MGU', label: 'Manager User', name: 'Bayu Aditama', dept: 'Quality Assurance', email: 'bayu.aditama@garudafood.com' },
-    { code: 'HOL', label: 'Head of Laboratory', name: 'Ratna Sari', dept: 'Laboratorium', email: 'ratna.sari@garudafood.com' },
+    { code: 'HOL', label: 'Head of Laboratory', name: 'Ratna Sari', dept: 'Laboratory', email: 'ratna.sari@garudafood.com' },
     { code: 'HOR', label: 'Head of R&D', name: 'Agus Setiawan', dept: 'Research & Development', email: 'agus.setiawan@garudafood.com' },
     { code: 'FRA', label: 'FRA Administrator', name: 'Maya Putri', dept: 'Regulatory Affairs', email: 'maya.putri@garudafood.com' },
-    { code: 'ADM', label: 'Lab Administrator', name: 'Bambang Admin', dept: 'Laboratorium', email: 'bambang.admin@garudafood.com' },
-    { code: 'CRL', label: 'Koordinator Lab / Penyelia', name: 'Budi Santoso', dept: 'Laboratorium', email: 'budi.santoso@garudafood.com' },
-    { code: 'TCM', label: 'Technical Manager', name: 'Siti Rahmawati', dept: 'Laboratorium', email: 'siti.rahmawati@garudafood.com' }
+    { code: 'ADM', label: 'Lab Administrator', name: 'Bambang Admin', dept: 'Laboratory', email: 'bambang.admin@garudafood.com' },
+    { code: 'CRL', label: 'Lab Coordinator / Supervisor', name: 'Budi Santoso', dept: 'Laboratory', email: 'budi.santoso@garudafood.com' },
+    { code: 'ANL', label: 'Analyst', name: 'Galih Saputra', dept: 'Laboratory', email: 'galih.saputra@garudafood.com' },
+    { code: 'TCM', label: 'Technical Manager', name: 'Siti Rahmawati', dept: 'Laboratory', email: 'siti.rahmawati@garudafood.com' }
   ];
 
   function initials(name) {
@@ -112,6 +115,8 @@
   window.initials = initials;
   window.findRole = findRole;
   window.applyRole = applyRole;
+  /* The mockup role picked in the header — page scripts read it here, not from localStorage */
+  window.currentRole = function () { return findRole(storageGet('holabsysRole')); };
 
   /* ---------- <html> attributes (same defaults as onegenesis-web redux initialState) ---------- */
   var html = document.documentElement;
@@ -288,6 +293,47 @@
   window.addEventListener('scroll', function () {
     sidebar.classList.toggle('sticky-pin', window.scrollY > 30);
   });
+
+  /* ---------- Pageheader sticky actions (onegenesis-web useStickyActions) ----------
+     The page-header buttons switch to position:fixed just below the app header once the page
+     scrolls past them. Pages either write the Pageheader host/card markup or a plain action
+     container, which is wrapped into it here. */
+  var actionsHost = document.querySelector('.page-header-breadcrumb > :nth-child(2)');
+  if (actionsHost && !actionsHost.classList.contains('spk-page-header-actions-host')) {
+    var headerActions = actionsHost;
+    actionsHost = document.createElement('div');
+    actionsHost.className = 'btn-list spk-page-header-actions-host';
+    headerActions.parentNode.insertBefore(actionsHost, headerActions);
+    actionsHost.appendChild(headerActions);
+    headerActions.classList.add('spk-page-header-actions-card');
+  }
+  if (actionsHost) {
+
+    var sticky = { anchorTop: 0, headerOffset: 64, stuck: false };
+    var measureActions = function () {
+      if (sticky.stuck) actionsHost.classList.remove('is-stuck');
+      sticky.anchorTop = actionsHost.getBoundingClientRect().top + window.scrollY;
+      sticky.headerOffset = (document.querySelector('.app-header').getBoundingClientRect().height || 56) + 8;
+      actionsHost.style.setProperty('--spk-sticky-actions-top', sticky.headerOffset + 'px');
+      actionsHost.style.setProperty('--spk-sticky-actions-inline-end', '.75rem');
+      if (sticky.stuck) actionsHost.classList.add('is-stuck');
+    };
+    var updateActions = function () {
+      var stick = window.scrollY + sticky.headerOffset >= sticky.anchorTop;
+      if (stick === sticky.stuck) return;
+      sticky.stuck = stick;
+      actionsHost.classList.toggle('is-stuck', stick);
+    };
+    var actionsRaf = null;
+    window.addEventListener('scroll', function () {
+      if (actionsRaf !== null) return;
+      actionsRaf = requestAnimationFrame(function () { actionsRaf = null; updateActions(); });
+    }, { passive: true });
+    window.addEventListener('resize', measureActions);
+    window.addEventListener('load', function () { measureActions(); updateActions(); });
+    measureActions();
+    updateActions();
+  }
 
   // Role switcher
   var roleSelectEl = document.getElementById('roleSelect');

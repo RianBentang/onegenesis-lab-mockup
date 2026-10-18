@@ -6,7 +6,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-    <title>Pengajuan Analisa Internal | HOLABSYS</title>
+    <title>Internal Analysis Request | HOLABSYS</title>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet" />
@@ -30,16 +30,9 @@
               </ol>
             <h1 class="page-title fw-medium fs-18 mb-0">Internal Form</h1>
           </div>
-          <div id="formActionButtons" class="d-flex flex-wrap gap-2">
-            <a href="internalList.html" class="btn btn-sm bg-white d-inline-flex align-items-center gap-1">
-              <i class="ri-arrow-left-line"></i> Back
-            </a>
-            <button type="button" id="btnSaveDraft" class="btn btn-sm btn-warning btn-wave d-inline-flex align-items-center gap-1 text-white">
-              <i class="ri-save-3-line"></i> Save Draft
-            </button>
-            <button type="button" id="btnSubmit" class="btn btn-sm btn-success btn-wave d-inline-flex align-items-center gap-1">
-              <i class="ri-send-plane-fill"></i> Submit
-            </button>
+          <!-- SpkForm action buttons — rendered by the page script (spk-kit.js: STANDARD_BUTTON_DEFS) -->
+          <div id="formActionButtons" class="d-flex flex-wrap gap-2 justify-content-start justify-content-sm-end">
+            <a href="internalList.html" class="btn btn-light btn-sm btn-wave d-inline-flex align-items-center"><i class="ri-arrow-go-back-line me-1"></i><span>Back</span></a>
           </div>
         </div>
 
@@ -54,22 +47,22 @@
             </span>
             <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
             <div class="d-flex flex-column gap-1 lh-1">
-              <span class="text-uppercase text-muted fs-10">No. ID Transaksi</span>
+              <span class="text-uppercase text-muted fs-10">Transaction ID</span>
               <span class="fs-13 text-heading text-nowrap font-monospace" id="docNoValue">REQ-202609-XXXX</span>
             </div>
             <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
             <div class="d-flex flex-column gap-1 lh-1">
-              <span class="text-uppercase text-muted fs-10">Tanggal Pengajuan</span>
+              <span class="text-uppercase text-muted fs-10">Request Date</span>
               <span class="fs-13 text-heading text-nowrap font-monospace" id="docDateValue">--</span>
             </div>
             <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
             <div class="d-flex flex-column gap-1 lh-1">
               <span class="text-uppercase text-muted fs-10">No. SPK</span>
-              <span class="fs-13 text-heading text-nowrap font-monospace" id="spkNoValue">Belum Terbit</span>
+              <span class="fs-13 text-heading text-nowrap font-monospace" id="spkNoValue">Not Issued</span>
             </div>
           </div>
           <div class="d-flex align-items-center gap-2 flex-shrink-0 flex-wrap justify-content-end">
-            <button type="button" class="btn btn-sm btn-link text-start p-1 text-decoration-none" title="Lihat detail approval" data-bs-toggle="offcanvas" data-bs-target="#approvalOffcanvas">
+            <button type="button" class="btn btn-sm btn-link text-start p-1 text-decoration-none" title="View approval details" data-bs-toggle="offcanvas" data-bs-target="#approvalOffcanvas">
               <div class="d-flex flex-column gap-1 lh-1">
                 <span class="text-uppercase text-muted fs-10">Last Approver</span>
                 <span class="fs-13 text-heading text-nowrap d-flex align-items-center gap-1">
@@ -82,20 +75,31 @@
             </button>
           </div>
         </div>
+        <!-- Document Journey (left, doc-journey.js) beside the form, like New Material Registration -->
+        <div class="row g-3">
+          <div id="docJourney" class="d-none"></div>
+          <div id="docMain" class="col-12">
+        <!-- Return to Edit / Reject note of the approver (docReasonNoteHtml) -->
+        <div id="docReasonNote" class="no-print"></div>
 
-        <!-- Tabs (react-bootstrap Nav, nav-tabs tab-style-2) — Lab Administrator only; other roles see the form alone -->
+        <!-- Tabs (react-bootstrap Nav, nav-tabs tab-style-2), shown per access: Form for all; Technical Review & SPK for the CRL; Report for lab roles once a report exists, for the others once a certificate is issued (reportTabVisible). One tab → no tab bar -->
         <div class="card custom-card mb-3 overflow-hidden d-none no-print" id="internalTabsCard">
           <div class="card-body p-0">
             <div class="border-bottom">
               <ul class="nav nav-tabs tab-style-2 mb-0 d-flex flex-nowrap" role="tablist" id="internalTabs">
                 <li class="nav-item" role="presentation">
                   <a class="nav-link active" href="#!" role="tab" data-tab="form">
-                    <i class="ri-file-list-3-line me-1 align-middle"></i>Form Internal
+                    <i class="ri-file-list-3-line me-1 align-middle"></i>Internal Form
                   </a>
                 </li>
                 <li class="nav-item" role="presentation">
                   <a class="nav-link" href="#!" role="tab" data-tab="review">
-                    <i class="ri-shield-check-line me-1 align-middle"></i>Kaji Ulang &amp; SPK
+                    <i class="ri-shield-check-line me-1 align-middle"></i>Technical Review &amp; SPK
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link" href="#!" role="tab" data-tab="report">
+                    <i class="ri-award-line me-1 align-middle"></i>Report
                   </a>
                 </li>
               </ul>
@@ -112,27 +116,36 @@
               <div class="card custom-card">
                 <div class="card-body">
                   <div class="mb-3">
-                    <h6 class="fw-semibold mb-0">1. Informasi Dasar &amp; Routing Pengujian</h6>
+                    <h6 class="fw-semibold mb-0">1. Basic Information &amp; Test Routing</h6>
                   </div>
                   <div class="row g-3">
                     <div class="col-4 col-md-4">
-                      <label class="form-label">Tipe Pengajuan <span class="text-danger">*</span></label>
+                      <label class="form-label">Request Type <span class="text-danger">*</span></label>
                       <select id="tipePengajuan" class="form-select" required>
                         <option value="Normal">Normal</option>
                         <option value="Urgent">Urgent</option>
                       </select>
                     </div>
-                    <div class="col-4 col-md-4" id="wrapAlasanUrgent" style="display:none;">
-                      <label class="form-label">Alasan Urgent <span class="text-danger">*</span></label>
-                      <textarea id="alasanUrgent" class="form-control" rows="1" placeholder="Wajib diisi jika pengajuan bersifat Urgent"></textarea>
-                    </div>
                     <div class="col-4 col-md-4">
                       <label class="form-label">No. ID GENESIS</label>
                       <select id="idGenesis" class="form-select">
-                        <option value="">-- Tanpa Link Genesis --</option>
-                        <option value="GEN-2026-NPL-8812">GEN-2026-NPL-8812 (Biskuit Maco Choco)</option>
+                        <option value="">-- No Genesis Link --</option>
+                        <option value="GEN-2026-NPL-8812">GEN-2026-NPL-8812 (Maco Choco Biscuit)</option>
                         <option value="GEN-2026-QC-1099">GEN-2026-QC-1099 (WCG Seasoning)</option>
                       </select>
+                    </div>
+                    <!-- SpkLovInput: No. Reference — copies an earlier request into this form (request-reference.js) -->
+                    <div class="col-4 col-md-4">
+                      <label class="form-label" for="noReference">No. Reference</label>
+                      <div class="input-group">
+                        <input type="text" id="noReference" class="form-control font-monospace" placeholder="Copy from an earlier request" disabled />
+                        <button type="button" class="btn btn-primary" id="btnPickReference" title="Pick a reference document"><i class="ri-search-line"></i></button>
+                      </div>
+                    </div>
+                    <!-- Urgent Reason: own full-width row under the fields, only when Request Type = Urgent -->
+                    <div class="col-12" id="wrapAlasanUrgent" style="display:none;">
+                      <label class="form-label">Urgent Reason <span class="text-danger">*</span></label>
+                      <textarea id="alasanUrgent" class="form-control" rows="2" placeholder="Required if the request is Urgent"></textarea>
                     </div>
                   </div>
                 </div>
@@ -142,33 +155,39 @@
               <div class="card custom-card">
                 <div class="card-body">
                   <div class="mb-3">
-                    <h6 class="fw-semibold mb-0">2. Lokasi &amp; Departemen</h6>
+                    <h6 class="fw-semibold mb-0">2. Location &amp; Department</h6>
                   </div>
                   <div class="row g-3">
                     <div class="col-12 col-md-6">
-                      <label class="form-label">Alamat Pelanggan <span class="text-danger">*</span></label>
+                      <label class="form-label">Customer Address <span class="text-danger">*</span></label>
                       <div class="input-group flex-nowrap">
                         <select id="alamatPelanggan" class="form-select" required></select>
-                        <button type="button" class="btn btn-light" data-address-for="alamatPelanggan" title="Lihat detail alamat"><i class="ri-eye-line align-middle"></i></button>
+                        <button type="button" class="btn btn-light" data-address-for="alamatPelanggan" title="View address details"><i class="ri-eye-line align-middle"></i></button>
                       </div>
                     </div>
                     <div class="col-12 col-md-6">
-                      <label class="form-label">Alamat Pabrik <span class="text-danger">*</span></label>
+                      <label class="form-label">Factory Address <span class="text-danger">*</span></label>
                       <div class="input-group flex-nowrap">
                         <select id="alamatPabrik" class="form-select" required></select>
-                        <button type="button" class="btn btn-light" data-address-for="alamatPabrik" title="Lihat detail alamat"><i class="ri-eye-line align-middle"></i></button>
+                        <button type="button" class="btn btn-light" data-address-for="alamatPabrik" title="View address details"><i class="ri-eye-line align-middle"></i></button>
                       </div>
                     </div>
-                    <div class="col-12 col-md-4">
-                      <label class="form-label">Departemen Pemohon <span class="text-danger">*</span></label>
-                      <select id="departemenPemohon" class="form-select" required></select>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Requesting Department <span class="text-danger">*</span></label>
+                      <!-- SpkLovInput (inputDisabled) + switch, like onegenesis-web "Vendor Name" + "Registered Vendor?":
+                           own department; On Behalf → LOV per user, shows that user's department -->
+                      <div class="input-group">
+                        <input type="text" class="form-control" id="departemenPemohon" placeholder="Select user" disabled />
+                        <button type="button" class="btn btn-primary d-none" id="btnLovPemohon" title="Search"><i class="ri-search-line"></i></button>
+                      </div>
+                      <div class="small text-info mt-1 d-none" id="onBehalfUserInfo"></div>
+                      <div class="form-check form-switch form-label">
+                        <input class="form-check-input" type="checkbox" role="switch" id="onBehalf" />
+                        <label class="form-check-label" for="onBehalf">On Behalf?</label>
+                      </div>
                     </div>
-                    <div class="col-12 col-md-4">
-                      <label class="form-label">Laboratorium <span class="text-danger">*</span></label>
-                      <select id="laboratorium" class="form-select" required></select>
-                    </div>
-                    <div class="col-12 col-md-4">
-                      <label class="form-label">Tujuan Analisa <span class="text-danger">*</span></label>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Analysis Purpose <span class="text-danger">*</span></label>
                       <select id="tujuanAnalisa" class="form-select" required></select>
                     </div>
                   </div>
@@ -179,65 +198,59 @@
               <div class="card custom-card">
                 <div class="card-body">
                   <div class="mb-3">
-                    <h6 class="fw-semibold mb-0">3. Identitas Sampel &amp; Parameter Uji (ISO 17025)</h6>
+                    <h6 class="fw-semibold mb-0">3. Sample Identity &amp; Test Parameters (ISO 17025)</h6>
                   </div>
                   <div class="row g-3 mb-3">
                     <div class="col-12 col-md-6">
-                      <label class="form-label">Nama Sampel <span class="text-danger">*</span></label>
+                      <label class="form-label">Sample Name <span class="text-danger">*</span></label>
                       <input type="text" id="namaSampel" class="form-control" placeholder="e.g., Maco Chocolate Wafer 120g" required />
                     </div>
                     <div class="col-12 col-md-6">
-                      <label class="form-label">Nama SKU <span class="text-danger">*</span></label>
-                      <select id="namaSku" class="form-select" required></select>
+                      <label class="form-label">SKU Name</label>
+                      <select id="namaSku" class="form-select"></select>
                     </div>
                     <div class="col-12 col-md-3">
-                      <label class="form-label">Kode Batch <span class="text-danger">*</span></label>
-                      <input type="text" id="kodeBatch" class="form-control font-monospace" placeholder="e.g., B2609-08A" required />
+                      <label class="form-label">Batch Code</label>
+                      <input type="text" id="kodeBatch" class="form-control font-monospace" placeholder="e.g., B2609-08A" />
                     </div>
                     <div class="col-12 col-md-3">
-                      <label class="form-label">Tanggal Produksi <span class="text-danger">*</span></label>
+                      <label class="form-label">Production Date</label>
                       <div class="input-group">
-                        <input type="text" id="tanggalProduksi" class="form-control" placeholder="Pilih tanggal" required />
+                        <input type="text" id="tanggalProduksi" class="form-control" placeholder="Select date" />
                         <span class="input-group-text"><i class="ri-calendar-line"></i></span>
                       </div>
                     </div>
                     <div class="col-12 col-md-3">
-                      <label class="form-label">Kategori Pangan <span class="text-danger">*</span></label>
+                      <label class="form-label">Food Category <span class="text-danger">*</span></label>
                       <select id="kategoriPangan" class="form-select" required></select>
                     </div>
                     <div class="col-12 col-md-3">
-                      <label class="form-label">Jenis Kemasan <span class="text-danger">*</span></label>
+                      <label class="form-label">Packaging Type <span class="text-danger">*</span></label>
                       <select id="jenisKemasan" class="form-select" required></select>
                     </div>
                   </div>
 
                   <div class="p-3 border rounded-3" style="background-color: var(--bs-secondary-bg);">
                     <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-                      <label class="form-label fw-bold mb-0">Pilih Parameter Uji <span class="text-danger">*</span></label>
-                      <span class="badge bg-primary-transparent" id="paramCountBadge">0 Parameter Terpilih</span>
+                      <label class="form-label fw-bold mb-0">Select Test Parameters <span class="text-danger">*</span></label>
+                      <span class="badge bg-primary-transparent" id="paramCountBadge">0 Parameters Selected</span>
                     </div>
-                    <select id="parameterUji" multiple placeholder="Cari &amp; pilih parameter uji..."></select>
-
-                    <div class="table-responsive bg-white rounded border mt-3" id="paramTableWrap" style="display:none;">
-                      <table class="table table-sm align-middle mb-0">
-                        <thead>
-                          <tr>
-                            <th>Parameter Uji</th>
-                            <th>Metode Acuan Uji</th>
-                            <th>Kategori Lab</th>
-                            <th>Status Scope ISO 17025</th>
-                            <th>Est. Lead Time</th>
-                          </tr>
-                        </thead>
-                        <tbody id="paramTableBody"></tbody>
-                      </table>
-                    </div>
+                    <select id="parameterUji" multiple placeholder="Search &amp; select test parameters..."></select>
 
                     <div class="row g-3 mt-1">
                       <div class="col-12 col-md-4">
-                        <label class="form-label">Suhu Penyimpanan <span class="text-danger">*</span></label>
+                        <label class="form-label">Storage Temperature <span class="text-danger">*</span></label>
                         <select id="suhuPenyimpanan" class="form-select" required></select>
                         <div class="form-text fs-11" id="suhuAutoNote"></div>
+                      </div>
+                      <!-- Read-only here: the CRL sets it in Technical Review & SPK -->
+                      <div class="col-12 col-md-4">
+                        <label class="form-label">Est. Test Completion Date</label>
+                        <div class="input-group">
+                          <input type="text" id="estSelesaiInfo" class="form-control" placeholder="Filled once the document is Confirmed" readonly />
+                          <span class="input-group-text"><i class="ri-calendar-line"></i></span>
+                        </div>
+                        <div class="form-text fs-11" id="estSelesaiNote"></div>
                       </div>
                     </div>
                   </div>
@@ -248,23 +261,23 @@
               <div class="card custom-card">
                 <div class="card-body">
                   <div class="mb-3">
-                    <h6 class="fw-semibold mb-0">4. Catatan &amp; Lampiran</h6>
+                    <h6 class="fw-semibold mb-0">4. Notes &amp; Attachments</h6>
                   </div>
                   <div class="row g-3">
                     <div class="col-12">
-                      <label class="form-label">Catatan Tambahan</label>
-                      <textarea id="catatanTambahan" class="form-control" rows="2" placeholder="Instruksi khusus untuk analis/penyelia (opsional)"></textarea>
+                      <label class="form-label">Additional Notes</label>
+                      <textarea id="catatanTambahan" class="form-control" rows="2" placeholder="Special instructions for the analyst/supervisor (optional)"></textarea>
                     </div>
                     <div class="col-12">
-                      <label class="form-label">Lampiran Dokumen</label>
+                      <label class="form-label">Document Attachments</label>
                       <!-- SpkAttachmentArea -->
                       <div class="border rounded-1 p-2">
                         <div class="d-flex align-items-center justify-content-between gap-2 rounded-1" id="fileDropzone" style="cursor: pointer">
                           <div>
-                            <div class="fw-bold fs-12"><i class="ri-upload-cloud-2-line me-1 text-primary"></i>Klik atau seret file ke sini untuk mengunggah</div>
-                            <div class="text-muted fs-11">PDF, PNG, JPG, DOCX &middot; Maks. 10MB per file</div>
+                            <div class="fw-bold fs-12"><i class="ri-upload-cloud-2-line me-1 text-primary"></i>Click or drag files here to upload</div>
+                            <div class="text-muted fs-11">PDF, PNG, JPG, DOCX &middot; Max. 10MB per file</div>
                           </div>
-                          <span class="btn btn-primary btn-sm fs-10 py-1 flex-shrink-0"><i class="bi bi-plus-lg me-1"></i>Tambah</span>
+                          <span class="btn btn-primary btn-sm fs-10 py-1 flex-shrink-0"><i class="bi bi-plus-lg me-1"></i>Add</span>
                         </div>
                         <input type="file" id="fileInput" class="d-none" multiple accept=".pdf,.png,.jpg,.jpeg,.docx" />
                         <div class="d-flex flex-column gap-2 mt-2" id="fileList" style="max-height: 220px; overflow-y: auto"></div>
@@ -277,10 +290,25 @@
             </div>
           </div>
         </form>
+
+        <!-- SpkFormSection: Invoice Lab Eksternal (read-only, Master Data → Invoice) -->
+        <div class="card custom-card d-none" id="invoiceCard">
+          <div class="card-body">
+            <div class="mb-3">
+              <h6 class="fw-semibold mb-0">5. External Lab Invoices</h6>
+              <p class="text-muted fs-12 mb-0">Vendor invoices linked to this request in Master Data → External Lab Invoices</p>
+            </div>
+            <div id="invoiceCardBody"></div>
+          </div>
+        </div>
         </div>
 
-        <!-- Tab: Kaji Ulang & SPK + Label Sampel (rendered by internal-review-tab.js) -->
+        <!-- Tab: Technical Review & SPK + sample labels (rendered by internal-review-tab.js) -->
         <div data-pane="review" class="d-none" id="paneReview"></div>
+        <!-- Report (LHU) of this request — ReportPanel, report-form.js -->
+        <div data-pane="report" class="d-none" id="paneReport"></div>
+          </div>
+        </div>
 
       </div>
       </div>
@@ -298,8 +326,8 @@
       <div class="offcanvas-body" id="approvalOffcanvasBody">
         <div class="text-center text-muted p-4">
           <i class="ri-shield-check-line"></i>
-          <div class="fw-semibold">Belum Ada Data Approval</div>
-          <p class="fs-12 mb-0">Dokumen ini masih berstatus Draft dan belum diajukan untuk approval.</p>
+          <div class="fw-semibold">No Approval Data Yet</div>
+          <p class="fs-12 mb-0">This document is still a Draft and has not been submitted for approval.</p>
         </div>
       </div>
     </div>
@@ -316,8 +344,8 @@
       <div class="offcanvas-body" id="historyOffcanvasBody">
         <div class="text-center text-muted p-4">
           <i class="ri-file-history-line"></i>
-          <div class="fw-semibold">Belum Ada Riwayat</div>
-          <p class="fs-12 mb-0">Riwayat dokumen akan muncul di sini setelah Draf disimpan atau dikirim.</p>
+          <div class="fw-semibold">No History Yet</div>
+          <p class="fs-12 mb-0">The document history appears here once the Draft is saved or submitted.</p>
         </div>
       </div>
     </div>
@@ -327,24 +355,61 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h6 class="modal-title fw-semibold" id="reasonModalTitle">Alasan</h6>
+            <h6 class="modal-title fw-semibold" id="reasonModalTitle">Reason</h6>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <label class="form-label" for="reasonModalTextarea">Alasan <span class="text-danger">*</span></label>
-            <textarea id="reasonModalTextarea" class="form-control" rows="3" placeholder="Tuliskan alasan..."></textarea>
-            <div class="text-danger fs-12 mt-1" id="reasonModalError" style="display:none;">Alasan wajib diisi.</div>
+            <label class="form-label" for="reasonModalTextarea">Reason <span class="text-danger">*</span></label>
+            <textarea id="reasonModalTextarea" class="form-control" rows="3" placeholder="Write the reason..."></textarea>
+            <div class="text-danger fs-12 mt-1" id="reasonModalError" style="display:none;">Reason is required.</div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Batal</button>
-            <button type="button" class="btn btn-sm btn-primary" id="reasonModalConfirm">Konfirmasi</button>
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-sm btn-primary" id="reasonModalConfirm">Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Modal: Sample Receipt = the Lab Admin approval (last level, ISO/IEC 17025 cl. 7.4) ── -->
+    <div class="modal fade" id="receiptModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title fw-semibold"><i class="ri-inbox-archive-line me-1"></i>Approve &amp; Receive Sample</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row gy-3">
+              <div class="col-md-6">
+                <label class="form-label" for="receiptAt">Received At</label>
+                <input type="text" id="receiptAt" class="form-control" disabled />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="receiptRetention">Retained Until</label>
+                <input type="text" id="receiptRetention" class="form-control" disabled />
+              </div>
+              <div class="col-12">
+                <label class="form-label" for="receiptCondition">Sample Condition <span class="text-danger">*</span></label>
+                <select id="receiptCondition" class="form-select"></select>
+              </div>
+              <div class="col-12 d-none" id="receiptNoteWrap">
+                <label class="form-label" for="receiptNote">Deviation <span class="text-danger">*</span></label>
+                <textarea id="receiptNote" class="form-control" rows="2" placeholder="E.g. seal damaged, temperature 12°C on arrival..."></textarea>
+                <div class="form-text fs-11">Printed on the report. A sample unfit for testing is rejected instead.</div>
+              </div>
+            </div>
+            <div class="text-danger fs-12 mt-2" id="receiptError"></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-sm btn-success" id="btnConfirmReceipt"><i class="ri-thumb-up-line me-1"></i>Approve</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- ── Toast container (top-center) ── -->
-    <div id="appToastContainer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -352,12 +417,28 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/spk-toast.js"></script>
+    <script src="../assets/spk-kit.js"></script><!-- Spk renderers: SpkForm buttons, confirmation, timeline, countercard -->
     <script src="../assets/og-shell.js"></script>
+    <script src="../assets/spk-history.js"></script><!-- Approval / Document History + record.activity -->
     <script src="../assets/dummy-sites.js"></script>
+    <script src="../assets/dummy-flextab.js"></script>
     <script src="../assets/address-detail.js"></script>
+    <script src="../assets/dummy-parameters.js"></script>
     <script src="../assets/dummy-requests.js"></script>
+    <script src="../assets/dummy-external-requests.js"></script><!-- REQ- numbers are shared with External -->
+    <script src="../assets/dummy-reagents.js"></script>
+    <script src="../assets/dummy-invoices.js"></script>
     <script src="../assets/sample-label.js"></script>
     <script src="../assets/internal-review-tab.js"></script>
+    <script src="../assets/dummy-hris.js"></script>
+    <script src="../assets/spk-lov.js"></script>
+    <script src="../assets/on-behalf.js"></script>
+    <script src="../assets/dummy-aslt-sensory-requests.js"></script>
+    <script src="../assets/dummy-worksheet.js"></script>
+    <script src="../assets/report-form.js"></script><!-- Report tab (ReportPanel) -->
+    <script src="../assets/doc-journey.js"></script><!-- Document Journey: request → Re-test / Revision documents -->
+    <script src="../assets/request-reference.js"></script><!-- No. Reference -->
     <script src="../assets/internal-form.js"></script>
   </body>
 </html>

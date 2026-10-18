@@ -5,7 +5,7 @@ function extToOptions(list) {
 function extFillSelect(selectEl, options, placeholder) {
   var opt = document.createElement('option');
   opt.value = '';
-  opt.textContent = placeholder || '-- Pilih --';
+  opt.textContent = placeholder || '-- Select --';
   selectEl.appendChild(opt);
   options.forEach(function (o) {
     var el = document.createElement('option');
@@ -20,13 +20,6 @@ function extInitSelect2(id, placeholder) {
   if (el && window.spkSelect2) window.spkSelect2(el, placeholder ? { placeholder: placeholder } : {});
 }
 
-function extGenerateDocNo() {
-  var now = new Date();
-  var ym = now.getFullYear().toString() + String(now.getMonth() + 1).padStart(2, '0');
-  var seq = String(Math.floor(Math.random() * 90) + 10);
-  return 'REQ-' + ym + '-00' + seq;
-}
-
 function extFormatDateID(date) {
   var d = String(date.getDate()).padStart(2, '0');
   var m = String(date.getMonth() + 1).padStart(2, '0');
@@ -39,11 +32,20 @@ document.addEventListener('DOMContentLoaded', function () {
   var urlParams = new URLSearchParams(window.location.search);
   var existingId = urlParams.get('docId');
   var existingRecord = existingId ? getExternalRequestById(existingId) : null;
+  /* No. Reference (?ref=): the form pre-fills from that request's template (request-reference.js);
+     the document itself (number, date, status) stays this one */
+  var refRecord = urlParams.get('ref') ? getExternalRequestById(urlParams.get('ref')) : null;
+  var prefill = refRecord ? requestTemplate(refRecord) : existingRecord;
+
+  /* Invoice Lab Eksternal linked to this request (read-only; managed in Master Data → Invoice) */
+  var invoiceHtml = existingRecord ? requestInvoicesHtml('External', existingRecord.id) : '';
+  document.getElementById('invoiceCardBody').innerHTML = invoiceHtml;
+  document.getElementById('invoiceCard').classList.toggle('d-none', !invoiceHtml);
 
   /* Document info bar */
   var docNoEl = document.getElementById('docNoValue');
   var docDateEl = document.getElementById('docDateValue');
-  var docNo = existingRecord ? existingRecord.id : extGenerateDocNo();
+  var docNo = existingRecord ? existingRecord.id : generateRequestNo();
   if (docNoEl) docNoEl.textContent = docNo;
   ['docNoValueApproval', 'docNoValueHistory'].forEach(function (id) {
     var el = document.getElementById(id);
@@ -52,40 +54,35 @@ document.addEventListener('DOMContentLoaded', function () {
   if (docDateEl) docDateEl.textContent = existingRecord ? existingRecord.tanggal : extFormatDateID(new Date());
 
   /* Master dropdowns */
-  extFillSelect(document.getElementById('alamatPelanggan'), extToOptions(EXTERNAL_MASTER_SITE));
-  extFillSelect(document.getElementById('alamatPabrik'), extToOptions(EXTERNAL_MASTER_SITE));
-  extFillSelect(document.getElementById('departemenPemohon'), extToOptions(EXTERNAL_MASTER_DEPT));
+  extFillSelect(document.getElementById('alamatPelanggan'), siteOptions());
+  extFillSelect(document.getElementById('alamatPabrik'), siteOptions());
   extFillSelect(document.getElementById('laboratoriumTujuan'), extToOptions(EXTERNAL_MASTER_LAB));
   extFillSelect(document.getElementById('tujuanAnalisa'), extToOptions(EXTERNAL_MASTER_TUJUAN));
-  extFillSelect(document.getElementById('kategoriPangan'), extToOptions(EXTERNAL_MASTER_KATEGORI_PANGAN));
-  extFillSelect(document.getElementById('jenisKemasan'), extToOptions(EXTERNAL_MASTER_KEMASAN));
+  extFillSelect(document.getElementById('kategoriPangan'), extToOptions(flexTabOptions('LAB_KATEGORI_PANGAN')));
+  extFillSelect(document.getElementById('jenisKemasan'), extToOptions(flexTabOptions('LAB_JENIS_KEMASAN')));
 
-  ['alamatPelanggan', 'alamatPabrik', 'departemenPemohon', 'laboratoriumTujuan', 'tujuanAnalisa', 'kategoriPangan', 'jenisKemasan', 'tipePengajuan']
+  ['alamatPelanggan', 'alamatPabrik', 'laboratoriumTujuan', 'tujuanAnalisa', 'kategoriPangan', 'jenisKemasan', 'tipePengajuan']
     .forEach(function (id) { extInitSelect2(id); });
 
-  /* Departemen Pemohon auto-fills from the logged-in dummy role's department */
-  var roleCode = localStorage.getItem('holabsysRole');
-  var role = (typeof findRole === 'function') ? findRole(roleCode) : null;
-  if (role && window.jQuery) {
-    window.jQuery('#departemenPemohon').val(existingRecord ? existingRecord.departemen : role.dept).trigger('change');
-  }
+  /* Departemen Pemohon = the logged-in role's department; On Behalf unlocks it (on-behalf.js) */
+  var onBehalf = OnBehalfField(existingRecord);
 
   /* Prefill from an existing record (opened via ?docId=) */
-  if (existingRecord && window.jQuery) {
-    window.jQuery('#tipePengajuan').val(existingRecord.tipe).trigger('change');
-    window.jQuery('#alamatPelanggan').val(existingRecord.lab).trigger('change');
-    window.jQuery('#alamatPabrik').val(existingRecord.lab).trigger('change');
-    window.jQuery('#laboratoriumTujuan').val(existingRecord.lab).trigger('change');
-    window.jQuery('#tujuanAnalisa').val(existingRecord.tujuan).trigger('change');
-    window.jQuery('#kategoriPangan').val(existingRecord.kategoriPangan).trigger('change');
-    window.jQuery('#jenisKemasan').val(existingRecord.kemasan).trigger('change');
+  if (prefill && window.jQuery) {
+    window.jQuery('#tipePengajuan').val(prefill.tipe).trigger('change');
+    window.jQuery('#alamatPelanggan').val(prefill.alamatPelanggan || '').trigger('change');
+    window.jQuery('#alamatPabrik').val(prefill.alamatPabrik || '').trigger('change');
+    window.jQuery('#laboratoriumTujuan').val(prefill.lab).trigger('change');
+    window.jQuery('#tujuanAnalisa').val(prefill.tujuan).trigger('change');
+    window.jQuery('#kategoriPangan').val(prefill.kategoriPangan).trigger('change');
+    window.jQuery('#jenisKemasan').val(prefill.kemasan).trigger('change');
 
     var namaSampelEl = document.getElementById('namaSampel');
     var kodeBatchEl = document.getElementById('kodeBatch');
     var catatanEl = document.getElementById('catatanTambahan');
-    if (namaSampelEl) namaSampelEl.value = existingRecord.sampel || '';
-    if (kodeBatchEl) kodeBatchEl.value = existingRecord.batch || '';
-    if (catatanEl) catatanEl.value = existingRecord.catatanTambahan || '';
+    if (namaSampelEl) namaSampelEl.value = prefill.sampel || '';
+    if (kodeBatchEl) kodeBatchEl.value = prefill.batch || '';
+    if (catatanEl) catatanEl.value = prefill.catatanTambahan || '';
   }
 
   /* Tanggal Produksi — Flatpickr (SpkDatePicker) */
@@ -96,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function () {
       maxDate: 'today',
       altInput: false
     });
-    if (existingRecord && existingRecord.prod) tanggalProduksiFp.setDate(existingRecord.prod, true, 'd-m-Y');
+    if (prefill && prefill.prod) tanggalProduksiFp.setDate(prefill.prod, true, 'd-m-Y');
   }
 
   /* Tipe Pengajuan → toggle Alasan Urgent */
@@ -120,19 +117,20 @@ document.addEventListener('DOMContentLoaded', function () {
   var ts = null;
 
   if (paramEl && window.TomSelect) {
-    ts = new window.TomSelect(paramEl, {
+    /* Big groups Internal / External (the request can mix both), each grouped per lab, from the
+       parameter master; values are "Jenis:value" */
+    ts = new window.TomSelect(paramEl, Object.assign(parameterPickerOptions(['Internal', 'External']), {
       plugins: ['remove_button'],
       persist: false,
-      placeholder: 'Cari & pilih parameter uji...',
-      options: EXTERNAL_MASTER_PARAMETER.map(function (p) { return { value: p.value, text: p.text }; }),
+      placeholder: 'Search & select test parameters...',
       onChange: function (values) {
         var arr = Array.isArray(values) ? values : (values ? [values] : []);
-        paramCountBadge.textContent = arr.length + ' Parameter Terpilih';
+        paramCountBadge.textContent = arr.length + ' Parameters Selected';
       }
-    });
-    if (existingRecord && existingRecord.params && existingRecord.params.length) {
-      ts.setValue(existingRecord.params, true);
-      paramCountBadge.textContent = existingRecord.params.length + ' Parameter Terpilih';
+    }));
+    if (prefill && prefill.params && prefill.params.length) {
+      ts.setValue(externalRequestParamKeys(prefill.params), true);
+      paramCountBadge.textContent = prefill.params.length + ' Parameters Selected';
     }
   }
 
@@ -156,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
         '<span class="fs-12 text-truncate" title="' + f.name + '"><i class="' + iconFor(f.name) + ' me-1"></i>' + f.name + '</span>' +
         '<div class="d-flex align-items-center gap-2 flex-shrink-0">' +
         '<span class="text-muted fs-11">' + (f.size / 1024 / 1024).toFixed(2) + ' MB</span>' +
-        '<button type="button" class="btn btn-danger btn-sm fs-10 py-0 px-2 file-remove" data-idx="' + idx + '">Hapus</button>' +
+        '<button type="button" class="btn btn-danger btn-sm fs-10 py-0 px-2 file-remove" data-idx="' + idx + '">Delete</button>' +
         '</div></div>';
     }).join('');
 
@@ -171,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function () {
   function addFiles(fileArr) {
     Array.from(fileArr).forEach(function (f) {
       if (f.size > 10 * 1024 * 1024) {
-        alert('File "' + f.name + '" melebihi batas maksimal 10MB.');
+        ToastService.showWarning('File "' + f.name + '" exceeds the 10MB limit.');
         return;
       }
       files.push(f);
@@ -201,77 +199,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   /* =====================================================================
-     Role-based approval simulation (External chain — differs from Internal)
+     Role-based approval simulation (chain: externalApprovalChain, dummy-external-requests.js)
      ===================================================================== */
-
-  function showToast(message) {
-    var container = document.getElementById('appToastContainer');
-    if (!container) { alert(message); return; }
-
-    var toastEl = document.createElement('div');
-    toastEl.className = 'toast align-items-center text-white bg-dark border-0 shadow';
-    toastEl.setAttribute('role', 'alert');
-    toastEl.innerHTML =
-      '<div class="d-flex">' +
-      '<div class="toast-body">' + message + '</div>' +
-      '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>' +
-      '</div>';
-    container.appendChild(toastEl);
-
-    if (window.bootstrap && window.bootstrap.Toast) {
-      var toast = new window.bootstrap.Toast(toastEl, { delay: 3500 });
-      toastEl.addEventListener('hidden.bs.toast', function () { toastEl.remove(); });
-      toast.show();
-    } else {
-      setTimeout(function () { toastEl.remove(); }, 3500);
-    }
-  }
-
-  function isMdOrP5(tujuan) {
-    return tujuan === 'Pendaftaran MD (BPOM)' || tujuan === 'Pengujian P5';
-  }
-
-  /* External-specific chain: Normal always routes through HOL before ADM;
-     Urgent is identical in shape to Internal's Urgent chain. */
-  function getExternalApprovalChain(tipe, tujuan) {
-    var mdP5 = isMdOrP5(tujuan);
-    if (tipe === 'Urgent') {
-      return mdP5 ? ['MGU', 'HOL', 'HOR', 'FRA', 'ADM'] : ['MGU', 'HOL', 'HOR', 'ADM'];
-    }
-    return mdP5 ? ['FRA', 'HOL', 'ADM'] : ['HOL', 'ADM'];
-  }
-
-  function renderApprovalRow(role, levelLabel, statusLabel, pending) {
-    var av = (typeof initials === 'function') ? initials(role.name) : role.code;
-    // SpkForm approval offcanvas item
-    return '<div class="d-flex align-items-start gap-2 p-3 rounded mb-2 ' + (pending ? 'bg-light' : 'bg-primary-transparent') + '">' +
-      '<span class="avatar avatar-md avatar-rounded bg-primary-transparent text-primary flex-shrink-0 fs-12 fw-semibold">' + av + '</span>' +
-      '<div class="flex-fill min-w-0">' +
-      '<div class="text-uppercase text-muted fs-10">' + levelLabel + '</div>' +
-      '<div class="fs-13 fw-semibold">' + role.name + '</div>' +
-      '<div class="fs-11 text-muted">' + role.code + ' · ' + role.label + '</div>' +
-      '</div>' +
-      '<span class="badge ' + (pending ? 'bg-warning-transparent' : 'bg-success-transparent') + ' align-self-center">' + statusLabel + '</span>' +
-      '</div>';
-  }
 
   function renderApprovalList(containerId, chain, approvedCount, record) {
     var container = document.getElementById(containerId);
     if (!container) return;
 
-    var html = renderApprovalRow(findRole('BSU'), 'Creator', 'Creator', false);
-    chain.forEach(function (code, i) {
-      var isApproved = i < approvedCount;
-      html += renderApprovalRow(findRole(code), 'Approver · Level ' + (i + 1), isApproved ? 'Approved' : 'Pending', !isApproved);
-    });
-    /* Workflow after the last approval: Lab Admin confirms the sample was sent to the vendor lab */
-    var step = record ? record.step : null;
-    if (step === 'Sample Delivery' || step === 'Confirmed') {
-      var done = step === 'Confirmed';
-      html += renderApprovalRow(findRole('ADM'), 'Workflow · Sample Delivery' + (done && record.deliveredAt ? ' · ' + record.deliveredAt : ''),
-        done ? 'Delivered' : 'Pending', !done);
-    }
-    container.innerHTML = html;
+    /* Approval History offcanvas of onegenesis-web SpkForm (spk-history.js) */
+    container.innerHTML = requestApprovalHistoryHtml(chain, approvedCount, record);
   }
 
   /* ---------- Reason modal (Reject / Return to Edit) ---------- */
@@ -284,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function openReasonModal(action) {
     pendingReasonAction = action;
-    reasonModalTitle.textContent = action === 'reject' ? 'Alasan Reject' : 'Alasan Return to Edit';
+    reasonModalTitle.textContent = action === 'reject' ? 'Reject Reason' : 'Return to Edit Reason';
     reasonModalTextarea.value = '';
     reasonModalError.style.display = 'none';
     if (reasonModal) reasonModal.show();
@@ -298,14 +234,14 @@ document.addEventListener('DOMContentLoaded', function () {
         reasonModalError.style.display = 'block';
         return;
       }
-      var actionLabel = pendingReasonAction === 'reject' ? 'Ditolak' : 'Dikembalikan untuk Edit';
+      var actionLabel = pendingReasonAction === 'reject' ? 'Rejected' : 'Returned for Editing';
       var docNoVal = docNoEl ? docNoEl.textContent : '';
       updateExternalRequest(docNoVal, pendingReasonAction === 'reject'
-        ? { step: 'Rejected', rejectReason: reason }
-        : { step: 'Draft', approvalIdx: 0, returned: true, returnReason: reason });
+        ? { step: 'Rejected', rejectReason: reason, reasonBy: currentRole().label, reasonAt: new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) }
+        : { step: 'Draft', approvalIdx: 0, returned: true, returnReason: reason, reasonBy: currentRole().label, reasonAt: new Date().toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) });
       if (reasonModal) reasonModal.hide();
-      showToast('Dokumen ' + actionLabel + ': "' + reason + '"');
-      setTimeout(function () { window.location.href = 'externalList.html'; }, 1200);
+      ToastService.showSuccess('Document ' + actionLabel + ': "' + reason + '"');
+      window.location.href = 'externalList.html';
     });
   }
 
@@ -330,39 +266,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var dz = document.getElementById('fileDropzone');
     if (dz) dz.classList.toggle('disabled', locked);
+
+    onBehalf.setLocked(locked);
   }
 
   /* ---------- Header action buttons ---------- */
   var formActionButtons = document.getElementById('formActionButtons');
-  var BACK_BTN_HTML =
-    '<a href="externalList.html" class="btn btn-sm bg-white d-inline-flex align-items-center gap-1">' +
-    '<i class="ri-arrow-left-line"></i> Back</a>';
+  var BACK_BTN_HTML = spkDocButtonHtml('back', { href: 'externalList.html' });
 
   function renderActionButtons(mode) {
-    if (mode === 'bsu') {
-      formActionButtons.innerHTML = BACK_BTN_HTML +
-        '<button type="button" data-action="save-draft" class="btn btn-sm btn-warning btn-wave d-inline-flex align-items-center gap-1 text-white"><i class="ri-save-3-line"></i> Save Draft</button>' +
-        '<button type="button" data-action="submit" class="btn btn-sm btn-success btn-wave d-inline-flex align-items-center gap-1"><i class="ri-send-plane-fill"></i> Submit</button>';
-    } else if (mode === 'approver') {
-      formActionButtons.innerHTML = BACK_BTN_HTML +
-        '<button type="button" data-action="return" class="btn btn-sm btn-warning d-inline-flex align-items-center gap-1 text-white"><i class="ri-arrow-go-back-line"></i> Return to Edit</button>' +
-        '<button type="button" data-action="reject" class="btn btn-sm btn-danger d-inline-flex align-items-center gap-1"><i class="ri-close-circle-line"></i> Reject</button>' +
-        '<button type="button" data-action="approve" class="btn btn-sm btn-primary btn-wave d-inline-flex align-items-center gap-1"><i class="ri-checkbox-circle-line"></i> Approve</button>';
-    } else if (mode === 'delivery') {
-      formActionButtons.innerHTML = BACK_BTN_HTML +
-        '<button type="button" data-action="confirm-delivery" class="btn btn-sm btn-success btn-wave d-inline-flex align-items-center gap-1"><i class="ri-truck-line"></i> Confirm Delivery</button>';
-    } else {
-      formActionButtons.innerHTML = BACK_BTN_HTML;
-    }
+    /* AppFormBase document buttons; Confirm Delivery as SpkButton */
+    if (mode === 'bsu') formActionButtons.innerHTML = spkDocButtonsHtml('edit', 'externalList.html');
+    else if (mode === 'approver') formActionButtons.innerHTML = spkDocButtonsHtml('approver', 'externalList.html');
+    else if (mode === 'delivery') formActionButtons.innerHTML = BACK_BTN_HTML + spkButtonHtml('confirm-delivery', 'success', 'ri-truck-line', 'Confirm Delivery');
+    else formActionButtons.innerHTML = BACK_BTN_HTML;
   }
 
   function collectFormValues() {
     var val = function (id) { var el = document.getElementById(id); return el ? el.value : ''; };
     return {
-      id: docNoEl ? docNoEl.textContent : extGenerateDocNo(),
+      refNo: document.getElementById('noReference').value || null,
+      id: docNoEl ? docNoEl.textContent : generateRequestNo(),
       tanggal: docDateEl ? docDateEl.textContent : extFormatDateID(new Date()),
       tipe: val('tipePengajuan'),
       tujuan: val('tujuanAnalisa'),
+      alamatPelanggan: val('alamatPelanggan'),
+      alamatPabrik: val('alamatPabrik'),
       lab: val('laboratoriumTujuan'),
       sampel: val('namaSampel'),
       batch: val('kodeBatch'),
@@ -370,8 +299,10 @@ document.addEventListener('DOMContentLoaded', function () {
       kategoriPangan: val('kategoriPangan'),
       kemasan: val('jenisKemasan'),
       params: ts ? ts.getValue() : [],
-      pemohon: findRole(localStorage.getItem('holabsysRole')).name,
+      pemohon: currentRole().name,
       departemen: val('departemenPemohon'),
+      onBehalf: onBehalf.isOn(),
+      onBehalfUser: onBehalf.user(),
       catatanTambahan: val('catatanTambahan'),
       step: 'Draft',
       approvalIdx: 0
@@ -379,27 +310,29 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   if (formActionButtons) {
-    formActionButtons.addEventListener('click', function (e) {
-      var btn = e.target.closest('[data-action]');
-      if (!btn) return;
-      var action = btn.dataset.action;
+    /* Save Draft / Submit / Approve ask for confirmation first (spkOnDocAction) */
+    spkOnDocAction(formActionButtons, function (action) {
       var docNoVal = docNoEl ? docNoEl.textContent : '';
 
       if (action === 'save-draft') {
         updateExternalRequest(docNoVal, collectFormValues());
-        showToast('Draf pengajuan "' + docNoVal + '" disimpan.');
+        ToastService.showSuccess('Request draft "' + docNoVal + '" saved.');
       } else if (action === 'submit') {
         var form = document.getElementById('externalForm');
-        if (form.checkValidity() === false) { form.reportValidity(); return; }
+        if (!validateForm(form)) return;
+        if (onBehalf.isOn() && !onBehalf.user()) {
+          ToastService.showWarning('On Behalf is on: select the requesting user first.');
+          return;
+        }
         var record = collectFormValues();
         record.step = 'Approval';
         record.approvalIdx = 0;
         record.returned = false;
         updateExternalRequest(docNoVal, record);
-        showToast('Pengajuan "' + docNoVal + '" berhasil dikirim untuk approval.');
-        setTimeout(function () { window.location.href = 'externalList.html'; }, 1200);
+        ToastService.showSuccess('Request "' + docNoVal + '" submitted for approval.');
+        window.location.href = 'externalList.html';
       } else if (action === 'confirm-delivery') {
-        var adm = findRole(localStorage.getItem('holabsysRole'));
+        var adm = currentRole();
         var now = new Date();
         var pad = function (n) { return String(n).padStart(2, '0'); };
         updateExternalRequest(docNoVal, {
@@ -407,32 +340,32 @@ document.addEventListener('DOMContentLoaded', function () {
           deliveredBy: adm.name,
           deliveredAt: extFormatDateID(now) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes())
         });
-        showToast('Sampel "' + docNoVal + '" dikirim ke ' + (document.getElementById('laboratoriumTujuan').value || 'lab tujuan') + '. Dokumen Confirmed.');
+        ToastService.showSuccess('Sample of "' + docNoVal + '" sent to ' + (document.getElementById('laboratoriumTujuan').value || 'the destination lab') + '. Document Confirmed.');
         refreshFormState();
       } else if (action === 'return') {
         openReasonModal('return');
       } else if (action === 'reject') {
         openReasonModal('reject');
       } else if (action === 'approve') {
-        var role = findRole(localStorage.getItem('holabsysRole'));
+        var role = currentRole();
         var tipe = tipeSelect ? tipeSelect.value : 'Normal';
         var tujuanVal = document.getElementById('tujuanAnalisa').value;
-        var chain = getExternalApprovalChain(tipe, tujuanVal);
+        var chain = externalApprovalChain(tipe, tujuanVal);
         var idx = chain.indexOf(role.code);
         var pending = (getExternalRequestById(docNoVal) || {}).approvalIdx || 0;
         if (idx !== pending) {
-          showToast('Belum giliran ' + role.label + '. Menunggu approval ' + findRole(chain[pending]).label + '.');
+          ToastService.showWarning('It is not yet the turn of ' + role.label + '. Waiting for approval by ' + findRole(chain[pending]).label + '.');
           refreshFormState();
           return;
         }
         var isLast = idx === chain.length - 1;
         if (isLast) {
           updateExternalRequest(docNoVal, { step: 'Sample Delivery', approvalIdx: chain.length });
-          showToast('Disetujui oleh ' + role.name + ' (' + role.label + '). Fully Approved, menunggu Sample Delivery.');
+          ToastService.showSuccess('Approved by ' + role.name + ' (' + role.label + '). Fully Approved, waiting for Sample Delivery.');
           refreshFormState();
         } else {
           updateExternalRequest(docNoVal, { approvalIdx: idx + 1 });
-          showToast('Disetujui oleh ' + role.name + ' (' + role.label + ').');
+          ToastService.showSuccess('Approved by ' + role.name + ' (' + role.label + ').');
           refreshFormState();
         }
       }
@@ -441,13 +374,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
   /* ---------- Master refresh — runs on role change / tipe change / tujuan change ---------- */
   function refreshFormState() {
-    var role = findRole(localStorage.getItem('holabsysRole'));
+    var role = currentRole();
     var tipe = tipeSelect ? tipeSelect.value : 'Normal';
     var tujuanEl = document.getElementById('tujuanAnalisa');
     var tujuan = tujuanEl ? tujuanEl.value : '';
 
     var isBSU = role.code === 'BSU';
-    var chain = getExternalApprovalChain(tipe, tujuan);
+    var chain = externalApprovalChain(tipe, tujuan);
     var idx = chain.indexOf(role.code);
 
     var record = getExternalRequestById(docNoEl ? docNoEl.textContent : '');
@@ -466,6 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     var statusEl = document.getElementById('docStatusBadges');
     if (statusEl) statusEl.innerHTML = docStatusCardHtml(record || {});
+    document.getElementById('docReasonNote').innerHTML = docProgressHtml('external', record || {}) + docReasonNoteHtml(record);
 
     var lastApproverEl = document.getElementById('lastApproverValue');
     if (lastApproverEl) {
@@ -475,7 +409,8 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     renderApprovalList('approvalOffcanvasBody', chain, approvedCount, record);
-    renderApprovalList('historyOffcanvasBody', chain, approvedCount, record);
+    /* Document History = record.activity + result changes (documentHistoryHtml) */
+    document.getElementById('historyOffcanvasBody').innerHTML = documentHistoryHtml(record);
   }
 
   document.addEventListener('holabsys:rolechange', refreshFormState);
@@ -484,4 +419,6 @@ document.addEventListener('DOMContentLoaded', function () {
   if (tujuanSelectEl) window.jQuery ? window.jQuery(tujuanSelectEl).on('change', refreshFormState) : tujuanSelectEl.addEventListener('change', refreshFormState);
 
   refreshFormState();
+
+  RequestReference.setup({ title: 'External', rows: getExternalRequests, current: function () { return getExternalRequestById(docNoEl.textContent); }, docId: function () { return docNoEl.textContent; }, columns: [{ key: 'lab', label: 'Laboratory' }] });
 });

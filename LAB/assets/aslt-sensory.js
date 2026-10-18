@@ -12,12 +12,12 @@ function aslRowMatchesQuery(fields, query) {
 
 var ASLT_SENSORY_TABS = {
   sensory: {
-    form: 'sensoryForm.html', jenisHead: 'Jenis Pengujian',
+    form: 'sensoryForm.html', jenisHead: 'Test Type',
     list: function () { return getSensoryRequests(); },
     jenis: function (r) { return r.jenis || '-'; }
   },
   aslt: {
-    form: 'asltForm.html', jenisHead: 'Kategori',
+    form: 'asltForm.html', jenisHead: 'Category',
     list: function () { return getAsltRequests(); },
     jenis: function (r) { return r.kategori || '-'; }
   }
@@ -28,32 +28,44 @@ document.addEventListener('DOMContentLoaded', function () {
   var filterStatus = document.getElementById('filterStatus');
   var tabsNav = document.getElementById('asltSensoryTabs');
   var activeTab = /[?&]tab=aslt\b/.test(location.search) ? 'aslt' : 'sensory';
+  var expanded = {}; // request id → its Revision documents shown
 
   function renderList() {
     var cfg = ASLT_SENSORY_TABS[activeTab];
     var query = tableSearch.value, status = filterStatus.value;
     var all = cfg.list();
+    var docHits = amendmentMatches(query); // a search on RV- numbers opens their request
     var rows = all.filter(function (r) {
-      return (!status || getDocStatus(r).status === status) && aslRowMatchesQuery([r.id, r.sampel, r.tipe, cfg.jenis(r)], query);
+      return (!status || getDocStatus(r).status === status) && (aslRowMatchesQuery([r.id, r.sampel, r.tipe, cfg.jenis(r)], query) || docHits[r.id]);
     });
+    rows.sort(newestFirst); // newest document on top
     document.getElementById('colJenis').textContent = cfg.jenisHead;
     document.getElementById('requestListBody').innerHTML = rows.map(function (r) {
       var href = cfg.form + '?docId=' + r.id;
+      var open = !!(expanded[r.id] || docHits[r.id]);
       return '<tr>' +
-        '<td><a href="' + href + '" class="btn btn-icon btn-sm btn-info-light btn-wave" title="Buka Pengajuan"><i class="ri-eye-line"></i></a></td>' +
-        '<td><a href="' + href + '" class="text-primary fw-medium font-monospace">' + r.id + '</a></td>' +
+        '<td><a href="' + href + '" class="btn btn-icon btn-sm btn-info-light btn-wave" title="Open Request"><i class="ri-eye-line"></i></a></td>' +
+        '<td><div class="d-flex align-items-center">' + amendmentToggleHtml(r, open) + '<a href="' + href + '" class="text-primary fw-medium font-monospace">' + r.id + '</a></div></td>' +
         '<td>' + r.tanggal + '</td>' +
         '<td>' + r.sampel + '</td>' +
         '<td>' + (r.tipe || '-') + '</td>' +
         '<td>' + cfg.jenis(r) + '</td>' +
         '<td>' + docStatusBadgesHtml(r) + '</td>' +
-        '</tr>';
-    }).join('') || '<tr><td colspan="7" class="text-center text-muted p-4">' + (query || status ? 'Tidak ada hasil yang cocok.' : 'Belum ada pengajuan.') + '</td></tr>';
+        '</tr>' +
+        /* Revision documents of this request (accordion) */
+        (open ? amendmentChildRowsHtml(r, function (a) {
+          return '<td class="text-muted fs-12">' + a.tanggal + '</td>' +
+            '<td class="text-muted fs-12">' + amendmentSummary(a) + '</td>' +
+            '<td>' + amendmentTypeBadgeHtml(a.type) + '</td>' +
+            '<td class="font-monospace text-muted fs-12">' + (a.issuedNo || 'Replaces ' + a.refReportNo) + '</td>' +
+            '<td>' + amendmentStatusBadgesHtml(a) + '</td>';
+        }) : '');
+    }).join('') || '<tr><td colspan="7" class="text-center text-muted p-4">' + (query || status ? 'No matching results.' : 'No requests yet.') + '</td></tr>';
 
     document.getElementById('countSensory').textContent = getSensoryRequests().length;
     document.getElementById('countAslt').textContent = getAsltRequests().length;
     document.getElementById('listActionButtons').innerHTML =
-      '<a href="' + cfg.form + '" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center"><i class="ri-add-line me-1 align-middle"></i>Buat Pengajuan Baru</a>';
+      '<a href="' + cfg.form + '" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center"><i class="ri-add-line me-1 align-middle"></i>Create New Request</a>';
   }
 
   function showTab(tab) {
@@ -68,6 +80,12 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!tab) return;
     e.preventDefault();
     showTab(tab.dataset.tab);
+  });
+  document.getElementById('requestListBody').addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-amend-toggle]');
+    if (!btn) return;
+    expanded[btn.dataset.amendToggle] = !expanded[btn.dataset.amendToggle];
+    renderList();
   });
   tableSearch.addEventListener('input', renderList);
   filterStatus.addEventListener('change', renderList);

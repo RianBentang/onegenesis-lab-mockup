@@ -13,12 +13,12 @@ document.addEventListener('DOMContentLoaded', function () {
       '<div class="modal-dialog modal-dialog-centered">' +
         '<div class="modal-content">' +
           '<div class="modal-header">' +
-            '<h6 class="modal-title fw-semibold" id="addressDetailTitle">Detail Alamat</h6>' +
+            '<h6 class="modal-title fw-semibold" id="addressDetailTitle">Address Detail</h6>' +
             '<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>' +
           '</div>' +
           '<div class="modal-body" id="addressDetailBody"></div>' +
           '<div class="modal-footer">' +
-            '<button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Tutup</button>' +
+            '<button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Close</button>' +
           '</div>' +
         '</div>' +
       '</div>' +
@@ -38,28 +38,29 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!btn) return;
     var select = document.getElementById(btn.dataset.addressFor);
     var labelEl = select && select.closest('[class*="col-"]') ? select.closest('[class*="col-"]').querySelector('.form-label') : null;
-    var fieldLabel = labelEl ? labelEl.firstChild.textContent.trim() : 'Alamat';
+    var fieldLabel = labelEl ? labelEl.firstChild.textContent.trim() : 'Address';
     var site = select ? select.value : '';
     var d = (typeof MASTER_SITE_DETAIL !== 'undefined') ? MASTER_SITE_DETAIL[site] : null;
 
-    titleEl.textContent = 'Detail ' + fieldLabel + (site ? ' — ' + site : '');
+    titleEl.textContent = fieldLabel + ' Detail' + (site ? ' — ' + site : '');
     if (!site) {
-      bodyEl.innerHTML = '<div class="text-center text-muted py-3"><i class="ri-map-pin-line fs-24 d-block mb-1"></i>Pilih ' + fieldLabel + ' terlebih dahulu.</div>';
+      bodyEl.innerHTML = '<div class="text-center text-muted py-3"><i class="ri-map-pin-line fs-24 d-block mb-1"></i>Select the ' + fieldLabel + ' first.</div>';
     } else if (!d) {
-      bodyEl.innerHTML = '<div class="text-center text-muted py-3">Detail alamat untuk "' + site + '" belum ada di Master Data Site.</div>';
+      bodyEl.innerHTML = '<div class="text-center text-muted py-3">No address detail for "' + site + '" in Master Data Site yet.</div>';
     } else {
       bodyEl.innerHTML =
         '<div class="d-flex align-items-center gap-2 mb-3">' +
           '<span class="avatar avatar-md bg-primary-transparent"><i class="ri-map-pin-2-line fs-18"></i></span>' +
-          '<div><div class="fw-semibold">' + site + '</div><span class="badge bg-info-transparent">' + d.tipe + '</span></div>' +
+          '<div><div class="fw-semibold">' + (d.company || site) + '</div><div class="fs-12 text-muted">' + site + '</div><span class="badge bg-info-transparent">' + d.tipe + '</span></div>' +
         '</div>' +
         '<div class="row gy-2">' +
-          row('Alamat', d.alamat) +
-          row('Kota / Kab.', d.kota) +
-          row('Provinsi', d.provinsi) +
-          row('Kode Pos', d.kodePos) +
+          row('Company', d.company) +
+          row('Address', d.alamat) +
+          row('City / Regency', d.kota) +
+          row('Province', d.provinsi) +
+          row('Postal Code', d.kodePos) +
           row('PIC', d.pic) +
-          row('Telepon', d.telp) +
+          row('Phone', d.telp) +
           row('Email', d.email) +
         '</div>';
     }

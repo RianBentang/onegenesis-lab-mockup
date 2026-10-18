@@ -13,15 +13,18 @@ Spk components render, so each block can be ported to its Spk component without 
 | File | Purpose |
 |---|---|
 | `LAB/assets/og-theme/onegenesis.css` | The real app theme (Bootstrap 5.3 + Xintra + Spk styles), compiled from onegenesis-web. Read-only. |
-| `LAB/assets/og-shell.js` | Injects header, sidebar, footer; sets the `<html>` theme attributes; dark mode; mockup role switcher (`ROLES`, `findRole`, `applyRole`, event `holabsys:rolechange`, `localStorage.holabsysRole`). Edit its `MENU` array to add pages. |
+| `LAB/assets/og-shell.js` | Injects header, sidebar, footer; sets the `<html>` theme attributes; dark mode; mockup role switcher (`ROLES`, `findRole`, `currentRole`, `applyRole`, event `holabsys:rolechange`, `localStorage.holabsysRole`). Edit its `MENU` array to add pages. |
 | `LAB/assets/spk-select2.js` | `SpkSelect2` for the mockups: auto-initialises every single `<select>` as select2 and keeps it in sync with page code. Loaded on every page after jQuery + select2. |
+| `LAB/assets/dummy-flextab.js` + `Master-Data/flexTab*.html` | FlexTab (onegenesis-web `Core/GEN/FlexTab`): every small dropdown list (ID + Description + Parent ID). Fill a dropdown with `flexTabOptions(id[, parentDescription])`; never hardcode a lookup list in a form. |
+| `LAB/assets/spk-kit.js` | Spk renderers: document buttons (`STANDARD_BUTTON_DEFS`) + confirmation modal, `SpkApprovalTimeline`, `SpkCountercard`. Use these instead of hand-writing buttons, timelines or summary cards (`reference/markup.md` §17). |
+| `LAB/assets/spk-toast.js` | `ToastService.showSuccess / showWarning / showError / showInfo` (AppToast) and `validateForm(form)`. Loaded on every page (PANELIS too) before the page scripts. Every successful action toasts success; every failed check toasts a warning. |
 | `LAB/assets/lab.css` | Mockup-only overrides. Last resort. |
 | `PANELIS/` + `LAB/assets/dummy-panel.js` | Panelist app (login → booth, no LAB shell; `PANELIS/assets/panelis.js` sets the theme attributes) and the shared panel data: panel sessions (every Sensory / ASLT Schedule session; Sensory fixed slots, ASLT free time with max 5 panelists; no panelist registration), scores, statistics, report rows. Excel pulls the scores per panelist and Push Data puts the statistics in Report. |
 | `reference/markup.md` (this skill) | Canonical HTML for each Spk component and pattern. |
 | `reference/class-map.md` (this skill) | Legacy `app.css` class → theme class, for migrating old pages. |
 | `templates/list.html`, `templates/form.html` (this skill) | Starting points for a new list page and a new document/form page. |
 | `LAB/LAB/HOLABSYS/internalList.html` + `assets/internal-list.js` | Reference list page (one SpkTablePagination list + status filter + search). |
-| `LAB/LAB/HOLABSYS/internalForm.html` + `assets/internal-form.js` | Reference document form (SpkForm status card, sections, select2, attachment area, approval offcanvas; Lab Administrator tab Kaji Ulang & SPK with the sample labels via `internal-review-tab.js` + `sample-label.js`). |
+| `LAB/LAB/HOLABSYS/internalForm.html` + `assets/internal-form.js` | Reference document form (SpkForm status card, sections, select2, attachment area, approval offcanvas; Lab Coordinator (CRL) tab Technical Review & SPK with the sample labels via `internal-review-tab.js` + `sample-label.js`). |
 | `LAB/LAB/Master-Data/equipmentCalibration.html` | Reference master-data page (page header, SpkCountercard row, filter + table card, modal). |
 
 All pages in `LAB/LAB` already use this setup. Page groups: `HOLABSYS/` (module transactions),
@@ -59,7 +62,7 @@ repo too). Use this when an old mockup from another folder is brought in. A lega
    scripts). jQuery / select2 / bootstrap bundle CDN scripts stay.
 4. Rewrite classes in the HTML **and** in the page's JS (`innerHTML` strings, `classList` calls)
    using `reference/class-map.md`. Grep the JS for every legacy class before calling it done.
-5. Role-dependent UI must read the initial role with `findRole(localStorage.getItem('holabsysRole'))`
+5. Role-dependent UI must read the initial role with `currentRole()` (og-shell.js)
    on startup and re-render on `holabsys:rolechange`; the first event can fire before the page
    script attaches its listener.
 6. Keep ids, `data-*` hooks, page logic and dummy data unchanged. When a JS selector depended on

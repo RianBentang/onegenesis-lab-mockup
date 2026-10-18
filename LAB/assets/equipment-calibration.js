@@ -13,8 +13,8 @@
       nama: 'Moisture Analyzer Halogen',
       model: 'Mettler Toledo HE53',
       serial: 'SN-MT-99210',
-      lab: 'Fisika Kimia',
-      status: 'Operasional',
+      lab: 'Physicochemical',
+      status: 'Operational',
       lastCal: '10-06-2026',
       dueCal: '10-06-2027',
       vendor: 'PT Mettler Toledo Indonesia',
@@ -23,11 +23,11 @@
     {
       id: 2,
       kode: 'INST-FK-002',
-      nama: 'Unit Destilasi Protein Kjeldahl',
+      nama: 'Kjeldahl Protein Distillation Unit',
       model: 'FOSS Kjeltec 8100',
       serial: 'SN-FOSS-8812',
-      lab: 'Fisika Kimia',
-      status: 'Operasional',
+      lab: 'Physicochemical',
+      status: 'Operational',
       lastCal: '15-04-2026',
       dueCal: '15-04-2027',
       vendor: 'PT Laborindo Sarana',
@@ -39,8 +39,8 @@
       nama: 'Soxhlet Extraction System (Fat)',
       model: 'Buchi E-816 SOX',
       serial: 'SN-BUCHI-1049',
-      lab: 'Fisika Kimia',
-      status: 'Operasional',
+      lab: 'Physicochemical',
+      status: 'Operational',
       lastCal: '20-03-2026',
       dueCal: '20-03-2027',
       vendor: 'Buchi Indonesia',
@@ -52,12 +52,12 @@
       nama: 'Atomic Absorption Spectrometer (AAS - Pb)',
       model: 'Shimadzu AA-7000',
       serial: 'SN-SHM-7718',
-      lab: 'Fisika Kimia',
+      lab: 'Physicochemical',
       status: 'Out of Service',
       lastCal: '12-01-2025',
       dueCal: '12-01-2026 (Expired)',
       vendor: 'Shimadzu Service Center',
-      cert: 'Menunggu Penggantian Lampu Hollow'
+      cert: 'Waiting for Hollow Cathode Lamp Replacement'
     },
     {
       id: 5,
@@ -65,8 +65,8 @@
       nama: 'Autoclave Vertical Digital',
       model: 'Hirayama HVE-50',
       serial: 'SN-HRY-5501',
-      lab: 'Mikrobiologi',
-      status: 'Operasional',
+      lab: 'Microbiology',
+      status: 'Operational',
       lastCal: '05-08-2026',
       dueCal: '05-08-2027',
       vendor: 'BBSPJI Kemenperin',
@@ -75,11 +75,11 @@
     {
       id: 6,
       kode: 'INST-MB-002',
-      nama: 'Incubator Bakteri 37°C',
+      nama: 'Bacterial Incubator 37°C',
       model: 'Memmert IN55',
       serial: 'SN-MMT-4402',
-      lab: 'Mikrobiologi',
-      status: 'Operasional',
+      lab: 'Microbiology',
+      status: 'Operational',
       lastCal: '18-07-2026',
       dueCal: '18-07-2027',
       vendor: 'PT Sumber Aneka',
@@ -91,12 +91,12 @@
       nama: 'Laminar Air Flow (LAF Biosafety)',
       model: 'Esco Airstream Class II',
       serial: 'SN-ESCO-1299',
-      lab: 'Mikrobiologi',
+      lab: 'Microbiology',
       status: 'Maintenance',
       lastCal: '10-09-2025',
-      dueCal: '10-10-2026 (Jatuh Tempo < 30 Hari)',
+      dueCal: '10-10-2026 (Due < 30 Days)',
       vendor: 'Esco Indonesia',
-      cert: 'Validasi HEPA Filter'
+      cert: 'HEPA Filter Validation'
     },
     {
       id: 8,
@@ -105,7 +105,7 @@
       model: 'Binder KBF 240',
       serial: 'SN-BND-3091',
       lab: 'Sensory & ASLT',
-      status: 'Operasional',
+      status: 'Operational',
       lastCal: '01-09-2026',
       dueCal: '01-09-2027',
       vendor: 'PT Binder Lab Indonesia',
@@ -118,7 +118,7 @@
       model: 'Novasina LabMaster-aw neo',
       serial: 'SN-NVS-8803',
       lab: 'Sensory & ASLT',
-      status: 'Operasional',
+      status: 'Operational',
       lastCal: '22-08-2026',
       dueCal: '22-08-2027',
       vendor: 'PT Novasina Indo',
@@ -131,7 +131,7 @@
       model: 'Mocon OX-TRAN 2/22',
       serial: 'SN-MCN-9901',
       lab: 'Sensory & ASLT',
-      status: 'Operasional',
+      status: 'Operational',
       lastCal: '14-06-2026',
       dueCal: '14-06-2027',
       vendor: 'Mocon Lab',
@@ -157,16 +157,21 @@
     var countEl = document.getElementById('countList'); // tab badge in the card header
     if (countEl) countEl.textContent = filtered.length;
     tbody.innerHTML = filtered.map(function (item, idx) {
-      var statusBadge = item.status === 'Operasional'
-        ? '<span class="badge bg-success-transparent"><i class="ri-checkbox-circle-line"></i> Operasional</span>'
+      var statusBadge = item.status === 'Operational'
+        ? '<span class="badge bg-success-transparent"><i class="ri-checkbox-circle-line"></i> Operational</span>'
         : (item.status === 'Out of Service'
           ? '<span class="badge bg-danger-transparent"><i class="ri-close-circle-line"></i> Out of Service</span>'
           : '<span class="badge bg-warning-transparent"><i class="ri-tools-line"></i> Maintenance</span>');
 
-      var isDueWarning = item.dueCal.includes('< 30 Hari') || item.dueCal.includes('Expired');
+      var isDueWarning = item.dueCal.includes('< 30 Days') || item.dueCal.includes('Expired');
       var dueClass = isDueWarning ? 'text-danger fw-semibold' : 'text-secondary';
 
       return '<tr>' +
+        /* SpkTableActions */
+        '<td><div class="d-flex gap-1">' +
+        '<button type="button" class="btn btn-icon btn-sm btn-info-light btn-wave" title="Edit Equipment"><i class="ri-edit-line"></i></button>' +
+        '<button type="button" class="btn btn-icon btn-sm btn-primary-light btn-wave" title="Service & Calibration Log"><i class="ri-file-list-3-line"></i></button>' +
+        '</div></td>' +
         '<td class="text-muted">' + (idx + 1) + '</td>' +
         '<td><div class="fw-semibold">' + item.nama + '</div><small class="text-muted font-monospace">' + item.kode + '</small></td>' +
         '<td><div>' + item.model + '</div><small class="text-muted font-monospace">' + item.serial + '</small></td>' +
@@ -175,21 +180,15 @@
         '<td class="font-monospace small">' + item.lastCal + '</td>' +
         '<td class="font-monospace small ' + dueClass + '">' + item.dueCal + '</td>' +
         '<td><div class="small">' + item.cert + '</div><small class="text-muted">' + item.vendor + '</small></td>' +
-        '<td class="text-center">' +
-        '<div class="btn-group btn-group-sm">' +
-        '<button type="button" class="btn btn-outline-secondary" title="Edit Alat"><i class="ri-edit-line"></i></button>' +
-        '<button type="button" class="btn btn-outline-primary" title="Log Servis & Kalibrasi"><i class="ri-file-list-3-line"></i></button>' +
-        '</div>' +
-        '</td>' +
         '</tr>';
     }).join('');
 
     var elTotal = document.getElementById('kpiTotalAlat');
     if (elTotal) elTotal.textContent = ALAT_DATA.length + ' Unit';
     var elOp = document.getElementById('kpiOperasional');
-    if (elOp) elOp.textContent = ALAT_DATA.filter(function (x) { return x.status === 'Operasional'; }).length + ' Unit';
+    if (elOp) elOp.textContent = ALAT_DATA.filter(function (x) { return x.status === 'Operational'; }).length + ' Unit';
     var elOos = document.getElementById('kpiOos');
-    if (elOos) elOos.textContent = ALAT_DATA.filter(function (x) { return x.status !== 'Operasional'; }).length + ' Unit';
+    if (elOos) elOos.textContent = ALAT_DATA.filter(function (x) { return x.status !== 'Operational'; }).length + ' Unit';
   }
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -230,7 +229,7 @@
       var modal = bootstrap.Modal.getInstance(modalEl);
       if (modal) modal.hide();
       this.reset();
-      alert('Instrumen alat ' + nama + ' berhasil didaftarkan ke inventaris lab!');
+      ToastService.showSuccess('Instrument ' + nama + ' registered in the lab inventory!');
     });
   });
 })();

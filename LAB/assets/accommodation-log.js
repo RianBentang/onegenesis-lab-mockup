@@ -10,7 +10,7 @@
     {
       id: 1,
       waktu: '23-09-2026 10:00',
-      ruang: 'Ruang Instrumen Fisika Kimia',
+      ruang: 'Physicochemical Instrument Room',
       suhu: 22.1,
       suhuStd: '20.0 - 25.0 °C',
       rh: 56.4,
@@ -18,12 +18,12 @@
       status: 'In-Spec',
       sensor: 'Sensor IoT Telemetry (Room 101)',
       pic: 'Auto IoT',
-      catatan: 'Kondisi ruang instrumen stabil.'
+      catatan: 'Instrument room condition stable.'
     },
     {
       id: 2,
       waktu: '23-09-2026 10:00',
-      ruang: 'Ruang Timbang Analitik',
+      ruang: 'Analytical Weighing Room',
       suhu: 21.8,
       suhuStd: '20.0 - 22.0 °C',
       rh: 68.2,
@@ -31,12 +31,12 @@
       status: 'Out-of-Spec',
       sensor: 'Thermohygrometer Digital (Manual)',
       pic: 'Galih Saputra',
-      catatan: 'RH melebihi batas 55%. Dehumidifier dinyalakan.'
+      catatan: 'RH above the 55% limit. Dehumidifier switched on.'
     },
     {
       id: 3,
       waktu: '23-09-2026 09:30',
-      ruang: 'Ruang Inokulasi Mikrobiologi',
+      ruang: 'Microbiology Inoculation Room',
       suhu: 23.2,
       suhuStd: '22.0 - 25.0 °C',
       rh: 54.0,
@@ -44,7 +44,7 @@
       status: 'In-Spec',
       sensor: 'Sensor IoT Telemetry (Room 104)',
       pic: 'Auto IoT',
-      catatan: 'Tekanan positif ruang laminar normal.'
+      catatan: 'Laminar room positive pressure normal.'
     },
     {
       id: 4,
@@ -57,7 +57,7 @@
       status: 'In-Spec',
       sensor: 'Sensor Internal Binder KBF 240',
       pic: 'Putri Ayuningtyas',
-      catatan: 'Pengamatan batch ASLT Chocolatos hari ke-14.'
+      catatan: 'ASLT Chocolatos batch observation, day 14.'
     },
     {
       id: 5,
@@ -70,7 +70,7 @@
       status: 'In-Spec',
       sensor: 'Sensor Internal Binder KBF 115',
       pic: 'Putri Ayuningtyas',
-      catatan: 'Pengamatan batch ASLT Wafer Cone hari ke-30.'
+      catatan: 'ASLT Wafer Cone batch observation, day 30.'
     },
     {
       id: 6,
@@ -83,7 +83,7 @@
       status: 'In-Spec',
       sensor: 'Sensor IoT Telemetry (Sensory Lab)',
       pic: 'Auto IoT',
-      catatan: 'Pencahayaan booth dan sirkulasi udara siap uji panelis.'
+      catatan: 'Booth lighting and air circulation ready for panel testing.'
     }
   ];
 
@@ -126,9 +126,9 @@
     }).join('');
 
     var elAlert = document.getElementById('kpiAlertCount');
-    if (elAlert) elAlert.textContent = LOG_DATA.filter(function (x) { return x.status === 'Out-of-Spec'; }).length + ' Titik';
+    if (elAlert) elAlert.textContent = LOG_DATA.filter(function (x) { return x.status === 'Out-of-Spec'; }).length + ' Points';
     var elNorm = document.getElementById('kpiNormalCount');
-    if (elNorm) elNorm.textContent = LOG_DATA.filter(function (x) { return x.status === 'In-Spec'; }).length + ' Titik';
+    if (elNorm) elNorm.textContent = LOG_DATA.filter(function (x) { return x.status === 'In-Spec'; }).length + ' Points';
   }
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -146,9 +146,9 @@
       var rh = parseFloat(document.getElementById('logRh').value) || 55.0;
       var sensor = document.getElementById('logSensor').value;
       var pic = document.getElementById('logPic').value || 'Budi Santoso';
-      var catatan = document.getElementById('logCatatan').value || 'Pencatatan manual lingkungan uji.';
+      var catatan = document.getElementById('logCatatan').value || 'Manual test environment record.';
 
-      var isAlert = (ruang.includes('Timbang') && rh > 55) || (ruang.includes('Instrumen') && (suhu > 25 || rh > 65));
+      var isAlert = (ruang.includes('Weighing') && rh > 55) || (ruang.includes('Instrument') && (suhu > 25 || rh > 65));
 
       LOG_DATA.unshift({
         id: LOG_DATA.length + 1,
@@ -169,7 +169,7 @@
       var modal = bootstrap.Modal.getInstance(modalEl);
       if (modal) modal.hide();
       this.reset();
-      alert('Data log lingkungan untuk "' + ruang + '" berhasil disimpan!');
+      ToastService.showSuccess('Environment log for "' + ruang + '" saved!');
     });
   });
 })();

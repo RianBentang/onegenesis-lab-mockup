@@ -11,9 +11,9 @@
       id: 1,
       nik: 'GF-10492',
       nama: 'Budi Santoso, S.TP.',
-      lab: 'Fisika Kimia',
+      lab: 'Physicochemical',
       status: 'Certified',
-      params: ['Moisture (Kadar Air)', 'Kadar Lemak (Fat)', 'FFA (Free Fatty Acid)', 'Kadar Protein', 'Kadar Abu'],
+      params: ['Moisture', 'Fat Content', 'FFA (Free Fatty Acid)', 'Protein Content', 'Ash Content'],
       evalDate: '15-08-2026',
       validUntil: '15-08-2027',
       ptResult: 'Satisfactory (Z=0.42)'
@@ -22,9 +22,9 @@
       id: 2,
       nik: 'GF-10512',
       nama: 'Galih Saputra, A.Md.',
-      lab: 'Fisika Kimia',
+      lab: 'Physicochemical',
       status: 'Certified',
-      params: ['Moisture (Kadar Air)', 'Kadar Lemak (Fat)', 'FFA', 'Cemaran Logam Pb (AAS)'],
+      params: ['Moisture', 'Fat Content', 'FFA', 'Lead (Pb) Contamination (AAS)'],
       evalDate: '10-07-2026',
       validUntil: '10-07-2027',
       ptResult: 'Satisfactory (Z=0.88)'
@@ -33,9 +33,9 @@
       id: 3,
       nik: 'GF-10633',
       nama: 'Dewi Lestari, S.Si.',
-      lab: 'Mikrobiologi',
+      lab: 'Microbiology',
       status: 'Certified',
-      params: ['Salmonella sp.', 'ALT / TPC', 'Kapang dan Khamir', 'Coliform & E. coli'],
+      params: ['Salmonella sp.', 'ALT / TPC', 'Yeast & Mold', 'Coliform & E. coli'],
       evalDate: '20-08-2026',
       validUntil: '20-08-2027',
       ptResult: 'Satisfactory (Z=0.15)'
@@ -44,9 +44,9 @@
       id: 4,
       nik: 'GF-10744',
       nama: 'Nur Aini, A.Md.',
-      lab: 'Mikrobiologi',
+      lab: 'Microbiology',
       status: 'Certified',
-      params: ['Salmonella sp.', 'ALT / TPC', 'Kapang dan Khamir'],
+      params: ['Salmonella sp.', 'ALT / TPC', 'Yeast & Mold'],
       evalDate: '05-06-2026',
       validUntil: '05-06-2027',
       ptResult: 'Satisfactory (Z=0.61)'
@@ -55,9 +55,9 @@
       id: 5,
       nik: 'GF-10889',
       nama: 'Dimas Aditya, S.T.',
-      lab: 'Fisika Kimia',
+      lab: 'Physicochemical',
       status: 'Training',
-      params: ['Moisture (Kadar Air)', 'Kadar Protein (Under Supervision)'],
+      params: ['Moisture', 'Protein Content (Under Supervision)'],
       evalDate: '01-09-2026',
       validUntil: '01-03-2027',
       ptResult: 'Internal Check (In Progress)'
@@ -68,18 +68,18 @@
       nama: 'Putri Ayuningtyas, S.Si.',
       lab: 'Sensory & ASLT',
       status: 'Certified',
-      params: ['Sensory Hedonik', 'Triangle Test', 'Arrhenius Shelf Life', 'AW Kritis'],
+      params: ['Sensory Hedonic', 'Triangle Test', 'Arrhenius Shelf Life', 'AW Kritis'],
       evalDate: '12-08-2026',
       validUntil: '12-08-2027',
-      ptResult: 'Panelis Leader Certified'
+      ptResult: 'Panel Leader Certified'
     },
     {
       id: 7,
       nik: 'GF-11005',
       nama: 'Siti Aminah, A.Md.',
-      lab: 'Fisika Kimia',
+      lab: 'Physicochemical',
       status: 'Certified',
-      params: ['FFA', 'Kadar Abu', 'Preparasi Reagen'],
+      params: ['FFA', 'Ash Content', 'Reagent Preparation'],
       evalDate: '18-05-2026',
       validUntil: '18-05-2027',
       ptResult: 'Satisfactory (Z=0.33)'
@@ -90,7 +90,7 @@
       nama: 'Rian Hidayat, S.TP.',
       lab: 'Sensory & ASLT',
       status: 'Training',
-      params: ['Organoleptik Screening', 'ASLT Chamber Monitoring'],
+      params: ['Organoleptic Screening', 'ASLT Chamber Monitoring'],
       evalDate: '15-09-2026',
       validUntil: '15-03-2027',
       ptResult: 'Screening Phase'
@@ -120,10 +120,15 @@
         : '<span class="badge bg-warning-transparent"><i class="ri-time-line"></i> In Training (Supervisi)</span>';
 
       var paramBadges = item.params.map(function (p) {
-        return '<span class="badge bg-light text-dark border me-1 mb-1 font-monospace" style="font-size:0.75rem;">' + p + '</span>';
+        return '<span class="badge bg-secondary-transparent me-1 mb-1 font-monospace">' + p + '</span>';
       }).join('');
 
       return '<tr>' +
+        /* SpkTableActions */
+        '<td><div class="d-flex gap-1">' +
+        '<button type="button" class="btn btn-icon btn-sm btn-info-light btn-wave" title="Edit Matrix"><i class="ri-edit-line"></i></button>' +
+        '<button type="button" class="btn btn-icon btn-sm btn-primary-light btn-wave" title="Training History"><i class="ri-file-user-line"></i></button>' +
+        '</div></td>' +
         '<td class="text-muted">' + (idx + 1) + '</td>' +
         '<td><div class="fw-semibold">' + item.nama + '</div><small class="text-muted font-monospace">' + item.nik + '</small></td>' +
         '<td><span class="badge bg-light text-muted border">' + item.lab + '</span></td>' +
@@ -131,21 +136,15 @@
         '<td><div class="d-flex flex-wrap">' + paramBadges + '</div></td>' +
         '<td class="font-monospace small">' + item.evalDate + '</td>' +
         '<td class="font-monospace small">' + item.validUntil + '</td>' +
-        '<td class="text-center">' +
-        '<div class="btn-group btn-group-sm">' +
-        '<button type="button" class="btn btn-outline-secondary" title="Edit Matriks"><i class="ri-edit-line"></i></button>' +
-        '<button type="button" class="btn btn-outline-primary" title="Riwayat Pelatihan"><i class="ri-file-user-line"></i></button>' +
-        '</div>' +
-        '</td>' +
         '</tr>';
     }).join('');
 
     var elTotal = document.getElementById('kpiTotalAnalis');
     if (elTotal) elTotal.textContent = ANALIS_DATA.length + ' Personel';
     var elCert = document.getElementById('kpiCertified');
-    if (elCert) elCert.textContent = ANALIS_DATA.filter(function (x) { return x.status === 'Certified'; }).length + ' Analis';
+    if (elCert) elCert.textContent = ANALIS_DATA.filter(function (x) { return x.status === 'Certified'; }).length + ' Analysts';
     var elTrain = document.getElementById('kpiTraining');
-    if (elTrain) elTrain.textContent = ANALIS_DATA.filter(function (x) { return x.status === 'Training'; }).length + ' Analis';
+    if (elTrain) elTrain.textContent = ANALIS_DATA.filter(function (x) { return x.status === 'Training'; }).length + ' Analysts';
   }
 
   document.addEventListener('DOMContentLoaded', function () {
@@ -173,7 +172,7 @@
         params: params,
         evalDate: '23-09-2026',
         validUntil: '23-09-2027',
-        ptResult: 'New Personel'
+        ptResult: 'New Personnel'
       });
 
       renderTable();
@@ -181,7 +180,7 @@
       var modal = bootstrap.Modal.getInstance(modalEl);
       if (modal) modal.hide();
       this.reset();
-      alert('Personel analis ' + nama + ' berhasil didaftarkan ke matriks kompetensi lab!');
+      ToastService.showSuccess('Analyst ' + nama + ' registered in the lab competency matrix!');
     });
   });
 })();

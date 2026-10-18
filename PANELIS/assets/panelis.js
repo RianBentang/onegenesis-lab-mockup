@@ -1,7 +1,7 @@
 /*
  * PANELIS app shell (plain script, works from file://). Panelists are not LAB users, so there is
  * no LAB sidebar / header here: this only sets the same <html> theme attributes as og-shell.js
- * (shared 'ogTheme' setting) and provides login + toast helpers for the login and booth pages.
+ * (shared 'ogTheme' setting) and provides login helpers for the login and booth pages.
  * Data (panelists, sessions, scores) comes from ../LAB/assets/dummy-panel.js.
  */
 (function () {
@@ -52,18 +52,11 @@
     } catch (e) { return null; }
   };
 
-  /* ---------- toast ---------- */
-  window.panelisToast = function (message, variant) {
-    var container = document.getElementById('appToastContainer');
-    if (!container) { alert(message); return; }
-    var el = document.createElement('div');
-    el.className = 'toast align-items-center text-white border-0 ' + (variant === 'danger' ? 'bg-danger' : 'bg-dark');
-    el.setAttribute('role', 'alert');
-    el.innerHTML = '<div class="d-flex"><div class="toast-body">' + message + '</div>' +
-      '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div>';
-    container.appendChild(el);
-    var t = new window.bootstrap.Toast(el, { delay: 3500 });
-    el.addEventListener('hidden.bs.toast', function () { el.remove(); });
-    t.show();
-  };
+  /* ---------- mockup test mode badge (Schedule › Mode Uji: every session counts as running) ---------- */
+  function showTestMode() {
+    var on = typeof scheduleTestMode === 'function' && scheduleTestMode();
+    document.querySelectorAll('[data-test-mode]').forEach(function (el) { el.classList.toggle('d-none', !on); });
+  }
+  document.addEventListener('DOMContentLoaded', showTestMode);
+  window.addEventListener('storage', showTestMode);
 })();

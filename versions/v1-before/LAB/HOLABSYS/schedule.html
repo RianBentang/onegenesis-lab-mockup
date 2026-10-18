@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="../assets/version-v1.js"></script><!-- proposal v1: own browser data + label -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Schedule | HOLABSYS</title>
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="../../../../LAB/assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+          <!-- Pageheader -->
+          <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+            <div>
+              <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="#!">HOLABSYS</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Schedule</li>
+              </ol>
+              <h1 class="page-title fw-medium fs-18 mb-0">Sensory Panel Schedule</h1>
+            </div>
+            <div class="btn-list spk-page-header-actions-host">
+              <div class="spk-page-header-actions-card gap-3">
+                <!-- Mockup-only: test mode, opens every session in the booth regardless of the clock. Not in the real app. -->
+                <div class="form-check form-switch mb-0" title="Mockup: open every session at the booth for testing (not in the real app)">
+                  <input class="form-check-input" type="checkbox" role="switch" id="testModeSwitch" />
+                  <label class="form-check-label fs-12 fw-medium" for="testModeSwitch">Test Mode</label>
+                </div>
+                <button type="button" id="btnCreateSchedule" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center">
+                  <i class="ri-add-line me-1 align-middle"></i>Create Schedule
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warning-transparent d-flex align-items-center gap-2 py-2 fs-13 d-none" id="testModeBanner" role="status">
+            <i class="ri-flask-line fs-16"></i>
+            <span><b>Test Mode on:</b> every session counts as running at the panelist booth, whatever the time. Turn it off to go back to the real session hours.</span>
+          </div>
+
+          <div class="card custom-card">
+            <!-- Nav tabs (react-bootstrap Nav, nav-tabs tab-style-2): one calendar per panel type -->
+            <div class="card-header border-bottom p-0">
+              <ul class="nav nav-tabs tab-style-2 card-header-tabs m-0 px-3" role="tablist" id="scheduleTabs">
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link active py-3 fw-medium d-flex align-items-center gap-2" href="#!" role="tab" data-jenis="Sensory">
+                    <i class="ri-goblet-line"></i> Sensory <span class="badge bg-success-transparent" id="countSensory">0</span>
+                  </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <a class="nav-link py-3 fw-medium d-flex align-items-center gap-2" href="#!" role="tab" data-jenis="ASLT">
+                    <i class="ri-calendar-todo-line"></i> ASLT <span class="badge bg-warning-transparent" id="countASLT">0</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <!-- Left column (Google Calendar side panel): requests waiting for a schedule + legend -->
+                <div class="col-12 col-xl-3">
+                  <div class="sch-side">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <h6 class="fw-semibold mb-0">Waiting to Be Scheduled</h6>
+                      <span class="badge bg-warning-transparent" id="waitingCount">0</span>
+                    </div>
+                    <p class="text-muted fs-12 mb-2" id="waitingHint">Drag a request onto the calendar to schedule it.</p>
+                    <div id="waitingList" class="d-flex flex-column gap-2 mb-4"></div>
+
+                    <h6 class="fw-semibold mb-2">Legend</h6>
+                    <div id="legend" class="d-flex flex-column gap-1 fs-12 mb-3"></div>
+                    <div class="alert alert-primary-transparent d-flex align-items-start gap-2 py-2 fs-12 mb-0" id="scheduleTabHint"></div>
+                  </div>
+                </div>
+
+                <!-- FullCalendar (port: @fullcalendar/react) -->
+                <div class="col-12 col-xl-9">
+                  <div id="calendar"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Quick create (Google Calendar popover): opens next to a clicked empty time ── -->
+    <div class="card custom-card position-fixed d-none mb-0 sch-quick" id="quickCreate" role="dialog" aria-labelledby="quickTitle">
+      <div class="card-body p-3">
+        <div class="d-flex align-items-start justify-content-between gap-2 mb-3">
+          <div>
+            <div class="fw-semibold" id="quickTitle">New schedule</div>
+            <div class="text-muted fs-12" id="quickWhen">-</div>
+          </div>
+          <button type="button" class="btn-close" id="quickClose" aria-label="Close"></button>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fs-12 mb-1" for="quickRequest">Request <span class="text-danger">*</span></label>
+          <select class="form-select" id="quickRequest"></select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fs-12 mb-1" for="quickAnalis">Analyst</label>
+          <select class="form-select" id="quickAnalis"></select>
+        </div>
+        <div class="d-flex align-items-center justify-content-between gap-2">
+          <button type="button" class="btn btn-sm btn-link px-0" id="quickMore">More options</button>
+          <button type="button" class="btn btn-sm btn-primary btn-wave" id="quickSave"><i class="ri-save-line me-1"></i>Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Side panel (offcanvas, no backdrop): one Sensory session or one ASLT session; the
+         calendar stays visible and usable behind it ── -->
+    <div class="offcanvas offcanvas-end sch-panel" tabindex="-1" id="detailPanel" data-bs-backdrop="false" data-bs-scroll="true" aria-labelledby="panelTitle">
+      <div class="offcanvas-header border-bottom align-items-start">
+        <div class="d-flex align-items-start gap-2">
+          <span class="rounded-1 flex-shrink-0 mt-1" id="panelColor" style="width: 14px; height: 14px;"></span>
+          <div>
+            <h6 class="offcanvas-title fw-semibold mb-0" id="panelTitle">Detail</h6>
+            <div class="text-muted fs-12" id="panelSub">-</div>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body" id="panelBody"></div>
+    </div>
+
+    <!-- ── Modal: Buat / Atur Jadwal (all sessions of one request; "More options") ── -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h6 class="modal-title fw-semibold" id="scheduleModalTitle">Create Schedule</h6>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row gy-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label" for="schRequest">Request <span class="text-danger">*</span></label>
+                <select class="form-select" id="schRequest"></select>
+                <div class="invalid-feedback d-block d-none" id="schRequestError">Select a request.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Sample</label>
+                <input type="text" class="form-control" id="schSampel" readonly disabled />
+              </div>
+            </div>
+
+            <!-- SpkFormSection: Sesi -->
+            <div class="mb-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div>
+                <h6 class="fw-semibold mb-0">Test Sessions</h6>
+                <p class="text-muted fs-12 mb-0 mt-1" id="schSessionHint">A request can have several sessions.</p>
+              </div>
+              <button type="button" id="btnAddSession" class="btn btn-primary-light btn-sm btn-wave d-inline-flex align-items-center">
+                <i class="ri-add-line me-1"></i><span>Add Session</span>
+              </button>
+            </div>
+            <div class="table-responsive">
+              <table class="table text-nowrap border mb-0 align-middle">
+                <thead id="sessionHead"></thead>
+                <tbody id="sessionBody"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" id="btnSaveSchedule" class="btn btn-sm btn-primary btn-wave d-inline-flex align-items-center"><i class="ri-save-line me-1"></i><span>Save</span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.20/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.20/locales/en-gb.global.min.js"></script>
+    <script src="../assets/spk-toast.js"></script>
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/spk-history.js"></script><!-- Approval / Document History + record.activity -->
+    <script src="../assets/dummy-requests.js"></script>
+    <script src="../assets/dummy-aslt-sensory-requests.js"></script>
+    <script src="../assets/dummy-schedule.js"></script>
+    <script src="../assets/schedule.js"></script>
+  </body>
+</html>

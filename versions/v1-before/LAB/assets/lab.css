@@ -1,0 +1,481 @@
+/*
+ * LAB mockup overrides on top of og-theme/onegenesis.css.
+ *
+ * Keep this file small. Anything here has no equivalent in onegenesis-web yet, so it
+ * will need a new style (or a new Spk component) when the page is ported to React.
+ * Prefer theme classes (card custom-card, btn-*-light, badge bg-*-transparent, ...)
+ * over adding rules here.
+ */
+
+/* Mockup-only role switcher in the header (not part of the real app). */
+#roleSelect {
+  font-size: 0.75rem;
+}
+
+/* Tanda Tangan & QR (Master-Data/digitalSignature.html): signature specimen / QR previews.
+   No Spk equivalent; a React port would need a small preview component. */
+.sig-preview-box {
+  background: var(--custom-white);
+  border: 2px dashed var(--default-border);
+  border-radius: 0.5rem;
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem;
+}
+.sig-preview-img {
+  max-height: 70px;
+  max-width: 100%;
+  object-fit: contain;
+}
+.qr-card-preview {
+  background: #fff; /* QR codes need a white background to scan, also in dark mode */
+  border: 1px solid var(--default-border);
+  border-radius: 0.625rem;
+  padding: 1rem;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---------- Print layouts (not app UI) ----------
+   Label sheet (Technical Review & SPK tab of HOLABSYS/internalForm.html) and certificate / LHU (HOLABSYS/reportForm.html)
+   are paper documents, so they keep fixed black-on-white colors in both themes.
+   Moved from the legacy assets/css/app.css. */
+@media print {
+  .app-header, .app-sidebar, .footer, #responsive-overlay,
+  .page-header-breadcrumb, .no-print {
+    display: none !important;
+  }
+  .main-content.app-content {
+    margin-inline-start: 0 !important;
+    padding-block-start: 0 !important;
+  }
+}
+
+.label-sheet {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.lbl-card {
+  display: flex;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .6rem;
+  background-color: #fff;
+  color: #212529;
+}
+
+.lbl-card .lh {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.lbl-card .lid {
+  font-weight: 700;
+  font-size: .85rem;
+  font-family: var(--bs-font-monospace);
+}
+
+.lbl-card .ln {
+  font-weight: 600;
+  font-size: .85rem;
+  margin-bottom: 4px;
+}
+
+.lbl-card .lm {
+  font-size: .72rem;
+  color: #6c757d;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.lbl-card .lp {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.lbl-card .lp span {
+  font-size: .65rem;
+  font-weight: 600;
+  background-color: #f2f4f8;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.printable-doc {
+  background-color: #fff;
+  color: #212529;
+  border: 1px solid var(--bs-border-color);
+  border-radius: .75rem;
+  padding: 2rem;
+}
+
+.cert-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #212529;
+}
+
+.cert-header-brand {
+  display: flex;
+  align-items: center;
+  gap: .85rem;
+}
+
+.cert-header-brand img {
+  height: 44px;
+}
+
+.cert-header-brand h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.cert-header-brand p {
+  font-size: .72rem;
+  color: #6c757d;
+  margin: 0;
+}
+
+.cert-kan-box {
+  text-align: center;
+  flex: none;
+}
+
+.cert-kan-box .box {
+  border: 2px solid #212529;
+  border-radius: .25rem;
+  padding: .25rem .5rem;
+  width: 90px;
+}
+
+.cert-kan-box .kan {
+  color: #dc3545;
+  font-weight: 900;
+  font-size: .9rem;
+  line-height: 1;
+}
+
+.cert-kan-box .lp {
+  font-size: .6rem;
+  font-weight: 700;
+}
+
+.cert-kan-box small {
+  font-size: .6rem;
+  color: #6c757d;
+  display: block;
+  margin-top: .25rem;
+}
+
+.cert-title {
+  text-align: center;
+  margin-bottom: 1.25rem;
+}
+
+.cert-title h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  margin-bottom: .25rem;
+}
+
+.cert-title .cert-no {
+  font-size: .8rem;
+  font-family: var(--bs-font-monospace);
+  color: #495057;
+}
+
+.cert-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: .5rem 2rem;
+  font-size: .8rem;
+  margin-bottom: 1.5rem;
+}
+
+.cert-meta-grid .row-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px dotted #dee2e6;
+  padding-bottom: 2px;
+}
+
+.cert-meta-grid .row-item span:first-child {
+  color: #6c757d;
+  flex: none;
+}
+
+.cert-meta-grid .row-item span:last-child {
+  font-weight: 600;
+  text-align: right;
+}
+
+.cert-result-table {
+  width: 100%;
+  font-size: .8rem;
+  margin-bottom: 1.5rem;
+  border-collapse: collapse;
+}
+
+.cert-result-table th,
+.cert-result-table td {
+  border: 1px solid #dee2e6;
+  padding: .5rem .6rem;
+}
+
+.cert-result-table th {
+  background-color: #f8f9fa;
+  text-transform: uppercase;
+  font-size: .68rem;
+}
+
+.cert-sign-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.cert-sign-box {
+  text-align: center;
+  border: 1px dashed #ced4da;
+  border-radius: .5rem;
+  padding: 1rem;
+}
+
+.cert-sign-box .status {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: .5rem;
+}
+
+.cert-sign-box .name {
+  font-weight: 700;
+  font-size: .85rem;
+  margin-top: .5rem;
+}
+
+.cert-sign-box .role {
+  font-size: .72rem;
+  color: #6c757d;
+}
+
+.cert-qr-wrap {
+  display: flex;
+  justify-content: center;
+  margin: .5rem 0;
+}
+
+@media print {
+  .printable-doc {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+  }
+}
+
+/* ---------- Excel page (FortuneSheet) ----------
+ * FortuneSheet fills its parent, so the host needs an explicit height; no theme class sets one.
+ * In fullscreen the card itself becomes the viewport and the sheet takes the remaining height.
+ */
+.sheet-host {
+  height: 70vh;
+  min-height: 420px;
+  position: relative;
+}
+
+.sheet-card:fullscreen {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  border-radius: 0;
+  background: var(--custom-white);
+}
+
+.sheet-card:fullscreen .card-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.sheet-card:fullscreen .sheet-host {
+  height: 100%;
+  min-height: 0;
+}
+
+/* SpkSelect2 inside an .input-group (dropdown + attached button, e.g. the Alamat eye button).
+   No theme class fits: the theme forces .select2-container to width:100% and has no input-group
+   rule, so the select2 box would push the button to the next line and keep its right radius. */
+.input-group > .select2-container {
+  flex: 1 1 auto;
+  width: 1% !important;
+  min-width: 0;
+}
+.input-group > .select2-container:not(:last-child) .select2-selection,
+.input-group > .select2-container:not(:last-child) .select2-selection__rendered {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+/* The theme's select2 border box (line-height 2.33rem + 2px border) overhangs its 2.37rem box by
+   ~1.4px; fit it exactly so its bottom edge lines up with the attached button. */
+.input-group > .select2-container .select2-selection__rendered {
+  line-height: calc(2.37rem - 2px) !important;
+}
+
+/* Compact SpkSelect2 for table cells (opt-in: class spk-select2-sm on the <select>, passed on by
+   spk-select2.js). The theme pins select2 to 2.37rem with !important and has no small variant. */
+.select2-container .select2-selection--single.spk-select2-sm,
+.select2-container--default .select2-selection--single.spk-select2-sm .select2-selection__arrow {
+  height: 1.94rem !important;
+}
+.select2-container--default .select2-selection--single.spk-select2-sm .select2-selection__rendered {
+  line-height: 1.82rem !important;
+  font-size: .8125rem;
+  padding-inline-start: 8px !important;
+}
+.select2-dropdown.spk-select2-sm .select2-results__option {
+  font-size: .8125rem;
+  padding: 4px 8px;
+}
+
+/* The button attached to a SpkSelect2 (eye button) takes the select2 field's border and fill, so
+   the pair reads as one field. Its left border overlaps the select2 right edge (input-group -1px
+   margin), leaving a single divider line between them. */
+.input-group > .select2-container + .btn {
+  border: 1px solid var(--input-border);
+  background-color: var(--form-control-bg);
+  color: var(--default-text-color);
+}
+.input-group > .select2-container + .btn:hover,
+.input-group > .select2-container + .btn:focus-visible {
+  color: rgb(var(--primary-rgb));
+}
+
+/* ---------- PANELIS app (login + booth) ----------
+   Panelists use a standalone booth screen without the LAB shell; these rules cover what the theme
+   has no class for: the top bar, the big blind-code badge, the 9-point hedonic scale grid and
+   the triangle cups. */
+.panelis-logo { height: 3rem; }
+.panelis-logo-sm { height: 2.25rem; }
+.booth-topbar {
+  background-color: var(--custom-white);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.booth-code {
+  display: inline-block;
+  padding: .35rem 1.5rem;
+  border-radius: .5rem;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  background-color: rgba(var(--primary-rgb), .1);
+  color: rgb(var(--primary-rgb));
+}
+.booth-code-sm { font-size: 1.25rem; padding: .2rem .9rem; }
+.booth-scale {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(0, 1fr));
+  gap: .4rem;
+}
+.booth-scale .btn { padding: .5rem .25rem; line-height: 1.15; }
+.booth-scale-label { display: block; font-size: .625rem; white-space: normal; opacity: .85; }
+@media (max-width: 767.98px) {
+  .booth-scale { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.booth-cup { min-height: 8rem; }
+
+
+/* Schedule (Google Calendar-like). No theme class fits:
+   - quick-create popover: a fixed card next to the clicked time, above the offcanvas (1045) but
+     below select2's dropdown (1051) and modals (1055); the theme has no floating-card class.
+   - side panel width: the theme keeps Bootstrap's 400px offcanvas, too narrow for the session table.
+   - waiting requests are FullCalendar external draggables: grab cursor. */
+.card.custom-card.sch-quick { /* beats the theme .card.custom-card (width 100%, soft shadow) */
+  width: 340px;
+  max-width: calc(100vw - 2rem);
+  z-index: 1046;
+  box-shadow: var(--bs-box-shadow-lg);
+}
+.sch-panel { --bs-offcanvas-width: 520px; }
+.sch-waiting { cursor: grab; }
+.sch-waiting:active { cursor: grabbing; }
+/* Schedule left column stays in view while the (tall) week grid scrolls, so a waiting request can
+   be dragged onto any hour; offset = app header + sticky page-header actions. */
+@media (min-width: 1200px) {
+  .sch-side { position: sticky; top: 8rem; }
+}
+/* Schedule: grey out the hours outside the Sensory slots (businessHours). The theme paints
+   .fc-non-business white (!important), which hides them; use FullCalendar's own grey. */
+#calendar .fc-non-business { background: var(--fc-non-business-color) !important; }
+
+/* Kaji Ulang table (internal-review-tab.js): every cell after Parameter is a SpkSelect2; without a
+   minimum the table squeezes them to the arrow. No theme class sets a select width. */
+.kaji-ulang-table td .select2-container { min-width: 150px; }
+/* select2 puts absolutely positioned parts (hidden <select>, arrow) in each cell; with a static
+   .table-responsive they escape its scroll box and widen the whole page. Contain them. */
+.table-responsive { position: relative; }
+
+/* LHU legend under the result table (subkontrak parameters, report-form.js) — printable document */
+.cert-legend { font-size: 11px; line-height: 1.5; margin-top: 10px; }
+
+/* External form parameter picker (dummy-parameters.js parameterPickerOptions): big Internal /
+   External heading above its lab optgroups. TomSelect has one optgroup level only. */
+.param-jenis-header {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: rgb(var(--primary-rgb));
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--default-border);
+}
+
+/* Dashboard welcome row (layout taken from oneIPF's home dashboard; onegenesis-web has no
+   equivalent widget, so the banner and the haloed stat icon live here). The banner image is
+   onegenesis-web's public/assets/dashboard-main-image.jpeg (batik, also the Profile hero banner);
+   the icon halo uses --dash-rgb. */
+.card.custom-card.dash-welcome {
+  background: url('img/dashboard-main-image.jpeg') right center / cover no-repeat;
+  min-height: 220px;
+}
+.dash-welcome-date {
+  color: #fff;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+}
+.dash-welcome-name {
+  color: color-mix(in srgb, rgb(var(--info-rgb)) 55%, #fff);
+}
+.dash-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 1.25rem;
+  box-shadow: 0 0 0 5px rgba(var(--dash-rgb), 0.18);
+  margin: 5px 0 0 5px;
+}

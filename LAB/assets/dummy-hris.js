@@ -6,7 +6,7 @@
 var HRIS_KARYAWAN = [
   { nik: '20180123', username: 'ayu.pratiwi', name: 'Ayu Pratiwi', dept: 'Quality Control', position: 'QC Analyst' },
   { nik: '20170456', username: 'bima.santoso', name: 'Bima Santoso', dept: 'Research & Development', position: 'Product Developer' },
-  { nik: '20190311', username: 'citra.maharani', name: 'Citra Maharani', dept: 'Laboratorium', position: 'Lab Analyst' },
+  { nik: '20190311', username: 'citra.maharani', name: 'Citra Maharani', dept: 'Laboratory', position: 'Lab Analyst' },
   { nik: '20160782', username: 'dimas.prakoso', name: 'Dimas Prakoso', dept: 'Quality Assurance', position: 'QA Supervisor' },
   { nik: '20200145', username: 'eka.wulandari', name: 'Eka Wulandari', dept: 'Production', position: 'Line Leader' },
   { nik: '20210533', username: 'fajar.nugroho', name: 'Fajar Nugroho', dept: 'Production', position: 'Operator' },

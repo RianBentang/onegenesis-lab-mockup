@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="../assets/version-v1.js"></script><!-- proposal v1: own browser data + label -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <title>External Lab Vendors (Subcontract) | HOLABSYS</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="icon" href="../assets/og-theme/brand/favicon.ico" />
+    <link href="../../../../LAB/assets/og-theme/onegenesis.css" rel="stylesheet" />
+    <link href="../assets/lab.css" rel="stylesheet" />
+  </head>
+  <body>
+
+    <div class="page">
+      <div class="main-content app-content">
+        <div class="container-fluid">
+
+          <!-- Pageheader -->
+          <div class="d-flex align-items-center justify-content-between page-header-breadcrumb flex-wrap gap-2">
+            <div>
+              <ol class="breadcrumb mb-1">
+                <li class="breadcrumb-item"><a href="#!">Master Data</a></li>
+                <li class="breadcrumb-item active" aria-current="page">External Lab Vendors</li>
+              </ol>
+              <h1 class="page-title fw-medium fs-18 mb-0">External Lab Vendors (Subcontract)</h1>
+            </div>
+            <div class="btn-list spk-page-header-actions-host">
+              <div class="spk-page-header-actions-card">
+                <button type="button" class="btn btn-primary btn-sm btn-wave d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#modalAddVendor"><i class="ri-add-line me-1 align-middle"></i>Add Partner Laboratory</button>
+              </div>
+            </div>
+          </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-building-line text-primary" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Total Subcontract Labs</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1" id="kpiTotalVendor">5 Laboratories</h4>
+                    <span class="text-muted fs-12">Partners Registered in System</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-success-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-shield-check-line text-success" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">KAN LP Accredited (ISO 17025)</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1">100% KAN Accredited</h4>
+                    <span class="text-muted fs-12">Clause 7.1 Subcontracting</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-info-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-dashboard-3-line text-info" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Specialty Parameters</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1">20+ Parameter</h4>
+                    <span class="text-muted fs-12">Clostridium, Aflatoxin, Metals, Nutrition</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-sm-6 col-xl-3">
+            <!-- SpkCountercard -->
+            <div class="card custom-card h-100 mb-0">
+              <div class="card-body pb-2">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="d-flex align-items-center justify-content-center flex-shrink-0 bg-primary-transparent" style="width:48px;height:48px;border-radius:50%">
+                    <i class="ri-dashboard-3-line text-primary" style="font-size:1.3rem"></i>
+                  </div>
+                  <div>
+                    <p class="text-muted mb-1 fw-semibold fs-10 text-uppercase">Average SLA / Lead Time</p>
+                    <h4 class="fw-bold mb-0" style="font-size:1.6rem;line-height:1">7 - 10 Working Days</h4>
+                    <span class="text-muted fs-12">Per Contract Agreement</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card custom-card">
+          <!-- One-tab header (nav-tabs tab-style-2) + filters, same layout as the request lists -->
+          <div class="card-header p-0 d-flex flex-column flex-md-row justify-content-between align-items-stretch align-items-md-center gap-2 border-bottom">
+            <ul class="nav nav-tabs tab-style-2 mb-0 border-0 d-flex flex-nowrap px-3" role="tablist">
+              <li class="nav-item" role="presentation">
+                <a class="nav-link active" href="#!" role="tab">
+                  <i class="ri-building-line me-1 align-middle"></i>Vendor List
+                  <span class="badge bg-primary-transparent rounded-pill ms-1" id="countList">0</span>
+                </a>
+              </li>
+            </ul>
+            <div class="d-flex align-items-center flex-wrap gap-2 px-3 pb-2 pb-md-0">
+                <div style="width: 170px;">
+                  <select id="filterKotaVendor" class="form-select form-select-sm">
+                    <option value="">All Locations</option>
+                    <option value="Bogor">Bogor</option>
+                    <option value="Jakarta">Jakarta</option>
+                    <option value="Tangerang">Tangerang</option>
+                    <option value="Bekasi">Bekasi</option>
+                  </select>
+                </div>
+                <input type="text" id="searchVendorInput" class="form-control form-control-sm" placeholder="Search lab name / contact..." style="width: 300px;" />
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-hover text-nowrap border align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">No</th>
+                    <th>Laboratory Code &amp; Name</th>
+                    <th>KAN Accreditation No.</th>
+                    <th>Location &amp; Address</th>
+                    <th>PIC / Customer Service Contact</th>
+                    <th>Main Subcontracted Parameters</th>
+                    <th>Partnership Status</th>
+                    <th style="width: 100px;" class="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="vendorTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- Modal Add Vendor -->
+    <div class="modal fade" id="modalAddVendor" tabindex="-1" aria-labelledby="modalAddVendorLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalAddVendorLabel">Add External Partner Laboratory</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formAddVendor">
+              <div class="row g-3 mb-3">
+                <div class="col-md-8">
+                  <label class="form-label small fw-semibold">External Laboratory Name <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="vendorNama" required placeholder="Example: PT Saraswanti Indo Genetech (SIG)" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label small fw-semibold">Short Code <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control font-monospace" id="vendorKode" required placeholder="LAB-SIG" />
+                </div>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">KAN Accreditation No. (ISO/IEC 17025)</label>
+                  <input type="text" class="form-control font-monospace" id="vendorKan" placeholder="LP-184-IDN (until 2028)" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">City / Operating Area</label>
+                  <input type="text" class="form-control" id="vendorKota" placeholder="Bogor / Jakarta" />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Full Sample Delivery Address</label>
+                <textarea class="form-control" id="vendorAlamat" rows="2" placeholder="Jl. Rasamala No. 20 Taman Yasmin, Bogor 16113"></textarea>
+              </div>
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Email PIC / Customer Service</label>
+                  <input type="email" class="form-control" id="vendorEmail" placeholder="cs@siglaboratory.com" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small fw-semibold">Phone / WhatsApp No.</label>
+                  <input type="text" class="form-control font-monospace" id="vendorTelp" placeholder="+62 251 7532348" />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label small fw-semibold">Subcontract Test Parameters Offered</label>
+                <input type="text" class="form-control" id="vendorParams" placeholder="Clostridium botulinum, Heavy Metals, Aflatoxin B1, Nutrition Facts" />
+              </div>
+              <div class="modal-footer px-0 pb-0">
+                <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" class="btn btn-sm btn-primary btn-wave">Save Partner Laboratory</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="../assets/spk-select2.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../assets/spk-toast.js"></script>
+    <script src="../assets/og-shell.js"></script>
+    <script src="../assets/spk-history.js"></script><!-- Approval / Document History + record.activity -->
+    <script src="../assets/external-vendor.js"></script>
+  </body>
+</html>

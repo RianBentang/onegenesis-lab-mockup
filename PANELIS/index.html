@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login Panelis | HOLABSYS</title>
+    <title>Panelist Login | HOLABSYS</title>
     <link rel="icon" href="../LAB/assets/og-theme/brand/favicon.ico" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -23,24 +23,24 @@
               <div class="mb-3 d-flex justify-content-center">
                 <img src="../LAB/assets/og-theme/brand/toggle-logo.png" alt="logo" class="panelis-logo" />
               </div>
-              <p class="h5 mb-1 text-center">Login Panelis</p>
+              <p class="h5 mb-1 text-center">Panelist Login</p>
               <p class="mb-2 text-muted fw-normal text-center">Sensory Booth &middot; HOLABSYS</p>
               <!-- Booth is fixed per tablet (tablet 1-5 = booth 1-5), not chosen at login -->
-              <div class="d-flex justify-content-center mb-4"><span class="badge bg-primary-transparent fs-12 px-3 py-2"><i class="ri-tablet-line me-1 align-middle"></i><span id="deviceBooth">Booth 01</span></span></div>
+              <div class="d-flex justify-content-center mb-4"><span class="badge bg-primary-transparent fs-12 px-3 py-2"><i class="ri-tablet-line me-1 align-middle"></i><span id="deviceBooth">Booth 01</span></span><span class="badge bg-warning-transparent fs-12 px-3 py-2 ms-2 d-none" data-test-mode><i class="ri-flask-line me-1 align-middle"></i>Test Mode</span></div>
 
               <form id="loginForm" novalidate>
                 <div class="row gy-3">
                   <div class="col-12">
-                    <label class="form-label text-default" for="loginNik">NIK / NIK Magang</label>
-                    <input type="text" class="form-control" id="loginNik" placeholder="NIK karyawan atau NIK magang" maxlength="12" autocomplete="username" required />
+                    <label class="form-label text-default" for="loginNik">NIK / Intern NIK</label>
+                    <input type="text" class="form-control" id="loginNik" placeholder="Employee NIK or intern NIK" maxlength="12" autocomplete="username" required />
                     <div class="invalid-feedback" id="loginNikFeedback"></div>
-                    <div class="form-text d-none" id="loginNikChecking"><span class="spinner-border spinner-border-sm me-1 align-middle"></span>Mencari di HRIS…</div>
+                    <div class="form-text d-none" id="loginNikChecking"><span class="spinner-border spinner-border-sm me-1 align-middle"></span>Searching HRIS…</div>
                   </div>
                   <!-- Not in HRIS (e.g. intern): the person gives a name and scores as non-HRIS -->
                   <div class="col-12 d-none" id="nonHrisWrap">
-                    <label class="form-label text-default" for="loginNama">Nama Lengkap</label>
-                    <input type="text" class="form-control" id="loginNama" placeholder="NIK tidak ada di HRIS, isi nama Anda" autocomplete="name" />
-                    <div class="form-text">Untuk panelis non-HRIS, misalnya magang.</div>
+                    <label class="form-label text-default" for="loginNama">Full Name</label>
+                    <input type="text" class="form-control" id="loginNama" placeholder="NIK not in HRIS, enter your name" autocomplete="name" />
+                    <div class="form-text">For non-HRIS panelists, e.g. interns.</div>
                   </div>
                   <!-- HRIS lookup result: shown once the NIK is found -->
                   <div class="col-12 d-none" id="hrisResult">
@@ -56,12 +56,12 @@
                   </div>
                 </div>
                 <div class="d-grid mt-4">
-                  <button type="submit" class="btn btn-primary btn-wave" id="loginSubmit" disabled><i class="ri-login-box-line me-1 align-middle"></i>Masuk ke Booth</button>
+                  <button type="submit" class="btn btn-primary btn-wave" id="loginSubmit" disabled><i class="ri-login-box-line me-1 align-middle"></i>Enter Booth</button>
                 </div>
               </form>
 
-              <div class="alert alert-primary-transparent mt-4 mb-0 py-2 fs-12">
-                <i class="ri-information-line me-1"></i>Panelis tidak perlu didaftarkan: siapa saja bisa masuk selama ada sesi yang berjalan. NIK demo: <span class="fw-semibold">20180123</span> (karyawan HRIS), <span class="fw-semibold">MG24100005</span> (non-HRIS, isi nama).<br /><i class="ri-tablet-line me-1"></i>Mockup: booth ikut tablet, simulasikan tablet lain dengan <span class="fw-semibold text-nowrap">?booth=1</span> s.d. <span class="fw-semibold text-nowrap">?booth=5</span> di URL.
+              <div class="alert alert-primary mt-4 mb-0 py-2 fs-12">
+                <i class="ri-information-line me-1"></i>Panelists do not need to register: anyone can log in while a session is running. Demo NIK: <span class="fw-semibold">20180123</span> (HRIS employee), <span class="fw-semibold">MG24100005</span> (non-HRIS, enter a name).<br /><i class="ri-tablet-line me-1"></i>Mockup: the booth follows the tablet; simulate another tablet with <span class="fw-semibold text-nowrap">?booth=1</span> to <span class="fw-semibold text-nowrap">?booth=5</span> in the URL.
               </div>
             </div>
           </div>
@@ -69,7 +69,6 @@
       </div>
     </div>
 
-    <div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" id="appToastContainer"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -79,6 +78,7 @@
     <script src="../LAB/assets/dummy-hris.js"></script>
     <script src="../LAB/assets/dummy-schedule.js"></script>
     <script src="../LAB/assets/dummy-panel.js"></script>
+    <script src="../LAB/assets/spk-toast.js"></script>
     <script src="assets/panelis.js"></script>
     <script src="assets/login.js"></script>
   </body>

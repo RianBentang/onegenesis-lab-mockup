@@ -6,6 +6,10 @@ component kit), jadi setiap blok bisa langsung dipindahkan ke komponen Spk tanpa
 
 Tidak ada backend dan tidak ada build step. Semua data adalah dummy.
 
+**Dokumentasi:** cara kerja di [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), alur bisnis per
+jenis request + role di [`docs/FLOW.md`](docs/FLOW.md) (diagram: [`docs/FLOWCHART.md`](docs/FLOWCHART.md)),
+setup / operasional di [`docs/SETUP.md`](docs/SETUP.md) dan [`docs/RUNBOOK.md`](docs/RUNBOOK.md).
+
 ## Menjalankan
 
 Buka file HTML langsung di browser, misalnya `LAB/index.html`.
@@ -13,23 +17,25 @@ Buka file HTML langsung di browser, misalnya `LAB/index.html`.
 Atau jalankan server lokal (butuh Node.js), supaya perubahan langsung terlihat saat reload:
 
 ```bash
-npx --yes http-server LAB -p 8765 -c-1 -s
+npx --yes http-server C:/Users/Bentang/Projects/experiment/LAB -p 8765 -c-1 -s
 ```
 
-Lalu buka <http://localhost:8765/>.
+Serve **root repo** (bukan `LAB/`) supaya LAB dan PANELIS satu origin dan berbagi `localStorage`.
+Lalu buka <http://localhost:8765/LAB/index.html> atau <http://localhost:8765/PANELIS/>.
 
 ## Halaman
 
 | Menu | File |
 |---|---|
 | Home | `LAB/index.html`, `LAB/profile.html` |
-| HOLABSYS — Internal | `LAB/HOLABSYS/internalList.html`, `internalForm.html` (Kaji Ulang & SPK, incl. label sampel, is an ADM tab inside the form) |
+| HOLABSYS — Internal | `LAB/HOLABSYS/internalList.html`, `internalForm.html` (tab Technical Review & SPK, termasuk label sampel, hanya untuk CRL) |
 | HOLABSYS — External | `LAB/HOLABSYS/externalList.html`, `externalForm.html` |
-| HOLABSYS — Report | `LAB/HOLABSYS/reportList.html`, `reportForm.html` |
+| HOLABSYS — Report | `LAB/HOLABSYS/reportList.html` (antrean); report sendiri = tab Report di form request |
 | HOLABSYS — ASLT and Sensory | `LAB/HOLABSYS/asltAndSensory.html`, `asltForm.html`, `sensoryForm.html` |
 | HOLABSYS — Schedule | `LAB/HOLABSYS/schedule.html` (FullCalendar: bulan / minggu / hari per jam) |
 | HOLABSYS — Excel | `LAB/HOLABSYS/excel.html` (FortuneSheet + fullscreen) |
 | Master Data | `LAB/Master-Data/*.html` |
+| PANELIS (booth panelis) | `PANELIS/index.html` (login NIK) → `booth.html` |
 
 Di header ada pemilih role (BSU, MGU, HOL, …) untuk mensimulasikan tampilan tiap role.
 Pilihan role, tema, dan data dummy yang diubah disimpan di `localStorage` browser.
@@ -40,8 +46,11 @@ Pilihan role, tema, dan data dummy yang diubah disimpan di `localStorage` browse
 .
 ├── README.md
 ├── CLAUDE.md                          aturan kerja untuk Claude Code
+├── .claude/settings.json, hooks/      deny Python / edit og-theme, hook cek JS + HTML
 ├── .claude/skills/onegenesis-mockup/  skill: markup referensi, class map, template halaman
+├── docs/                              ARCHITECTURE, FLOW, FLOWCHART, SETUP, RUNBOOK, LESSONS, CHECKLIST, ROADMAP
 ├── docs/legacy-mockup/                mockup desain awal (satu file), hanya referensi
+├── PANELIS/                           app booth panelis (memakai aset LAB/assets)
 └── LAB/                               situs mockup
     ├── index.html, profile.html
     ├── HOLABSYS/                      halaman transaksi modul
@@ -66,7 +75,8 @@ Pilihan role, tema, dan data dummy yang diubah disimpan di `localStorage` browse
 
 Aturan singkat: hanya HTML/CSS/JS biasa (tanpa framework, tanpa `type="module"`, tanpa `fetch`
 file lokal); warna dan komponen dari tema (`onegenesis.css`), bukan warna hard-coded; ikon Remix
-Icon (`ri-*`). Detail lengkap ada di `CLAUDE.md` dan skill `onegenesis-mockup`.
+Icon (`ri-*`). Aturan kerja ada di `CLAUDE.md`, aturan domain (alur, status, role) hanya di `docs/FLOW.md`,
+markup di skill `onegenesis-mockup`.
 
 Kalau pakai Claude Code, skill `onegenesis-mockup` otomatis tersedia setelah clone repo ini.
 

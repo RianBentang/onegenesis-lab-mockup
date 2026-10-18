@@ -64,6 +64,10 @@ data-menu-styles="dark" data-theme-mode / data-bs-theme ...`). Don't hand-write 
 </div>
 ```
 
+`og-shell.js` gives this host the sticky behaviour of `useStickyActions` (the buttons go `position:fixed`
+under the app header once scrolled past). A plain action `<div>` in that spot is wrapped into the
+host/card first.
+
 ## 3. List page — `SpkTablePagination` (reusable-tables/tables-pagination)
 
 ```html
@@ -161,9 +165,9 @@ Icon buttons, one per action, in a `d-flex gap-1` wrapper:
 ```
 
 Switch panes by toggling `active` on `.nav-link` and `d-none` on the pane element
-(see `assets/internal-form.js`: Form Internal / Kaji Ulang & SPK tabs — sample labels live under Kaji
-Ulang & SPK once the SPK is issued — shown to the Lab
-Administrator only — other roles get the form without a tab bar).
+(see `assets/internal-form.js`: Form Internal / Technical Review & SPK tabs — sample labels live under
+Technical Review & SPK once the SPK is issued — shown to the Lab
+Coordinator (CRL) only — other roles get the form without a tab bar).
 
 ## 6. Buttons — `SpkButton` (`btn-wave` + variant)
 
@@ -202,14 +206,16 @@ Confirm to Approve `ri-time-line`. For other statuses pick a matching `ri-*-line
 Doc status flow: New → (Draft) → Confirm to Approve → Fully Approved → Confirmed. With an approval
 chain of 2+ levels: Confirm to Approve → Partially Approved → Fully Approved. An approver can send
 it to Return to Edit or Rejected. Between Fully Approved and Confirmed the document runs its
-**workflow** (Internal: Kaji Ulang & SPK, then Labeling); the pending step shows as a workflow
+**workflow** (External: Sample Delivery; Internal has none, its last approval issues the SPK);
+the pending step shows as a workflow
 badge after a `|` separator: `badge bg-warning-transparent` + `ri-time-line`, text "Waiting for …".
-When the last step is done (label handed to the analyst) the status becomes Confirmed.
+When the last step is done the status becomes Confirmed; once the LHU / COA is Final it is
+Closed (`badge bg-orange-transparent`).
 
 ```html
 <span class="badge bg-primary1-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1"><i class="ri-checkbox-circle-line"></i> Fully Approved</span>
 <span class="d-none d-sm-inline-block text-muted opacity-50 fs-10 user-select-none lh-1">|</span>
-<span class="badge bg-warning-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1"><i class="ri-time-line"></i> Waiting for Kaji Ulang &amp; SPK</span>
+<span class="badge bg-warning-transparent d-inline-flex align-items-center gap-1 py-2 px-3 fs-11 lh-1 rounded-1"><i class="ri-time-line"></i> Waiting for Sample Delivery</span>
 ```
 
 Helpers: `getDocStatus` / `docStatusBadgesHtml` / `docStatusCardHtml` in `assets/dummy-requests.js`.
@@ -381,7 +387,16 @@ Use for any field picked from master data (material, vendor, user, SKU):
 <input type="text" class="form-control mt-1" placeholder="Material name" readonly disabled />
 ```
 
-The popup is a modal (§11) containing an `SpkTablePagination`-style table with a search box.
+The popup is onegenesis-web `components/shared/lov/LovModal.jsx`; in the mockups call
+`SpkLov.open({ title, columns: [{ key, label }], rows, onSelect })` from `assets/spk-lov.js`
+(modal-xl, Show N Entries, Search, `table-light` header, Select button per row, ↑ ↓ / Enter, Prev /
+Next). Don't build a one-off LOV modal.
+
+Switch-driven LOV (onegenesis-web `MaterialDetailsSection.jsx`, "Vendor Name" + "Registered
+Vendor?"): when on, the field is a SpkLovInput with a disabled input and a `btn btn-primary`
+search button, the picked ID below in `<div class="small text-info mt-1">`, then
+`<div class="form-check form-switch form-label">`. Example: Departemen Pemohon + On Behalf?
+(`assets/on-behalf.js`).
 
 ### Attachment — `SpkAttachmentArea`
 
@@ -471,9 +486,12 @@ Put counter cards in `row` > `col-xl-3 col-md-6` columns.
 ## 13. Feedback
 
 - Alert: `<div class="alert alert-warning" role="alert">…</div>` (also `alert-primary`, `-success`, `-danger`, `-info`).
-- Toast (after-action success/info — the app uses toasts, not SweetAlert popups for success):
-  a Bootstrap `.toast` in `<div class="toast-container position-fixed top-0 start-50 translate-middle-x p-3" style="z-index:1060">`,
-  header text `<span><i class="ri-checkbox-circle-line me-2"></i>Saved</span>`.
+- Toast = `AppToast` / `ToastService`: `assets/spk-toast.js` (loaded on every page, PANELIS too) gives
+  `ToastService.showSuccess / showWarning / showError / showInfo`. Every successful action shows
+  `showSuccess`; a failed check shows `showWarning`. One toast at a time, top center; success/info
+  auto-hide, warning/error stay until closed. Never `alert()`.
+- Form check before an action: `if (!validateForm(form)) return;` (warning toast "<Label> wajib diisi."
+  + focus on the field), not `form.reportValidity()`.
 - Confirmation before destructive actions: a modal (§11), not `window.confirm`.
 - Muted helper text: `text-muted fs-12`. Headings inside cards: `h6.fw-semibold`.
 
@@ -499,3 +517,76 @@ Reference: `HOLABSYS/excel.html` + `assets/excel.js`. Load React 18 UMD, ReactDO
 - Fullscreen: `card.requestFullscreen()` on the card, styled by `.sheet-card:fullscreen` in `lab.css`.
   Chrome refuses fullscreen for automated (browser-tool) clicks ("not granted"), so test it by hand.
 - FortuneSheet has no dark theme; the grid stays light in dark mode.
+
+## 16. KPI tile + document stepper + pipeline (mockup-only, `lab.css`)
+
+onegenesis-web has no equivalent widget; when porting, build them from `SpkCountercard` / a small
+component. Colours only through `--kpi-rgb: var(--{variant}-rgb)`.
+
+```html
+<!-- KPI tile (Dashboard, Quality Records): <a> when it links somewhere -->
+<a href="..." class="card custom-card kpi-tile h-100 mb-0 text-reset" style="--kpi-rgb: var(--primary-rgb)">
+  <div class="card-body">
+    <span class="kpi-tile-icon"><i class="ri-user-received-line"></i></span>
+    <div class="kpi-tile-value">4</div>
+    <div class="kpi-tile-label">Needs My Action</div>
+    <div class="kpi-tile-hint">Waiting for you now</div>
+  </div>
+</a>
+```
+
+Document progress stepper above a request form: never hand-write it, call
+`docProgressHtml(source, record)` (`dummy-requests.js`) — it renders `.doc-stepper > .doc-step
+(.is-done | .is-current)` from the same rules as `getDocStatus` / `nextActor`.
+Dashboard pipeline: `.dash-pipeline > .dash-stage(.has-mine)` (see `dashboard.js`).
+
+## 17. Rendered by `assets/spk-kit.js` — don't hand-write these
+
+Matches the onegenesis-spk skill (STANDARD_BUTTON_DEFS, renderDocStatusBadge, SpkApprovalTimeline,
+SpkCountercard):
+
+| Need | Call |
+|---|---|
+| Header buttons of a document page (Back first) | `spkDocButtonsHtml('edit' \| 'approver' \| 'returned', backHref)`; single: `spkDocButtonHtml(key, { href })` |
+| Module action (Receive Sample, Re-test, …) | `spkButtonHtml(action, variant, icon, label)` |
+| Click handling with the app's confirmation (Save Draft / Submit / Approve / Cancel) | `spkOnDocAction(container, function (action) { … })` |
+| Approval / document history offcanvas | `requestTimelineHtml(chain, approvedCount, workflow)` |
+| Summary card | `spkCountercardHtml({ label, value, hint, icon, variant, href })` |
+| Status in a list | `docStatusBadgesHtml(r)` → pill `badge bg-{v}-transparent text-{v} rounded-pill fw-semibold px-2 py-1` + icon |
+| Status in the SpkForm card | `docStatusCardHtml(r)` (Fully Approved = primary1 here, primary2 in lists) |
+
+Status labels are Spk Title Case: **Confirm To Approve** (the stored `reportStatus` value stays
+`'Confirm to Approve'`; `reportStatusLabel()` shows the Spk label). Row actions are
+`SpkTableActions` in the first column (`th style="width: 1%"`), never `btn-group` + `btn-outline-*`.
+
+**Alerts:** the theme has no `alert-*-transparent`; its `alert alert-{primary|success|danger|warning|info}`
+are already the soft (10% background, coloured text) variant. Use those.
+
+## 18. Linked documents — list accordion + Document Journey (port of New Material Registration)
+
+A chain of documents linked by `refDocId` (onegenesis-web: LSPD → SUPD → PSPD; HOLABSYS: request →
+Re-test RT- / Revision RV-). Rendered by `dummy-requests.js` (list) and `assets/doc-journey.js` (sidebar).
+
+List (`NewMaterialRegistration.jsx`): the parent row gets an expand button + count badge in its id cell;
+child rows follow it, indented. Child-row background: `.amend-child-row` in `lab.css`.
+
+```html
+<td><div class="d-flex align-items-center">
+  <button type="button" class="btn btn-icon btn-sm btn-light me-2" data-amend-toggle="REQ-…"><i class="ri-arrow-right-s-line"></i></button>
+  <span class="badge bg-info-transparent me-2">2 Documents</span>
+  <a href="…" class="text-primary fw-medium font-monospace">REQ-…</a>
+</div></td>
+<!-- child -->
+<tr class="amend-child-row">
+  <td><a class="btn btn-icon btn-sm btn-primary-light btn-wave" href="…"><i class="ri-eye-line"></i></a></td>
+  <td><span class="ms-4 ps-3"><i class="ri-corner-down-right-line me-1 text-muted"></i><a class="text-primary fw-bold font-monospace" href="…">RT-…</a></span></td>
+  <td class="text-muted fs-12">…</td>
+</tr>
+```
+
+Form (`DevelopmentJourneySidebar.jsx`): `<div class="row g-3"><div id="docJourney"></div><div id="docMain">…form…</div></div>`
+below the status card; `DocJourney.render(sidebar, main, { source, request, currentId, newType })` sets
+`col-xl-4` / `col-xl-8` (collapsed: `col-auto` 84px rail). Card per document: `card custom-card shadow-none`
++ `bg-primary-transparent border border-primary` (viewed) / `bg-success-transparent border-success` (done) /
+`bg-purple-transparent border-purple` (open) / `border` (not yet); 40px circle `.doc-journey-dot`, rail line
+`.doc-journey-line` (`lab.css`).
