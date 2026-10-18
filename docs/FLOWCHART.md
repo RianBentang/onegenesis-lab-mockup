@@ -32,7 +32,7 @@ stateDiagram-v2
   Approval --> Approval: Approve, bukan level terakhir
   Approval --> Draft: Return to Edit (returned + alasan)
   Approval --> Rejected: Reject (alasan)
-  Approval --> TechnicalReview: approval terakhir — Internal (ADM Approve & Receive Sample: kondisi, retensi)
+  Approval --> TechnicalReview: approval terakhir — Internal (ADM Approve & Receive Sample: Reason saja)
   TechnicalReview --> TechnicalReview: Partial / Subcontract → menunggu pemohon (Agree / Decline)
   TechnicalReview --> Done: SPK terbit (Save & Issue SPK, atau Agree pemohon)
   TechnicalReview --> Rejected: hasil kaji ulang Rejected
@@ -76,12 +76,21 @@ di-download; versi barunya dikerjakan di tab Report dokumen itu.
 
 ```mermaid
 stateDiagram-v2
-  [*] --> New: Re-test (TCM, Internal) / Revision (CRL / TCM) dari form request atau tab Report
-  New --> Confirmed: Submit — Re-test: parameter ke Excel; Revision: report Confirm to Approve
+  [*] --> New: Re-test (BSU atau TCM, Internal) / Revision (CRL / TCM) dari form request atau tab Report
+  New --> ConfirmToApprove: Submit Re-test — menunggu pihak lawan (TCM bila BSU membuat, BSU bila TCM)
+  ConfirmToApprove --> WaitingReceipt: Approve pihak lawan
+  ConfirmToApprove --> ReturnToEdit: Return to Edit (alasan)
+  WaitingReceipt --> ReturnToEdit: Return to Edit (ADM)
+  ReturnToEdit --> ConfirmToApprove: pembuat ubah + Submit lagi
+  ConfirmToApprove --> Rejected: Reject (alasan) — siklus request ditutup
+  WaitingReceipt --> Rejected: Reject (ADM)
+  WaitingReceipt --> Confirmed: ADM Approve & Receive Sample (Reason) — parameter ke Excel, reagen dipotong, NC
+  New --> Confirmed: Submit Revision — report Confirm to Approve
   Confirmed --> Confirmed: Waiting for Results (Excel) → Waiting for CRL Review → Waiting for Report Approval
   Confirmed --> Confirmed: Return to CRL (TCM) — Revision: CRL koreksi lalu Submit lagi
   Confirmed --> Closed: TCM Approve & Issue → LHU -RT n / -R m, sertifikat lama Superseded
   Closed --> [*]
+  Rejected --> [*]
 ```
 
 Satu dokumen terbuka per request. Request tetap Closed, list Internal / ASLT and Sensory
@@ -102,7 +111,7 @@ sequenceDiagram
   B->>A: Submit (step Approval, Confirm To Approve)
   A->>A: Approve per level (approvalIdx++, Partially Approved)
   A-->>D: level terakhir = ADM
-  D->>C: Approve & Receive Sample: kondisi, retensi (Fully Approved, step Technical Review)
+  D->>C: Approve & Receive Sample: Reason (Fully Approved, step Technical Review)
   C->>C: Technical Review: kaji ulang, analis, vendor terakreditasi
   C-->>B: Partial / Subcontract → minta persetujuan (customerConsent)
   B-->>C: Agree (atau Decline → CRL ubah review)

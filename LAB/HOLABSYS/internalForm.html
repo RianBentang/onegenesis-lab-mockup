@@ -379,26 +379,12 @@
             <h6 class="modal-title fw-semibold"><i class="ri-inbox-archive-line me-1"></i>Approve &amp; Receive Sample</h6>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
+          <!-- One field, like a Return / Reject reason; received at + retained until are automatic -->
           <div class="modal-body">
-            <div class="row gy-3">
-              <div class="col-md-6">
-                <label class="form-label" for="receiptAt">Received At</label>
-                <input type="text" id="receiptAt" class="form-control" disabled />
-              </div>
-              <div class="col-md-6">
-                <label class="form-label" for="receiptRetention">Retained Until</label>
-                <input type="text" id="receiptRetention" class="form-control" disabled />
-              </div>
-              <div class="col-12">
-                <label class="form-label" for="receiptCondition">Sample Condition <span class="text-danger">*</span></label>
-                <select id="receiptCondition" class="form-select"></select>
-              </div>
-              <div class="col-12 d-none" id="receiptNoteWrap">
-                <label class="form-label" for="receiptNote">Deviation <span class="text-danger">*</span></label>
-                <textarea id="receiptNote" class="form-control" rows="2" placeholder="E.g. seal damaged, temperature 12°C on arrival..."></textarea>
-                <div class="form-text fs-11">Printed on the report. A sample unfit for testing is rejected instead.</div>
-              </div>
-            </div>
+            <label class="form-label" for="receiptNote">Reason <span class="text-danger">*</span></label>
+            <textarea id="receiptNote" class="form-control" rows="3" placeholder="Write the reason..."></textarea>
+            <input type="hidden" id="receiptAt" />
+            <input type="hidden" id="receiptRetention" />
             <div class="text-danger fs-12 mt-2" id="receiptError"></div>
           </div>
           <div class="modal-footer">

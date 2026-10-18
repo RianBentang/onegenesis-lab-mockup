@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
       /* Opens the Report tab of the request form (REPORT_FORM_PAGE) */
       /* An open Re-test / Revision: lab roles work on the new version in that document (RT- / RV-) */
       var amend = lab ? openAmendmentOf(r) : null;
-      var href = amend ? amendmentHref(amend.id, '&tab=report')
+      var href = amend ? amendmentHref(amend.id, amend.step === 'Open' ? '&tab=report' : '')
         : REPORT_FORM_PAGE[row.source] + '?docId=' + encodeURIComponent(r.id) + '&tab=report' + (lab ? '' : '&view=issued');
       var statusBadge = lab ? reportStatusBadgeHtml(r) : '<span class="badge bg-success-transparent">Issued</span>';
       var reportNo = r.reportStatus === 'Final' ? r.reportNo : (issued ? issued.no : 'Not Issued');

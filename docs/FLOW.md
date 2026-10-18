@@ -56,7 +56,9 @@ Role mockup (`ROLES` di `og-shell.js`), dipilih lewat dropdown di header; script
 | Tombol Schedule di form Sensory / ASLT | ADM, saat step `Scheduling` | `canSchedule` `request-approval.js` |
 | Review hasil di report + **Submit for Approval** | CRL, report `Draft` (diblokir selama ada flag) | `report-form.js` |
 | **Approve & Issue** / **Return to CRL** (wajib alasan) | TCM, report `Confirm to Approve` | `report-form.js` |
-| Buat dokumen **Re-test** (RT-, Internal) | TCM, hanya setelah sertifikat terbit dan tanpa dokumen lain yang terbuka — tombol di form request / tab Report | `amendmentBlocker`, `createAmendment`, `amendment-form.js` |
+| Buat dokumen **Re-test** (RT-, Internal) | BSU (pemohon) **atau** TCM, hanya setelah sertifikat terbit dan tanpa dokumen lain yang terbuka — tombol di form request / tab Report | `amendmentBlocker`, `createAmendment`, `amendment-form.js` |
+| Approve / Return to Edit / Reject Re-test | pihak lawan pembuat (TCM bila BSU membuat, BSU bila TCM membuat), lalu ADM | `approveAmendment`, `returnAmendment`, `rejectAmendment` |
+| **Approve & Receive Sample** Re-test (Reason saja) | ADM, level terakhir | `receiveRetestSample` |
 | Buat dokumen **Revision** (RV-, Internal / Sensory / ASLT) | CRL atau TCM, aturan sama; koreksi lagi setelah Return to CRL | `createAmendment`, `resubmitRevision` |
 | Report versi baru (Submit / Approve & Issue / Return) | CRL / TCM seperti biasa, di **tab Report dokumen RT- / RV-** | `ReportPanel.mount({ amendmentId })` |
 | Melihat report Draft / Confirm to Approve | role Laboratory (HOL, ADM, CRL, TCM) — `isLabRole` | `report-form.js`, `report-list.js` |
@@ -112,7 +114,7 @@ selalu menampilkan dokumen terbaru di atas (`newestFirst`): `REQ-yyyymm-NNNN` (I
 `SN-yyyymm-NNNN`, `ASLT-yyyymm-NNN`, `SPK/LAB/yyyymm/NNNN`, `LHU/LAB/yyyymm/NNNN` (satu deret untuk
 semua report), `RT-yyyymm-NNNN` (dokumen Re-test), `RV-yyyymm-NNNN` (dokumen Revision).
 
-Status dokumen RT- / RV- (`getAmendmentStatus`): New → **Confirmed** + badge Waiting for Results
+Status dokumen RT- / RV- (`getAmendmentStatus`): New → (Re-test: Confirm To Approve · Waiting for <TCM / Basic User> Approval → Partially Approved · Waiting for Sample Receipt; Return to Edit; Rejected) → **Confirmed** + badge Waiting for Results
 (Excel) / Waiting for CRL Review / Waiting for Report Approval / Returned to CRL → **Closed** saat
 sertifikat barunya terbit.
 
@@ -143,9 +145,9 @@ sertifikat barunya terbit.
 2. Approver menurut chain (`requestApprovalChain`); chain ≥ 2 level → **Partially Approved** setelah
    level pertama. Belum ada SPK.
 3. **Level terakhir = ADM = Sample Receipt** (ISO/IEC 17025 cl. 7.4): tombol **Approve & Receive
-   Sample** membuka modal Received At (otomatis), **Sample Condition** (FlexTab
-   `LAB_SAMPLE_CONDITION`: Good / Deviation; Deviation wajib keterangan, dicetak di LHU), Retained
-   Until = terima + `SAMPLE_RETENTION_DAYS` (30 hari). **Approve** di modal = approval terakhir:
+   Sample** membuka modal dengan **satu field: Reason** (wajib, dicetak di LHU sebagai "Receipt
+   Note"); Received At dan Retained Until = terima + `SAMPLE_RETENTION_DAYS` (30 hari) terisi
+   otomatis. **Approve** di modal = approval terakhir:
    `record.receipt`, `step: 'Technical Review'` → **Fully Approved · Waiting for Technical Review**.
    Sampel yang tidak layak → **Reject** (atau Return to Edit) + alasan, seperti approver lain.
 4. **CRL** › tab **Technical Review & SPK** (cl. 7.1) — terbuka sejak `Technical Review`, bisa
@@ -238,22 +240,29 @@ Return to CRL; metode atau alat yang salah adalah perubahan Technical Review (CR
 | | Re-test | Revision |
 |---|---|---|
 | Nomor | `RT-yyyymm-NNNN` | `RV-yyyymm-NNNN` |
-| Siapa membuat | TCM | CRL atau TCM |
+| Siapa membuat | BSU (pemohon) atau TCM | CRL atau TCM |
+| Approval | pihak lawan (BSU membuat → TCM, TCM membuat → BSU), lalu **ADM = terima sampel baru** (Reason saja); `retestApprovalChain` | tidak ada; TCM menyetujui sertifikatnya |
 | Jenis request | Internal | Internal, Sensory, ASLT |
 | Isi form | parameter yang **sudah punya run pertama** (`retestCandidates`: reagen dipotong saat SPK, raw data, atau hasil di-push) + Reason | Sample Name, Customer Address, Packaging (hasil uji tidak berubah) + Reason; perubahannya dibandingkan dengan sertifikat yang diganti |
-| Efek Submit | hasil + raw data parameter dikosongkan dan diarsipkan di `resultLog` ("Superseded by Re-test n"), **stok reagen dipotong satu run lagi** (kecuali Subcontract), **Quality Record** Nonconforming Work (`QR-…`), report request kembali `Draft`, Excel menandai baris `[Re-test RT-…]` | field request diubah, report request langsung `Confirm to Approve` |
+| Efek | **setelah ADM menerima sampel** (`receiveRetestSample`): `record.receipt` request = penerimaan baru (yang lama ke `receiptHistory`, snapshot sertifikat menyimpan receipt-nya), hasil + raw data parameter dikosongkan dan diarsipkan di `resultLog` ("Superseded by Re-test n"), **stok reagen dipotong satu run lagi** (kecuali Subcontract), **Quality Record** Nonconforming Work (`QR-…`), report request kembali `Draft`, Excel menandai baris `[Re-test RT-…]` | saat Submit: field request diubah, report request langsung `Confirm to Approve` |
 | Nomor LHU baru | `<base>-RT<n>` | `<base>[-RT<n>]-R<m>` |
 
 Aturan (`amendmentBlocker` / `canAmend`, dicek di tombol **dan** di store `createAmendment`):
 hanya bila request punya sertifikat terbit (`reportStatus: 'Final'`) dan **tidak ada dokumen RT- /
-RV- lain yang masih terbuka**. Tidak ada approval chain: TCM menyetujui sertifikat barunya.
+RV- lain yang masih terbuka** (dokumen yang sedang approval atau dikembalikan juga dihitung terbuka).
 
 Alur dokumen:
 1. Tombol merah **Re-test** / **Revision** di header form request atau tab Report-nya (hanya role
    yang boleh, `amendmentButtonsHtml`) membuka form baru (`?ref=<request>&src=…&type=retest|revision`).
-2. **Submit** (`createAmendment`) → dokumen **Confirmed**; request membawa siklusnya
-   (`reportCycle = { type, no, amendmentId, … }`) tapi **tetap Closed** dengan badge "Re-test in
-   Progress" / "Revision in Progress", karena sertifikatnya masih berlaku.
+2. **Submit** (`createAmendment`). Request langsung membawa siklusnya (`reportCycle = { type, no,
+   amendmentId, …, pending }`) tapi **tetap Closed** dengan badge "Re-test in Progress" / "Revision in
+   Progress", karena sertifikatnya masih berlaku.
+   - **Re-test**: Confirm To Approve → (pihak lawan Approve) Partially Approved · Waiting for Sample
+     Receipt → ADM **Approve & Receive Sample** (Reason) → **Confirmed**, parameter baru masuk Excel.
+     **Return to Edit** (alasan) → kembali ke pembuat, yang mengubah lalu Submit lagi
+     (`resubmitRetest`, approval mulai dari level 1). **Reject** (alasan) → dokumen Rejected,
+     siklus request ditutup, tidak ada yang dipotong atau diubah. Approval History di kartu status.
+   - **Revision**: langsung **Confirmed**, report request Confirm to Approve.
 3. Pengerjaan tetap di data request: Analyst isi Excel, CRL Push. Report versi baru dikerjakan di
    **tab Report dokumen RT- / RV-** (`ReportPanel.mount({ amendmentId })`, data tetap milik
    request); tab Report request sendiri hanya menampilkan sertifikat yang masih berlaku + link ke
@@ -263,10 +272,11 @@ Alur dokumen:
 4. TCM **Approve & Issue** → LHU baru terbit, sertifikat lama ditandai **Superseded**, dokumen
    **Closed** (`closeAmendment`), siklus request ditutup.
 
-**Pemohon diberi tahu, tidak menyetujui**: BSU melihat dokumennya di accordion list, catatan merah
-di form request ("Re-test RT-… in progress · … stays the valid certificate"), Document History
-request, dan bisa membuka dokumennya read-only; tab Report dokumen baru muncul untuknya setelah
-sertifikat baru terbit.
+**Pemohon**: BSU bisa mengajukan Re-test sendiri, **menyetujui Re-test yang dibuat TCM**, dan melihat
+semua dokumen (accordion list, catatan merah di form request "Re-test RT-… requested, waiting for
+approval / in progress · … stays the valid certificate", Document History); Revision hanya
+dilihat. Tab Report dokumen muncul untuknya setelah sertifikat baru terbit (role lab: sejak dokumen
+Confirmed).
 
 **Tampilan**:
 - **List Internal / ASLT and Sensory**: request yang punya dokumen mendapat tombol expand + badge
@@ -401,7 +411,8 @@ Semua teks UI dan nilai yang disimpan berbahasa Inggris. Nilai baku:
 | Status bayar invoice | Unpaid / Paid / Overdue |
 | Lab | Physicochemical / Microbiology (Parameter Uji juga Sensory / ASLT) |
 | `step` workflow | `Draft`, `Approval`, `Technical Review`, `Sample Delivery`, `Scheduling`, `Running`, `Done`, `Confirmed`, `Rejected` (`Draft Report` lama → `Done`; `Sample Receipt` lama → `Approval` menunggu ADM) |
-| Kondisi sampel diterima | Good / Deviation (FlexTab `LAB_SAMPLE_CONDITION`) |
+| Penerimaan sampel | `receipt = { at, by, note (Reason), retentionUntil }`; record lama bisa masih punya `condition` Good / Deviation dan ditampilkan bersama note-nya (FlexTab `LAB_SAMPLE_CONDITION` tidak dipakai lagi) |
+| `step` dokumen RT- / RV- | Re-test: `Approval`, `Draft` (dikembalikan), `Rejected`; semua: `Open`, `Closed` |
 | `customerConsent.status` | Pending / Agreed / Declined |
 | Quality Record | type Nonconforming Work / Complaint, status Open / Closed; PT verdict Satisfactory / Questionable / Unsatisfactory |
 | `resultLog.action` | Raw data recorded / Pushed / Certificate attached / Superseded by Re-test n |
@@ -422,11 +433,11 @@ Lab terakreditasi KAN memakai SNI ISO/IEC 17025:2017. Peta klausul → fitur moc
 | 6.3 / 6.4 Fasilitas, peralatan | cek Lingkungan + Alat di kaji ulang | Technical Review |
 | 6.6 Penyedia eksternal | Subcontract Lab hanya vendor dengan akreditasi KAN berlaku | `EXTERNAL_VENDORS`, `vendorAccredited` |
 | 7.1 Kaji ulang permintaan | Technical Review **sebelum** SPK; Partially Accepted / Subcontract → persetujuan pemohon | `issueInternalSpk`, `customerConsent` |
-| 7.4 Penanganan sampel | Sample Receipt (= approval ADM): waktu terima, kondisi, penyimpangan, masa simpan; Sample No. unik + label | `record.receipt`, `sampleNos` |
+| 7.4 Penanganan sampel | Sample Receipt (= approval ADM, juga untuk sampel Re-test): waktu terima, Reason / catatan, masa simpan; Sample No. unik + label | `record.receipt`, `receiptHistory`, `sampleNos` |
 | 7.5 Rekaman teknis | Save Raw Data, Document History append-only (nilai lama tidak pernah hilang) | `rawData`, `resultLog`, `activity` |
 | 7.6 Ketidakpastian | MU per parameter di master, kolom Uncertainty (k=2) di LHU | `dummy-parameters.js` `mu` |
 | 7.7 Validitas hasil | duplo + RPD di Excel; Proficiency Testing (z-score) | Excel, Quality Records › PT |
-| 7.8 Pelaporan | LHU: tgl terima, kondisi, periode uji, tgl terbit, metode, MU, pernyataan "hanya berlaku untuk sampel yang diuji", halaman x dari y (print), Subcontract `*`, di luar scope `**` (logo KAN hanya bila ada hasil dalam scope), aturan keputusan PASS/FAIL (`specConformity`, `DECISION_RULE_TEXT`) | `report-form.js` |
+| 7.8 Pelaporan | LHU: tgl terima, catatan penerimaan, periode uji, tgl terbit, metode, MU, pernyataan "hanya berlaku untuk sampel yang diuji", halaman x dari y (print), Subcontract `*`, di luar scope `**` (logo KAN hanya bila ada hasil dalam scope), aturan keputusan PASS/FAIL (`specConformity`, `DECISION_RULE_TEXT`) | `report-form.js` |
 | 7.8.8 Amandemen | dokumen Revision / Re-test (RV- / RT-) → nomor baru "replaces …", versi lama Superseded + snapshot | §6a |
 | 7.9 / 7.10 / 8.7 Keluhan, pekerjaan tidak sesuai, tindakan korektif | Quality Records; Re-test & PT jelek otomatis membuat Nonconforming Work | `qualityRecords.html`, `dummy-quality.js` |
 

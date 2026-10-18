@@ -1,7 +1,7 @@
 /* ---------- Document Journey (port of DevelopmentJourneySidebar, onegenesis-web New Material Registration) ----------
    Left sidebar of a request form and of its Re-test / Revision documents: the chain
    Request → RT- / RV- … (linked by refDocId), one card per document with its status; the document
-   being viewed is blue, Closed ones green, open ones purple. A type the current role may start
+   being viewed is blue, Closed ones green, open ones purple, Rejected ones red. A type the current role may start
    (canAmend) shows as a "Not yet" card that opens a new document. Collapsible to a narrow rail.
    DocJourney.render(sidebarEl, mainEl, { source, request, currentId, newType })
    - sidebarEl / mainEl: the two columns of the page row (col classes are set here)
@@ -37,7 +37,7 @@ var DocJourney = (function () {
         id: a.id, label: a.type, icon: AMENDMENT_TYPES[a.type].icon,
         desc: a.step === 'Closed' ? 'Certificate ' + a.issuedNo : 'Replaces ' + a.refReportNo,
         href: amendmentHref(a.id),
-        state: o.currentId === a.id ? 'active' : (a.step === 'Closed' ? 'done' : 'started'),
+        state: o.currentId === a.id ? 'active' : (a.step === 'Closed' ? 'done' : a.step === 'Rejected' ? 'rejected' : 'started'),
         badge: spkStatusPill(DOC_STATUS[s].list, DOC_STATUS[s].icon, s)
       });
     });
@@ -60,8 +60,8 @@ var DocJourney = (function () {
     return '<span class="badge bg-light text-muted rounded-pill fw-semibold px-2 py-1">Not Yet</span>';
   }
 
-  var CIRCLE = { active: 'bg-primary text-white doc-journey-dot-active', done: 'bg-success text-white', started: 'bg-purple text-white', todo: 'border border-2 border-secondary text-secondary doc-journey-dot-todo' };
-  var CARD = { active: 'bg-primary-transparent border border-primary', done: 'bg-success-transparent border border-success', started: 'bg-purple-transparent border border-purple', todo: 'border' };
+  var CIRCLE = { active: 'bg-primary text-white doc-journey-dot-active', done: 'bg-success text-white', started: 'bg-purple text-white', rejected: 'bg-danger text-white', todo: 'border border-2 border-secondary text-secondary doc-journey-dot-todo' };
+  var CARD = { active: 'bg-primary-transparent border border-primary', done: 'bg-success-transparent border border-success', started: 'bg-purple-transparent border border-purple', rejected: 'bg-danger-transparent border border-danger', todo: 'border' };
 
   function dot(it) {
     return '<span class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 doc-journey-dot ' + CIRCLE[it.state] + '"><i class="' + it.icon + ' fs-5"></i></span>';

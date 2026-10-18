@@ -50,8 +50,8 @@ function trackActivity(source, prev, next) {
       for (var i = from; i < to; i++) e('Approved', 'Level ' + (i + 1) + (chain[i] ? ' · ' + chain[i] : ''), 'success');
     }
     if (p.step === 'Approval' && next.step === 'Technical Review' && next.receipt) {
-      e('Sample Received', 'Condition ' + next.receipt.condition + (next.receipt.note ? ' — ' + next.receipt.note : '') +
-        ' · retained until ' + next.receipt.retentionUntil, 'primary');
+      e('Sample Received', (next.receipt.condition ? 'Condition ' + next.receipt.condition + (next.receipt.note ? ' — ' : '') : '') +
+        (next.receipt.note || '') + ' · retained until ' + next.receipt.retentionUntil, 'primary');
     }
     if (p.step === 'Sample Delivery' && next.step === 'Confirmed') e('Delivery Confirmed', 'Sample sent to ' + (next.lab || 'the vendor lab'), 'success');
     if (p.step === 'Scheduling' && next.step === 'Running') e('Scheduled', 'Panel session saved in Schedule', 'success');
@@ -108,7 +108,7 @@ function legacyActivity(r) {
   var out = [];
   var e = function (at, action, note, variant, by) { if (at) out.push({ at: at, by: by || '-', role: '', action: action, note: note || '', variant: variant }); };
   if (r.step && r.step !== 'Draft') e(r.tanggal, 'Submitted', '', 'info', r.pemohon);
-  if (r.receipt) e(r.receipt.at, 'Sample Received', 'Condition ' + r.receipt.condition, 'primary', r.receipt.by);
+  if (r.receipt) e(r.receipt.at, 'Sample Received', r.receipt.condition ? 'Condition ' + r.receipt.condition : (r.receipt.note || ''), 'primary', r.receipt.by);
   if (r.spkAt) e(r.spkAt, 'SPK Issued', r.spk, 'success');
   if (r.reasonAt) e(r.reasonAt, r.step === 'Rejected' ? 'Rejected' : 'Returned to Edit', r.rejectReason || r.returnReason, r.step === 'Rejected' ? 'danger' : 'warning', r.reasonBy);
   (r.retests || []).forEach(function (t) { e(t.at, 'Re-test ' + t.no, t.params.join(', ') + ' — ' + t.reason, 'danger', t.by); });

@@ -268,7 +268,7 @@ var ReportPanel = { mount: function (opts) {
       '<div class="row-item"><span>Production Date</span><span>' + (doc.prod || '-') + '</span></div>' +
       '<div class="row-item"><span>Request Date</span><span>' + doc.tanggal + '</span></div>' +
       '<div class="row-item"><span>Sample Received</span><span>' + (receipt.at || '-') + '</span></div>' +
-      '<div class="row-item"><span>Condition at Receipt</span><span>' + (receipt.condition ? receipt.condition + (receipt.note ? ' — ' + receipt.note : '') : '-') + '</span></div>' +
+      '<div class="row-item"><span>Receipt Note</span><span>' + ((receipt.condition ? receipt.condition + (receipt.note ? ' — ' : '') : '') + (receipt.note || '') || '-') + '</span></div>' +
       '<div class="row-item"><span>Testing Period</span><span>' + (period || '-') + '</span></div>' +
       '<div class="row-item"><span>Date of Issue</span><span>' + (entry && entry.at && entry.at !== '-' ? entry.at.split(',')[0] : (isFinal ? '-' : '(not issued)')) + '</span></div>' +
       '<div class="row-item"><span>Request Type</span><span>' + doc.tipe + '</span></div>' +
@@ -570,7 +570,7 @@ var ReportPanel = { mount: function (opts) {
     var html = spkDocButtonHtml('back', { href: opts.backHref });
 
     if (entry) {
-      if (lab && !opts.amendmentId) html += amendmentButtonsHtml(jenis, record, r);
+      if (!opts.amendmentId) html += amendmentButtonsHtml(jenis, record, r); // Re-test also for the requester
       html += btn('btnDownload', 'success', 'ri-download-line', 'Download Certificate');
     } else if (lab) {
       /* Corrective actions in red next to Back, the next workflow step in primary at the end */

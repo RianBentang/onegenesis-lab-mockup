@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function () {
       var r = x.record;
       /* An open Re-test / Revision document is where the work is (its Report tab) */
       var amend = openAmendmentOf(r);
-      var href = amend ? 'HOLABSYS/' + amendmentHref(amend.id, '&tab=report') : DASH_SOURCES[x.source].form + '?docId=' + encodeURIComponent(r.id);
+      var href = amend ? 'HOLABSYS/' + amendmentHref(amend.id, amend.step === 'Open' ? '&tab=report' : '') : DASH_SOURCES[x.source].form + '?docId=' + encodeURIComponent(r.id);
       var late = x.category === 'over';
       return '<tr>' +
         '<td><a href="' + href + '" class="text-primary fw-medium font-monospace">' + r.id + '</a>' +

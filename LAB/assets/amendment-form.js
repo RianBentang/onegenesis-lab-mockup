@@ -1,9 +1,12 @@
 /* ---------- Re-test / Revision document form (amendmentForm.html) ----------
    See dummy-requests.js "Re-test & Revision documents". A document of its own (RT- / RV-) for an
    issued certificate, linked to its request:
-   - new: ?ref=<request>&src=internal|sensory|aslt&type=retest|revision → the TCM (Re-test) or the
-     CRL / TCM (Revision) fills it in and submits (createAmendment) — no approval chain, the TCM
-     approves the new certificate in the Report tab;
+   - new: ?ref=<request>&src=internal|sensory|aslt&type=retest|revision → the requester or the TCM
+     (Re-test) or the CRL / TCM (Revision) fills it in and submits (createAmendment);
+   - Re-test approval (retestApprovalChain): the other side approves (Approve / Return to Edit /
+     Reject with a reason), then the Lab Admin approves by receiving the new sample (one Reason
+     field, receiveRetestSample) — only then do the parameters go back to Excel. A Revision has no
+     approval chain: the TCM approves the new certificate in the Report tab;
    - existing: ?docId=<RT-/RV- no.>[&tab=report] → read-only form; the Report tab (lab roles while
      open, everyone once issued) works on the new version of the request's report (ReportPanel with
      amendmentId). A Revision the TCM returned to the CRL can be corrected and submitted again.
@@ -104,11 +107,10 @@ document.addEventListener('DOMContentLoaded', function () {
     if (type !== 'Re-test') return;
     var d = doc();
     var p = parent();
-    var open = !d && editable();
-    var list = d
-      ? (p.paramsDiterima || p.params || []).map(function (code) { var x = labParameter('Internal', code); return { code: code, text: x ? x.text : code, ok: true }; })
-      : retestCandidates(p);
-    var picked = d ? d.codes : checked;
+    var open = editable();
+    var list = open ? retestCandidates(p)
+      : (p.paramsDiterima || p.params || []).map(function (code) { var x = labParameter('Internal', code); return { code: code, text: x ? x.text : code, ok: true }; });
+    var picked = open ? (checked.length || !d ? checked : d.codes) : (d ? d.codes : checked);
     document.getElementById('retestParams').innerHTML = list.map(function (c) {
       var on = picked.indexOf(c.code) !== -1;
       if (d && !on) return '';
@@ -122,11 +124,13 @@ document.addEventListener('DOMContentLoaded', function () {
     return Array.prototype.map.call(document.querySelectorAll('#retestParams input:checked'), function (i) { return i.value; });
   }
 
-  /* New: the role may start it; existing: only a Revision returned by the TCM, by the CRL / TCM */
+  /* New: the role may start it; existing: a Re-test returned to its creator, or a Revision returned
+     by the TCM (CRL / TCM) */
   function editable() {
     var d = doc();
     var role = currentRole();
     if (!d) return canAmend(type, source, parent(), role);
+    if (d.type === 'Re-test') return d.step === 'Draft' && role.code === d.role;
     var p = parent();
     return d.type === 'Revision' && d.step === 'Open' && p.reportStatus === 'Draft' && p.reportCycle &&
       p.reportCycle.amendmentId === d.id && AMENDMENT_TYPES.Revision.roles.indexOf(role.code) !== -1;
@@ -146,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var reason = reasonEl.value.trim();
     var res;
     if (type === 'Re-test') {
-      res = createAmendment(type, source, p, { codes: checkedCodes() }, reason, role);
+      res = d ? resubmitRetest(d, checkedCodes(), reason, role) : createAmendment(type, source, p, { codes: checkedCodes() }, reason, role);
     } else {
       var fields = collectFields();
       var changes = revisionChanges(p, fields, showField);
@@ -160,8 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (window.history && history.replaceState) history.replaceState(null, '', amendmentHref(current.id));
     var valid = replacedEntry().no;
     ToastService.showSuccess(type === 'Re-test'
-      ? 'Re-test "' + current.id + '" submitted: ' + current.codes.length + ' parameter(s) back in Excel' +
-        (current.reagentRows ? ', ' + current.reagentRows + ' reagent deduction(s) logged' : '') + '. ' + valid + ' stays valid until the new certificate is approved.'
+      ? 'Re-test "' + current.id + '" submitted. Waiting for approval by ' + findRole(current.chain[0]).label + ', then the Lab Admin receives the sample. ' + valid + ' stays valid until the new certificate is approved.'
       : 'Revision "' + current.id + '" sent to the Technical Manager for approval. ' + valid + ' stays valid until then.');
     fillForm();
     refresh();
@@ -170,21 +173,85 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ---------- Header buttons (the Report tab renders its own) ---------- */
   function renderButtons() {
     if (activeTab !== 'form') return;
-    actions.innerHTML = spkDocButtonHtml('back', { href: listHref }) + (editable() ? spkDocButtonHtml('submit') : '');
+    var back = spkDocButtonHtml('back', { href: listHref });
+    var pending = amendmentPendingCode(doc());
+    var role = currentRole();
+    if (pending && pending === role.code) {
+      /* Re-test approver; the Lab Admin approves by receiving the sample */
+      actions.innerHTML = back + spkDocButtonHtml('return') + spkDocButtonHtml('reject') +
+        (pending === 'ADM' ? spkButtonHtml('receive', 'success', 'ri-thumb-up-line', 'Approve & Receive Sample') : spkDocButtonHtml('approve'));
+      return;
+    }
+    actions.innerHTML = back + (editable() ? spkDocButtonHtml('submit') : '');
   }
-  spkOnDocAction(actions, function (action) { if (action === 'submit') submit(); });
+  spkOnDocAction(actions, function (action) {
+    if (action === 'submit') submit();
+    else if (action === 'approve') approve();
+    else if (action === 'receive' || action === 'return' || action === 'reject') openReason(action);
+  });
+
+  /* ---------- Re-test approval ---------- */
+  function approve() {
+    var res = approveAmendment(doc(), currentRole());
+    if (res.error) { ToastService.showWarning(res.error); return; }
+    ToastService.showSuccess('Approved by ' + currentRole().name + '. Next: the Lab Admin receives the sample.');
+    refresh();
+  }
+  /* One modal for Return / Reject / Receive: a reason only (receipt time + retention are automatic) */
+  var reasonModalEl = document.getElementById('amendReasonModal');
+  var reasonAction = null;
+  var REASON_TEXT = {
+    'return': { title: 'Return to Edit', button: 'Return to Edit', cls: 'btn-warning' },
+    reject: { title: 'Reject', button: 'Reject', cls: 'btn-danger' },
+    receive: { title: 'Approve & Receive Sample', button: 'Approve', cls: 'btn-success' }
+  };
+  function openReason(action) {
+    reasonAction = action;
+    var t = REASON_TEXT[action];
+    document.getElementById('amendReasonTitle').textContent = t.title;
+    var btn = document.getElementById('amendReasonConfirm');
+    btn.textContent = t.button;
+    btn.className = 'btn btn-sm ' + t.cls;
+    document.getElementById('amendReasonText').value = '';
+    document.getElementById('amendReasonError').textContent = '';
+    window.bootstrap.Modal.getOrCreateInstance(reasonModalEl).show();
+  }
+  document.getElementById('amendReasonConfirm').addEventListener('click', function () {
+    var text = document.getElementById('amendReasonText').value.trim();
+    document.getElementById('amendReasonError').textContent = text ? '' : 'Reason is required.';
+    if (!text) return;
+    var d = doc();
+    var role = currentRole();
+    var res = reasonAction === 'receive'
+      ? receiveRetestSample(d, { at: nowStamp(), by: role.name, note: text, retentionUntil: retentionUntil() }, role)
+      : (reasonAction === 'reject' ? rejectAmendment : returnAmendment)(d, text, role);
+    if (res.error) { ToastService.showWarning(res.error); return; }
+    window.bootstrap.Modal.getOrCreateInstance(reasonModalEl).hide();
+    ToastService.showSuccess(reasonAction === 'receive'
+      ? 'Sample received. ' + d.params.join(', ') + ' back in Excel' + (res.reagentRows ? ', ' + res.reagentRows + ' reagent deduction(s) logged' : '') + '.'
+      : reasonAction === 'reject' ? 'Re-test ' + d.id + ' rejected. The certificate stays as it is.'
+      : 'Re-test ' + d.id + ' returned to ' + findRole(d.role).label + '.');
+    fillForm();
+    refresh();
+  });
 
   /* ---------- Progress + note ---------- */
   function stepIndex(d, p) {
     if (!d) return 0;
     if (d.step === 'Closed') return 99;
     if (d.type === 'Revision') return p.reportStatus === 'Draft' ? 0 : 1;
+    if (d.step === 'Draft' || d.step === 'Rejected') return 0;
+    if (d.step === 'Approval') return 1 + (d.approvalIdx || 0);
     var waiting = (d.codes || []).some(function (c) { return !(p.results && p.results[c]); });
-    return p.reportStatus === 'Draft' && waiting ? 1 : 2;
+    return p.reportStatus === 'Draft' && waiting ? 3 : 4;
   }
   function progressHtml(d, p) {
+    if (d && d.step === 'Rejected') return '';
+    var creator = d ? d.role : currentRole().code;
+    var chain = retestApprovalChain(creator);
     var steps = type === 'Re-test'
-      ? [{ title: 'Re-test Request', who: 'Technical Manager' }, { title: 'Testing', who: 'Analyst · Excel' },
+      ? [{ title: 'Re-test Request', who: findRole(creator).label }, { title: 'Approval', who: findRole(chain[0]).label },
+        { title: 'Sample Receipt', who: 'Lab Admin' }, { title: 'Testing', who: 'Analyst · Excel' },
         { title: 'Report Review', who: 'CRL → TCM' }, { title: 'New Certificate', who: 'Requester downloads' }]
       : [{ title: 'Revision Request', who: 'Lab Coordinator / Technical Manager' }, { title: 'Approve & Issue', who: 'Technical Manager' },
         { title: 'New Certificate', who: 'Requester downloads' }];
@@ -206,6 +273,16 @@ document.addEventListener('DOMContentLoaded', function () {
         : '<div class="alert alert-primary d-flex align-items-start gap-2 py-2 fs-13 mb-3"><i class="ri-information-line fs-16"></i>' +
           '<div>This ' + type.toLowerCase() + ' replaces certificate <span class="fw-semibold">' + e.no + '</span> of ' + p.id +
           '. That certificate stays valid until the Technical Manager approves the new one. The requester sees this document.</div></div>';
+    }
+    /* Re-test: Return to Edit / Reject reason, or who approves next */
+    if (d.step === 'Rejected' || d.step === 'Draft') return docReasonNoteHtml(d) +
+      (d.step === 'Draft' ? '<div class="text-muted fs-12 mb-3">' + findRole(d.role).label + ' changes the re-test and submits it again.</div>' : '');
+    if (d.step === 'Approval') {
+      var pc = amendmentPendingCode(d);
+      return '<div class="alert alert-warning d-flex align-items-start gap-2 py-2 fs-13 mb-3"><i class="ri-time-line fs-16"></i><div>' +
+        (pc === 'ADM' ? 'Approved. Waiting for the Lab Admin to receive the new sample — the parameters go back to Excel then.'
+          : 'Waiting for approval by ' + findRole(pc).label + '.') +
+        ' Certificate <span class="fw-semibold">' + d.refReportNo + '</span> stays valid.</div></div>';
     }
     if (d.step === 'Closed') {
       return '<div class="alert alert-success d-flex align-items-center flex-wrap gap-2 py-2 fs-13 mb-3"><i class="ri-award-line fs-16"></i>' +
@@ -243,7 +320,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var tabsNav = document.getElementById('amendTabs');
   function reportVisible() {
     var d = doc();
-    return !!d && (isLabRole(currentRole()) || d.step === 'Closed');
+    return !!d && ((isLabRole(currentRole()) && d.step === 'Open') || d.step === 'Closed');
   }
   function showTab(tab) {
     activeTab = tab;
@@ -290,6 +367,12 @@ document.addEventListener('DOMContentLoaded', function () {
     DocJourney.render(document.getElementById('docJourney'), document.getElementById('docMain'),
       { source: source, request: p, currentId: d ? d.id : null, newType: d ? null : type });
     document.getElementById('historyOffcanvasBody').innerHTML = documentHistoryHtml(historyRecord(d, p));
+    /* Approval History (Re-test): creator + the other side + Lab Admin */
+    var chain = d && d.chain ? d.chain : [];
+    var approved = !d ? 0 : d.step === 'Approval' ? (d.approvalIdx || 0) : (d.step === 'Open' || d.step === 'Closed') ? chain.length : 0;
+    document.getElementById('approvalInfo').classList.toggle('d-none', !chain.length);
+    document.getElementById('lastApproverValue').textContent = approved ? findRole(chain[approved - 1]).label : '–';
+    document.getElementById('approvalOffcanvasBody').innerHTML = chain.length ? requestApprovalHistoryHtml(chain, approved, d) : '';
     setLocked(!editable());
     if (type === 'Revision') renderChanges();
     refreshTabs();

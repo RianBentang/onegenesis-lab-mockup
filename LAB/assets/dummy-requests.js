@@ -302,9 +302,14 @@ function nowStamp() {
   return p(d.getDate()) + '-' + p(d.getMonth() + 1) + '-' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
 }
 
-/* ---------- Sample Receipt = the ADM approval of an Internal request — ISO/IEC 17025 cl. 7.4 ----------
-   receipt = { at, by, condition (FlexTab LAB_SAMPLE_CONDITION), note, retentionUntil } */
+/* ---------- Sample Receipt = the ADM approval of an Internal request (and of a Re-test) — ISO/IEC 17025 cl. 7.4 ----------
+   One field for the Lab Admin: the reason / note of the receipt; the time and the retention date are
+   filled in automatically. receipt = { at, by, note, retentionUntil } (older records: + condition) */
 var SAMPLE_RETENTION_DAYS = 30;
+/* "note · retained until …" (with the condition of older records) */
+function receiptSummary(x) {
+  return (x.condition ? 'Condition ' + x.condition + (x.note ? ' — ' : '') : '') + (x.note || '') + ' · retained until ' + x.retentionUntil;
+}
 function retentionUntil(from) {
   var d = from ? new Date(from) : new Date();
   d.setDate(d.getDate() + SAMPLE_RETENTION_DAYS);
@@ -477,7 +482,7 @@ function reportStamp() {
 
 /* Snapshot of what a certificate prints, kept with every issued version (record.reportHistory) */
 function reportSnapshot(r) {
-  return { sampel: r.sampel, alamatPelanggan: r.alamatPelanggan, kemasan: r.kemasan, results: r.results || null,
+  return { sampel: r.sampel, alamatPelanggan: r.alamatPelanggan, kemasan: r.kemasan, receipt: r.receipt || null, results: r.results || null,
     panelStats: r.panelStats || null, paramsDiterima: r.paramsDiterima || null, catatanKajiUlang: r.catatanKajiUlang || '' };
 }
 
@@ -485,23 +490,32 @@ function reportSnapshot(r) {
    Like the LSPD → SUPD → PSPD chain of New Material Registration (onegenesis-web, szRefDocId): a
    re-test or a revision of an issued certificate is a document of its own that points to its
    request (refDocId):
-     Re-test  RT-yyyymm-NNNN — TCM, Internal only: run parameters again;
+     Re-test  RT-yyyymm-NNNN — Internal only: run parameters again on a new sample. Two ways: the
+       requester (BSU) or the TCM starts it, the other one approves it (retestApprovalChain), then the
+       Lab Admin approves by receiving the new sample (cl. 7.4) — only then do the parameters go back
+       to Excel (receiveRetestSample). Return to Edit sends it back to its creator; Reject closes it;
      Revision RV-yyyymm-NNNN — CRL / TCM, Internal / Sensory / ASLT: correct Sample Name, Customer
        Address, Packaging (results unchanged).
    The work still runs on the request: re-tested parameters go back to Excel on the request and its
    report goes back to Draft (re-test) or straight to Confirm to Approve (revision); the request
    carries the open cycle (reportCycle.amendmentId). The request stays Closed — its certificate is
    valid until the TCM approves the new one, which supersedes it and closes the document. One open
-   document per request at a time (canAmend). The requester sees it (Internal list accordion, note on
-   the request form, Document History) but does not approve it.
+   document per request at a time (canAmend). The requester sees every document (Internal list
+   accordion, note on the request form, Document History) and approves a Re-test the TCM started.
    amendment = { id, type, source, refDocId, refReportNo, tanggal, pemohon, role, reason,
-     codes, params (Re-test) | fields, changes (Revision), step 'Open' | 'Closed', issuedNo, issuedAt, activity } */
+     codes, params, chain, approvalIdx, receipt (Re-test) | fields, changes (Revision),
+     step 'Approval' | 'Draft' (returned) | 'Rejected' (Re-test) | 'Open' | 'Closed', issuedNo, issuedAt, activity } */
 var AMENDMENTS_STORAGE_KEY = 'holabsysAmendments.en';
 var AMENDMENT_TYPES = {
-  'Re-test': { key: 'retest', prefix: 'RT-', icon: 'ri-restart-line', roles: ['TCM'], sources: ['internal'] },
+  'Re-test': { key: 'retest', prefix: 'RT-', icon: 'ri-restart-line', roles: ['BSU', 'TCM'], sources: ['internal'] },
   'Revision': { key: 'revision', prefix: 'RV-', icon: 'ri-edit-2-line', roles: ['CRL', 'TCM'], sources: ['internal', 'sensory', 'aslt'] }
 };
 var AMENDMENT_FORM_PAGE = 'amendmentForm.html';
+/* Re-test approval: the other side approves (TCM started → requester, requester started → TCM), then
+   the Lab Admin, whose approval is receiving the new sample */
+function retestApprovalChain(creatorCode) {
+  return [creatorCode === 'BSU' ? 'TCM' : 'BSU', 'ADM'];
+}
 
 function getAmendments() {
   try { return JSON.parse(localStorage.getItem(AMENDMENTS_STORAGE_KEY)) || []; } catch (e) { return []; }
@@ -608,6 +622,14 @@ function amendmentMatches(query) {
 function getAmendmentStatus(a) {
   if (!a || !a.step) return { status: 'New', workflow: null };
   if (a.step === 'Closed') return { status: 'Closed', workflow: null };
+  if (a.step === 'Rejected') return { status: 'Rejected', workflow: null };
+  if (a.step === 'Draft') return { status: a.returned ? 'Return to Edit' : 'Draft', workflow: null };
+  if (a.step === 'Approval') {
+    var code = (a.chain || [])[a.approvalIdx || 0];
+    var who = typeof findRole === 'function' && findRole(code) ? findRole(code).label : code;
+    return { status: a.approvalIdx > 0 ? 'Partially Approved' : 'Confirm To Approve',
+      workflow: code === 'ADM' ? 'Waiting for Sample Receipt' : 'Waiting for ' + who + ' Approval' };
+  }
   var p = amendmentParent(a) || {};
   var workflow = 'Waiting for Report Approval';
   if (p.reportStatus === 'Draft') {
@@ -733,14 +755,19 @@ function createAmendment(type, source, r, data, reason, by) {
   var id =nextFreeNo(AMENDMENT_TYPES[type].prefix + currentYm() + '-', getAmendments().map(function (a) { return a.id; }), 4);
   r = ensureReportHistory(source, r);
   var doc = { type: type, source: source, refDocId: r.id, refReportNo: lastIssuedReport(r).no, tanggal: formatDocDate(new Date()),
-    pemohon: by.name, role: by.code, reason: reason, step: 'Open' };
+    pemohon: by.name, role: by.code, departemen: by.dept, reason: reason, step: 'Open' };
   var note;
   if (type === 'Re-test') {
-    var updated = applyRetest(r, data.codes, reason, by, id);
+    /* Nothing runs yet: the request only holds the cycle (blocks a second document, shows the badge)
+       until the other side and the Lab Admin approve */
     doc.codes = data.codes;
-    doc.params = updated.reportCycle.params;
-    doc.reagentRows = updated._reagentRows;
-    note = doc.params.join(', ') + ' — ' + reason;
+    doc.params = paramTexts(data.codes);
+    doc.chain = retestApprovalChain(by.code);
+    doc.approvalIdx = 0;
+    doc.step = 'Approval';
+    amendmentStore(source)(r.id, { reportCycle: { type: 'Re-test', no: reportRetestCount(r) + 1, amendmentId: id, reason: reason,
+      params: doc.params, at: reportStamp(), by: by.label, pending: true } });
+    note = doc.params.join(', ') + ' — ' + reason + ' · waiting for ' + doc.chain[0];
   } else {
     applyRevision(source, r, data.fields, data.changes, reason, by, id);
     doc.fields = data.fields;
@@ -748,6 +775,67 @@ function createAmendment(type, source, r, data, reason, by) {
     note = data.changes.join(' · ') + ' — ' + reason;
   }
   return { amendment: updateAmendment(id, doc, { action: 'Submitted', note: note, variant: 'info' }) };
+}
+
+function paramTexts(codes) {
+  return (codes || []).map(function (c) { var p = typeof labParameter === 'function' ? labParameter('Internal', c) : null; return p ? p.text : c; });
+}
+
+/* ---------- Re-test approval (amendment form) ----------
+   by = currentRole(). Each returns { amendment } or { error }. */
+function amendmentPendingCode(a) {
+  return a && a.step === 'Approval' ? (a.chain || [])[a.approvalIdx || 0] || null : null;
+}
+function amendmentReasonPatch(by) {
+  return { reasonBy: by.label, reasonAt: reportStamp() };
+}
+/* An approval level that is not the last one (the Lab Admin receives the sample instead) */
+function approveAmendment(a, by) {
+  var code = amendmentPendingCode(a);
+  if (code !== by.code || code === 'ADM') return { error: 'It is not the turn of ' + by.label + '.' };
+  var idx = a.approvalIdx || 0;
+  return { amendment: updateAmendment(a.id, { approvalIdx: idx + 1 },
+    { action: 'Approved', note: 'Level ' + (idx + 1) + ' · ' + code, variant: 'success' }) };
+}
+/* Last level: the Lab Admin receives the new sample → the re-test starts on the request: results of
+   the parameters cleared, reagents deducted, Nonconforming Work, report back to Draft (applyRetest).
+   The request prints the new receipt; the earlier one stays in receiptHistory and in the snapshots. */
+function receiveRetestSample(a, receipt, by) {
+  if (amendmentPendingCode(a) !== 'ADM' || by.code !== 'ADM') return { error: 'Only the Lab Admin receives the sample, after the approval.' };
+  var r = getRequestById(a.refDocId);
+  updateRequest(r.id, { receipt: receipt, receiptHistory: (r.receiptHistory || []).concat(r.receipt ? [r.receipt] : []) });
+  var creator = typeof findRole === 'function' ? findRole(a.role) : by;
+  var updated = applyRetest(getRequestById(r.id), a.codes, a.reason, { label: creator.label, name: by.name }, a.id);
+  var idx = a.approvalIdx || 0;
+  updateAmendment(a.id, { approvalIdx: idx + 1, receipt: receipt, step: 'Open', reagentRows: updated._reagentRows },
+    { action: 'Approved', note: 'Level ' + (idx + 1) + ' · ADM', variant: 'success' });
+  return { amendment: updateAmendment(a.id, {}, { action: 'Sample Received', variant: 'primary',
+    note: receiptSummary(receipt) }), reagentRows: updated._reagentRows };
+}
+/* Return to Edit: back to its creator, who changes it and submits again (resubmitRetest) */
+function returnAmendment(a, reason, by) {
+  if (amendmentPendingCode(a) !== by.code) return { error: 'It is not the turn of ' + by.label + '.' };
+  return { amendment: updateAmendment(a.id, Object.assign({ step: 'Draft', returned: true, returnReason: reason }, amendmentReasonPatch(by)),
+    { action: 'Returned to Edit', note: reason, variant: 'warning' }) };
+}
+/* Reject: the document ends, the request's certificate stays as it is */
+function rejectAmendment(a, reason, by) {
+  if (amendmentPendingCode(a) !== by.code) return { error: 'It is not the turn of ' + by.label + '.' };
+  var r = amendmentParent(a);
+  if (r && r.reportCycle && r.reportCycle.amendmentId === a.id) amendmentStore(a.source)(r.id, { reportCycle: null });
+  return { amendment: updateAmendment(a.id, Object.assign({ step: 'Rejected', rejectReason: reason }, amendmentReasonPatch(by)),
+    { action: 'Rejected', note: reason, variant: 'danger' }) };
+}
+function resubmitRetest(a, codes, reason, by) {
+  if (a.step !== 'Draft' || by.code !== a.role) return { error: 'Only the creator changes a returned re-test.' };
+  var r = amendmentParent(a);
+  var tested = retestCandidates(r).filter(function (c) { return c.ok; }).map(function (c) { return c.code; });
+  if (!codes.length || codes.some(function (c) { return tested.indexOf(c) === -1; })) return { error: 'Select at least one tested parameter.' };
+  if (!reason) return { error: 'Reason is required.' };
+  var texts = paramTexts(codes);
+  amendmentStore(a.source)(r.id, { reportCycle: Object.assign({}, r.reportCycle, { reason: reason, params: texts }) });
+  return { amendment: updateAmendment(a.id, { codes: codes, params: texts, reason: reason, step: 'Approval', approvalIdx: 0, returned: false },
+    { action: 'Resubmitted', note: texts.join(', ') + ' — ' + reason + ' · waiting for ' + a.chain[0], variant: 'info' }) };
 }
 
 /* Revision returned by the TCM (report Draft again): the CRL / TCM corrects it and submits again */
@@ -791,7 +879,7 @@ function docReportNoteHtml(r, jenis) {
     /* The open Re-test / Revision document, linked */
     var doc = c.amendmentId ? '<a href="' + amendmentHref(c.amendmentId) + '" class="font-monospace">' + c.amendmentId + '</a>' : c.no;
     html += '<div class="alert alert-danger d-flex align-items-start gap-2 py-2 fs-13 mb-3"><i class="ri-restart-line fs-16"></i>' +
-      '<div><div class="fw-semibold">' + c.type + ' ' + doc + ' in progress · ' + c.by + ' · ' + c.at + '</div>' +
+      '<div><div class="fw-semibold">' + c.type + ' ' + doc + (c.pending ? ' requested, waiting for approval' : ' in progress') + ' · ' + c.by + ' · ' + c.at + '</div>' +
       (c.params ? c.params.join(', ') + ' — ' : '') + c.reason +
       (issued ? '<div class="text-muted fs-12">Until it is approved, ' + issued.no + ' stays the valid certificate.</div>' : '') + '</div></div>';
   }
@@ -846,6 +934,14 @@ function nextActor(source, r) {
   if (r.step === 'Sample Delivery') return { code: 'ADM', action: 'Confirm delivery', icon: 'ri-truck-line' };
   if (r.step === 'Scheduling') return { code: 'ADM', action: 'Schedule panel', icon: 'ri-calendar-event-line' };
   if (source === 'external') return null;
+  /* A Re-test document waiting for its approval (or returned to its creator) */
+  var amend = openAmendmentOf(r);
+  if (amend && amend.step === 'Approval') {
+    var pc = amendmentPendingCode(amend);
+    return pc === 'ADM' ? { code: 'ADM', action: 'Receive re-test sample', icon: 'ri-inbox-archive-line' }
+      : { code: pc, action: 'Approve re-test', icon: 'ri-checkbox-circle-line' };
+  }
+  if (amend && amend.step === 'Draft') return { code: amend.role, action: 'Revise re-test', icon: 'ri-edit-2-line' };
   if (r.reportStatus === 'Final') return null;
   if (r.reportStatus === 'Confirm to Approve') return { code: 'TCM', action: 'Approve & issue report', icon: 'ri-shield-check-line' };
   if (r.reportStatus === 'Draft') return { code: 'CRL', action: 'Review report', icon: 'ri-file-list-3-line' };

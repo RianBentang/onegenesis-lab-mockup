@@ -621,41 +621,31 @@ document.addEventListener('DOMContentLoaded', function () {
     refreshFormState();
   }
 
-  /* ---------- Sample Receipt (ADM, cl. 7.4): received at, condition, deviation, retention ---------- */
+  /* ---------- Sample Receipt (ADM, cl. 7.4): one reason field; time + retention automatic ---------- */
   function receiptNoteHtml(r) {
     var x = r && r.receipt;
     if (!x) return '';
-    var dev = x.condition !== 'Good';
-    return '<div class="alert ' + (dev ? 'alert-warning' : 'alert-primary') + ' d-flex align-items-start gap-2 py-2 fs-13 mb-3"><i class="ri-inbox-archive-line fs-16"></i>' +
-      '<div><span class="fw-semibold">Sample received ' + x.at + '</span> by ' + x.by + ' · condition <span class="fw-semibold">' + x.condition + '</span>' +
-      (x.note ? ' — ' + x.note : '') + ' · retained until ' + x.retentionUntil + '</div></div>';
+    return '<div class="alert alert-primary d-flex align-items-start gap-2 py-2 fs-13 mb-3"><i class="ri-inbox-archive-line fs-16"></i>' +
+      '<div><span class="fw-semibold">Sample received ' + x.at + '</span> by ' + x.by + ' — ' + receiptSummary(x) + '</div></div>';
   }
 
   var receiptModalEl = document.getElementById('receiptModal');
-  var receiptCondition = document.getElementById('receiptCondition');
-  receiptCondition.innerHTML = '<option value="">-- Select --</option>' +
-    flexTabOptions('LAB_SAMPLE_CONDITION').map(function (v) { return '<option value="' + v + '">' + v + '</option>'; }).join('');
-  window.jQuery(receiptCondition).on('change', function () {
-    document.getElementById('receiptNoteWrap').classList.toggle('d-none', !receiptCondition.value || receiptCondition.value === 'Good');
-  });
   function openReceiptModal() {
     document.getElementById('receiptAt').value = nowStamp();
     document.getElementById('receiptRetention').value = retentionUntil();
     document.getElementById('receiptNote').value = '';
     document.getElementById('receiptError').textContent = '';
-    window.jQuery(receiptCondition).val('Good').trigger('change');
     window.bootstrap.Modal.getOrCreateInstance(receiptModalEl).show();
   }
   document.getElementById('btnConfirmReceipt').addEventListener('click', function () {
-    var cond = receiptCondition.value;
     var note = document.getElementById('receiptNote').value.trim();
-    var err = !cond ? 'Select the sample condition.' : (cond !== 'Good' && !note ? 'Describe the deviation (it is printed on the report).' : '');
+    var err = !note ? 'Reason is required.' : '';
     document.getElementById('receiptError').textContent = err;
     if (err) return;
     var r = currentRecord();
     var chainLen = requestApprovalChain(r.tipe, r.tujuan).length;
     updateRequest(r.id, { step: 'Technical Review', approvalIdx: chainLen, receipt: { at: document.getElementById('receiptAt').value, by: currentRole().name,
-      condition: cond, note: note, retentionUntil: document.getElementById('receiptRetention').value } });
+      note: note, retentionUntil: document.getElementById('receiptRetention').value } });
     window.bootstrap.Modal.getOrCreateInstance(receiptModalEl).hide();
     ToastService.showSuccess('Approved & sample of ' + r.id + ' received: Fully Approved. The Lab Coordinator does the technical review next.');
     refreshFormState();

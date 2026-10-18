@@ -102,6 +102,15 @@ Diklik 2026-10-18: REQ-202609-0015 Final → RT-202610-0001 (FFA) → push → C
 `-RT1`, RT Closed; RV-202610-0001 → Return to CRL → koreksi → approve `-RT1-R1`; BSU melihat banner +
 accordion, tanpa tombol; dokumen kedua diblokir selama satu masih terbuka; dark mode + sidebar diciutkan.
 
+## Selesai 2026-10-18 (Re-test dua arah + terima sampel cukup Reason)
+
+- [x] Re-test bisa diajukan BSU atau TCM; pihak lawan approve, lalu ADM Approve & Receive Sample.
+- [x] Modal terima sampel (Internal + Re-test) = satu field Reason; kondisi Good / Deviation dihapus.
+
+Diklik 2026-10-18: BSU ajukan RT (protein) → TCM approve → ADM terima (Reason) → protein kembali ke
+Excel, reagen dipotong, NC dibuat → TCM approve report → RT Closed; TCM ajukan RT → BSU Reject →
+siklus ditutup; Return to Edit → hanya pembuat bisa submit ulang.
+
 ## Menggantung
 
 - [ ] **Document Journey di form Sensory / ASLT**: halaman itu belum dibungkus layout dua kolom;
